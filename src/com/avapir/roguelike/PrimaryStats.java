@@ -4,7 +4,8 @@ public class PrimaryStats extends Stats {
 
 	private static final class DFT {
 		/*							 STR 	AGI		VIT		INT		DEX		LUK*/
-		static final int[] PLAYER = {10,	8,		8,		6,		6,		2 };
+		static final int[] PLAYER = {10,	8,		8,		6,		6,		2};
+		static final int[] NPC =	{50,	100,	100,	50,		50,		10};
 		static final int[] ELDER = 	{270,	120,	380,	700, 	400, 	100};
 	}
 	

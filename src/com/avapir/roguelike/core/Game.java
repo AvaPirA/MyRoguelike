@@ -4,6 +4,9 @@ import com.avapir.roguelike.ITimeBasedGame;
 
 public class Game implements ITimeBasedGame {
 
+	private int currX;
+	private int currY;
+	
 	@Override
 	public void init() {
 		// TODO Auto-generated method stub
