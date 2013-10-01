@@ -7,56 +7,70 @@ public class Tile {
 
 	public static final int TILE_SIZE_px = 35;
 
+	private final Tile.Type initialType;
 	private int flags;
 	private Character charHere;
 	private List<Item> itemsHere;
-	
-	public Tile(int flag, Character c, List<Item> items) {
-		this.flags = flag;
-		charHere = c;
-		if (items == null) {
-			itemsHere = new ArrayList<>();
-		} else {
-			itemsHere = items;
-		}
+
+	public Tile(Tile.Type it) {
+		initialType = it;
+		flags = Tile.Type.example[it.ordinal()].flags;
+		charHere = null;
+		itemsHere = new ArrayList<>();
 	}
 	
 	private Tile(int... flg) {
+		initialType = null;
 		for(int f : flg) {
 			flags |= f;
 		}
 		charHere = null;
-		itemsHere = null;
+		itemsHere = new ArrayList<>();
+		
 	}
 
+	public void restoreDefault() {
+		if(initialType == null) {
+			return;
+		} else {
+			flags = Tile.Type.example[initialType.ordinal()].flags;
+			charHere = null;
+			itemsHere = new ArrayList<>();
+		}
+	}
+	
 	public static enum Type {
-		EMPTY, GRASS, TREE, CLOSED_DOOR, OPENED_DOOR, STAIR_UP, STAIR_DOWN, DESTROYED_TOWER_WALL, TOWER_WALL, TOWER_FLOOR, WATER, DUNGEON_FLOOR, DUNGEON_WALL;
+		EMPTY, GRASS, TREE, CLOSED_DOOR, OPENED_DOOR, STAIR_UP, STAIR_DOWN, WALL;
 		public static final Tile[] example = {
-			new Tile(0b00000000000000000000000000000001, null, null),
 			
 		};
 	}
 
 	public static final class Flag {
+		public static final int FULL_FLAG 		= 0b11111111111111111111111111111111;
 		public static final int EMPTY_FLAG		= 0b00000000000000000000000000000000;
-		public static final int FULL_FLAG		= 0b11111111111111111111111111111111;
-		public static final int EMPTY 			= 0b00000000000000000000000000000001;
-		public static final int PASSABLE 		= 0b00000000000000000000000000000010;
-		public static final int UP_LADDER		= 0b00000000000000000000000000000100;
-		public static final int DOWN_LADDER		= 0b00000000000000000000000000001000;
-		public static final int POSIONING		= 0b00000000000000000000000000010000;
-		public static final int FLAMING			= 0b00000000000000000000000000100000;
-		public static final int WET				= 0b00000000000000000000000001000000;
-		public static final int LIGHT_ON		= 0b00000000000000000000000010000000;
-		public static final int VISIBLE			= 0b00000000000000000000000100000000;
-		public static final int SEEN			= 0b00000000000000000000001000000000;
-		public static final int TRANSPARENT		= 0b00000000000000000000010000000000;
-		public static final int F12				= 0b00000000000000000000100000000000;
-		public static final int F13				= 0b00000000000000000001000000000000;
-		public static final int F14				= 0b00000000000000000010000000000000;
-		public static final int F15				= 0b00000000000000000100000000000000;
-		public static final int F16				= 0b00000000000000001000000000000000;
-		public static final int F17				= 0b00000000000000010000000000000000;
+		
+		/*
+		 * 1-9 FOV
+		 * 10-15 terrain and moving
+		 */
+		public static final int F1 				= 0b00000000000000000000000000000001;//VISIBLE
+		public static final int F2 				= 0b00000000000000000000000000000010;//SEEN
+		public static final int F3 				= 0b00000000000000000000000000000100;//LIGHT_ON
+		public static final int F4				= 0b00000000000000000000000000001000;//TRANSPARENT
+		public static final int F5 				= 0b00000000000000000000000000010000;
+		public static final int F6 				= 0b00000000000000000000000000100000;
+		public static final int F7 				= 0b00000000000000000000000001000000;
+		public static final int F8 				= 0b00000000000000000000000010000000;
+		public static final int F9 				= 0b00000000000000000000000100000000;
+		public static final int F10				= 0b00000000000000000000001000000000;//PASSABLE
+		public static final int F11				= 0b00000000000000000000010000000000;//EMPTY -- ничего
+		public static final int F12				= 0b00000000000000000000100000000000;//GRASS -- may heal/gain luck
+		public static final int F13				= 0b00000000000000000001000000000000;//STONES -- may fall(dont go and lose hp)
+		public static final int F14				= 0b00000000000000000010000000000000;//ICE -- may slip(lose hp, gain luck)
+		public static final int F15				= 0b00000000000000000100000000000000;//POISIONING -- DoT, decreases dmg from lightning
+		public static final int F16				= 0b00000000000000001000000000000000;//FLAMING -- DoT, incr
+		public static final int F17				= 0b00000000000000010000000000000000;//WET -- removes flame, decreases dmg from lightning
 		public static final int F18				= 0b00000000000000100000000000000000;
 		public static final int F19				= 0b00000000000001000000000000000000;
 		public static final int F20				= 0b00000000000010000000000000000000;
@@ -70,8 +84,8 @@ public class Tile {
 		public static final int F28				= 0b00001000000000000000000000000000;
 		public static final int F29				= 0b00010000000000000000000000000000;
 		public static final int F30				= 0b00100000000000000000000000000000;
-		public static final int F31				= 0b01000000000000000000000000000000;
-		public static final int F32				= 0b10000000000000000000000000000000;
+		public static final int F31				= 0b01000000000000000000000000000000;//UP_LADDER
+		public static final int F32				= 0b10000000000000000000000000000000;//DOWN_LADDER
 	}
 	
 	private boolean checkFlag(int flag) {
@@ -95,51 +109,51 @@ public class Tile {
 	}
 	
 	public boolean isEmpty(){
-		return checkFlag(Flag.EMPTY);
+		return checkFlag(Flag.F11);
 	}
 	
 	public boolean isPassable() { 
-		return checkFlag(Flag.PASSABLE);
+		return checkFlag(Flag.F10);
 	}
 	
 	public boolean isUpLadder() {
-		return checkFlag(Flag.UP_LADDER);
+		return checkFlag(Flag.F31);
 	}
 	
 	public boolean isDownLadder() {
-		return checkFlag(Flag.DOWN_LADDER);
+		return checkFlag(Flag.F32);
 	}
 	
 	public boolean isPoisioning() {
-		return checkFlag(Flag.POSIONING);
+		return checkFlag(Flag.F15);
 	}
 	
 	public boolean isFlaming() {
-		return checkFlag(Flag.FLAMING);
+		return checkFlag(Flag.F16);
 	}
 	
 	public boolean isWet() {
-		return checkFlag(Flag.WET);
+		return checkFlag(Flag.F17);
 	}
 	
 	public boolean isLantern() {
-		return checkFlag(Flag.LIGHT_ON);
+		return checkFlag(Flag.F3);
 	}
 	
 	public boolean isVisible() {
-		return checkFlag(Flag.VISIBLE);
+		return checkFlag(Flag.F1);
 	}
 
 	public boolean isSeen() {
-		return checkFlag(Flag.SEEN);
+		return checkFlag(Flag.F2);
 	}
 	
 	public boolean isTransparent() {
-		return checkFlag(Flag.TRANSPARENT);
+		return checkFlag(Flag.F4);
 	}
 
 	public void setSeen(boolean newIsSeen) {
-		setFlag(newIsSeen, Flag.SEEN);
+		setFlag(newIsSeen, Flag.F2);
 	}
 
 	public Character removeCharacter() {
