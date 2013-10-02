@@ -187,12 +187,14 @@ public class Map {
 
 		for (;;) {
 			if (hasTile(x1, y1)) {
-				field[x1][y1].setVisible(true);
+				System.out.println(field[y1][x1].getFlags());
+				field[y1][x1].setVisible(true);
+				System.out.println(field[y1][x1].getFlags());
 				System.out.println("######################################");
 				// field[x1][y1].lastseenID = field[x1][y1].getID();
 			} else
 				break;
-			if (!field[x1][y1].isTransparent())
+			if (!field[y1][x1].isTransparent())
 				break;
 
 			if (x1 == x2 && y1 == y2)
@@ -228,7 +230,7 @@ public class Map {
 			for (int j = 0; j < WIDTH_MAP; j++)
 				if (field[i][j].isVisible()) {
 					field[i][j].setSeen(true);
-//					field[i][j].setVisible(false);
+					field[i][j].setVisible(false);
 				}
 		int x = 0;
 		int y = radius;
@@ -260,7 +262,6 @@ public class Map {
 			delta += 2 * (x - y);
 			--y;
 		}
-
 	}
 
 }

@@ -89,9 +89,9 @@ public class Tile {
 		static Tile getDefault(Type t) {
 			switch (t) {
 			case EMPTY:
-				return new Tile(EMPTY, Flag.EMPTY, Flag.PASSABLE, Flag.VISIBLE);
+				return new Tile(EMPTY, Flag.EMPTY, Flag.PASSABLE, Flag.TRANSPARENT);
 			case GRASS:
-				return new Tile(GRASS, Flag.GRASS, Flag.PASSABLE, Flag.VISIBLE);
+				return new Tile(GRASS, Flag.GRASS, Flag.PASSABLE, Flag.TRANSPARENT);
 			default:
 				return null;
 			}
@@ -150,6 +150,11 @@ public class Tile {
 	}
 	
 	private boolean checkFlag(int flag) {
+//		System.out.println(Integer.toBinaryString(flags));
+//		System.out.println(Integer.toBinaryString(flag));
+//		System.out.println(Integer.toBinaryString(flags & flag));
+//		System.out.println();
+		
 		return flag == (flags & flag);
 	}
 	private void addFlags(int newFlag) {
@@ -189,10 +194,7 @@ public class Tile {
 	public boolean isUpLadder() 			{return checkFlag(Flag.UP_LADDER);}
 	public boolean isDownLadder() 			{return checkFlag(Flag.DOWN_LADDER);}
 	
-	public void setVisible(boolean b)		{
-		System.out.println(Integer.toBinaryString(flags));
-		setFlag(b, Flag.VISIBLE);
-		System.out.println(Integer.toBinaryString(flags)+"\n");}
+	public void setVisible(boolean b)		{setFlag(b, Flag.VISIBLE);}
 	public void setSeen(boolean b) 			{setFlag(b, Flag.SEEN);}
 	
 	/**

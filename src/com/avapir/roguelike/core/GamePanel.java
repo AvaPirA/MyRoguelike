@@ -93,6 +93,7 @@ public class GamePanel extends JPanel {
 
 	@Override
 	public void paintComponent(Graphics g) {
+		System.err.println(4564);
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 		paintBackground(g2);
@@ -114,6 +115,8 @@ public class GamePanel extends JPanel {
 	private void paintMap(Graphics2D g2, Map map) {
 		int ox = Game.getInstance().X();
 		int oy = Game.getInstance().Y();
+		int cV=0;
+		int cI=0;
 		for (int i = 0; i < HEIGHT_IN_TILES; i++) {
 			for (int j = 0; j < WIDTH_IN_TILES; j++) {
 				// indexes on the Map
@@ -125,6 +128,7 @@ public class GamePanel extends JPanel {
 				Tile tile = map.getTile(x, y);
 				if (map.hasTile(x, y)) {
 					if (tile.isVisible()) {
+						cV++;
 						paintTile(g2, tile, xx, yy);
 					} else if (tile.isSeen()) {
 						paintTile(g2, tile, xx, yy);
@@ -137,6 +141,7 @@ public class GamePanel extends JPanel {
 				}
 			}
 		}
+		System.out.println(cV+" "+cI);
 	}
 
 	private void drawImage(Graphics g2, Image img, int xx, int yy) {
