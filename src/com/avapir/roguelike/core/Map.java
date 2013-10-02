@@ -1,5 +1,6 @@
 package com.avapir.roguelike.core;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -11,7 +12,15 @@ import com.avapir.roguelike.Tile;
 public class Map {
 
 	private static final Random random = new Random();
+
+	/**
+	 * Список уже использованных seed для генерации карт. Надо бы не
+	 * повторяться!
+	 */
 	private static final List<Long> usedSeeds = new ArrayList<>();
+	private static final int DFT_HEIGHT = 100;
+	private static final int DFT_WIDTH = 100;
+	private static final int DFT_DELTA = 20;// percents
 
 	private final int HEIGHT_MAP;
 	private final int WIDTH_MAP;
@@ -31,17 +40,78 @@ public class Map {
 	}
 
 	public Tile getTile(int x, int y) {
-		return field[y][x];
+		if (hasTile(x, y)) {
+			return field[y][x];
+		} else {
+			System.err.println(x+" "+y);
+			return null;
+		}
 	}
 
+	/**
+	 * Ставит кого-то на определенные координаты, если возможно.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return смог ли поставить
+	 */
 	public boolean putCharacter(Character chr, int x, int y) {
-		return field[y][x].putCharacter(chr);
+		if (hasTile(x, y)) {
+			try {
+				field[chr.getY()][chr.getX()].removeCharacter();
+			} catch (ArrayIndexOutOfBoundsException e) {
+				// placing "from memory" (like initializeing hero on start of
+				// the game)
+			}
+			chr.setX(x);
+			chr.setY(y);
+			return field[y][x].putCharacter(chr);
+		} else {
+			return false;
+		}
 	}
 
+	/**
+	 * Ищет позицию, куда можно поставить персонажа и ставит
+	 * 
+	 * @param c
+	 *            кого ставить
+	 * @throws RuntimeException
+	 *             если не находит подходящий тайл за {@code ЧИСЛО_ТАЙЛОВ * 2}
+	 */
+	public Point putCharacter(Character c) {
+		int x = random.nextInt(WIDTH_MAP), y = random.nextInt(HEIGHT_MAP);
+		int counter = 0;
+		int maxCounter = HEIGHT_MAP * WIDTH_MAP * 2;// просто на всякий случай
+
+		while (!putCharacter(c, x, y)) {
+			x = random.nextInt(WIDTH_MAP);
+			y = random.nextInt(HEIGHT_MAP);
+			if (counter++ > maxCounter) {
+				throw new RuntimeException("Bad map: no place to put character");
+			}
+		}
+		return new Point(x, y);
+	}
+
+	/**
+	 * Убирает персонажа с определенного тайла
+	 * 
+	 * @param x
+	 * @param y
+	 * @return кто стоял
+	 */
 	public Character removeCharacter(int x, int y) {
 		return field[y][x].removeCharacter();
 	}
 
+	/**
+	 * Кладет предмет на определенные координаты
+	 * 
+	 * @param item
+	 * @param x
+	 * @param y
+	 */
 	public void dropItem(Item item, int x, int y) {
 		field[y][x].dropItem(item);
 	}
@@ -50,25 +120,64 @@ public class Map {
 		HEIGHT_MAP = height;
 		WIDTH_MAP = width;
 		field = new Tile[height][width];
-		long newSeed = random.nextLong();
-		while (usedSeeds.contains(newSeed)) {
-			newSeed = random.nextLong();
-		}
 		title = "untitled";
-		MapGenerator.generate(this, newSeed);
+		MapGenerator.generate(this);
 	}
 
+	public Map() {
+		int deltaHeight = DFT_HEIGHT * DFT_DELTA / 100;
+		int deltaWidth = DFT_WIDTH * DFT_DELTA / 100;
+		HEIGHT_MAP = DFT_HEIGHT
+				+ (random.nextInt(2 * deltaHeight) - deltaHeight);
+		WIDTH_MAP = DFT_WIDTH + (random.nextInt(2 * deltaWidth) - deltaWidth);
+		field = new Tile[HEIGHT_MAP][WIDTH_MAP];
+		title = "untitled";
+		MapGenerator.generate(this);
+	}
+
+	/**
+	 * Заполняет пустую карту объектами. Вроде как должен генерировать в
+	 * соответствии с полученных seed
+	 */
 	private static class MapGenerator {
 
-		static void generate(Map map, long seed) {
+		static void generate(Map map) {
+			long seed = random.nextLong();
+			while (usedSeeds.contains(seed)) {
+				seed = random.nextLong();
+			}
 			usedSeeds.add(seed);
+			for (int i = 0; i < map.WIDTH_MAP; i++) {
+				for (int j = 0; j < map.HEIGHT_MAP; j++) {
+					if(random.nextInt(100)>30) {
+						map.field[j][i] = new Tile(Tile.Type.EMPTY);	
+					}else{
+						map.field[j][i] = new Tile(Tile.Type.GRASS);
+					}
+				}
+			}
 		}
 	}
 
-	private boolean rangeCheck(int x, int y) {
+	/**
+	 * Проверяет, есть ли на этой карте тайл с такими координатами
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public boolean hasTile(int x, int y) {
 		return (x >= 0 && x < WIDTH_MAP) && (y >= 0 && y < HEIGHT_MAP);
 	}
 
+	/**
+	 * Спижжено
+	 * 
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 */
 	private void drawFOVLine(int x1, int y1, int x2, int y2) {
 		int deltaX = Math.abs(x2 - x1);
 		int deltaY = Math.abs(y2 - y1);
@@ -77,8 +186,9 @@ public class Map {
 		int error = deltaX - deltaY;
 
 		for (;;) {
-			if (rangeCheck(x1, y1)) {
+			if (hasTile(x1, y1)) {
 				field[x1][y1].setVisible(true);
+				System.out.println("######################################");
 				// field[x1][y1].lastseenID = field[x1][y1].getID();
 			} else
 				break;
@@ -102,12 +212,23 @@ public class Map {
 		}
 	}
 
+	/**
+	 * Спижженый алгоритм для рассчета Field Of View персонажа. Без понятия, что
+	 * там происходит
+	 * 
+	 * @param x0
+	 *            где стоим?
+	 * @param y0
+	 *            где стоим?
+	 * @param radius
+	 *            радиус видимости?
+	 */
 	public void computeFOV(int x0, int y0, int radius) {
 		for (int i = 0; i < HEIGHT_MAP; i++)
 			for (int j = 0; j < WIDTH_MAP; j++)
 				if (field[i][j].isVisible()) {
 					field[i][j].setSeen(true);
-					field[i][j].setVisible(false);
+//					field[i][j].setVisible(false);
 				}
 		int x = 0;
 		int y = radius;

@@ -4,7 +4,7 @@ public interface IGame {
 
 	public void init();
 
-	public void run();
+	public void start();
 
 	public void done();
 	

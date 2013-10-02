@@ -3,36 +3,51 @@ package com.avapir.roguelike.core;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
+import javax.swing.JPanel;
+
 import com.avapir.roguelike.Tile;
 
+/**
+ * Стандартное окно. Умеет считать высоту\ширину игрового окна в тайлах. Знает
+ * размер экрана в пикселях.
+ * 
+ * @author Alpen
+ * 
+ */
 @SuppressWarnings("serial")
 public class GameWindow extends javax.swing.JFrame {
-	
-	public int WINDOW_HEIGHT;
-	public int WINDOW_WIDTH;
-	
-	{
+
+	private static int WINDOW_HEIGHT;
+	private static int WINDOW_WIDTH;
+	private JPanel gamePanel;
+
+	static {
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Dimension screenSize = kit.getScreenSize();
 		WINDOW_HEIGHT = screenSize.height;
 		WINDOW_WIDTH = screenSize.width;
 	}
+
+	public int getWindowWidth() {
+		return WINDOW_WIDTH;
+	}
+	public int getWindowHeight() {
+		return WINDOW_HEIGHT;
+	}
 	
-	public int getScreenTileSizeX() {
-		return (WINDOW_WIDTH / Tile.TILE_SIZE_px) - 10;
+	public static int getWidthInTiles() {
+		return (WINDOW_WIDTH / Tile.SIZE_px) - 10;
+	}
+	public static int getHeightInTiles() {
+		return (WINDOW_HEIGHT / Tile.SIZE_px);
 	}
 
-	public int getScreenTileSizeY() {
-		return (WINDOW_HEIGHT / Tile.TILE_SIZE_px - 1);
-	}
-	
-	private GamePanel gamePanel = new GamePanel(this, new Map(����), getScreenTileSizeX(),
-			getScreenTileSizeY());
-	
-	public GameWindow() {
-		setTitle("MyRoguelike");
+	public GameWindow(String title) {
+		setTitle(title);
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		setResizable(false);
+		gamePanel = new GamePanel(this, getWidthInTiles(), getHeightInTiles());
+		getContentPane().add(gamePanel);
 	}
 
 }

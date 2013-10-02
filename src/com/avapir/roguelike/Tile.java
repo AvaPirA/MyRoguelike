@@ -1,5 +1,6 @@
 package com.avapir.roguelike;
 
+import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class Tile {
 	/**
 	 * Размер тайла в пикселях
 	 */
-	public static final int TILE_SIZE_px = 35;
+	public static final int SIZE_px = 32;
 
 	/**
 	 * Изначальный тип тайла
@@ -88,9 +89,9 @@ public class Tile {
 		static Tile getDefault(Type t) {
 			switch (t) {
 			case EMPTY:
-				return new Tile(EMPTY, Flag.EMPTY, Flag.PASSABLE);
+				return new Tile(EMPTY, Flag.EMPTY, Flag.PASSABLE, Flag.VISIBLE);
 			case GRASS:
-				return new Tile(GRASS, Flag.EMPTY, Flag.PASSABLE);
+				return new Tile(GRASS, Flag.GRASS, Flag.PASSABLE, Flag.VISIBLE);
 			default:
 				return null;
 			}
@@ -184,10 +185,14 @@ public class Tile {
 	public boolean isWet() 					{return checkFlag(Flag.WET);}
 	public boolean isInstantKiller() 		{return checkFlag(Flag.INSTANT_DEATH);}
 	
+	public boolean isOpenable() 			{return checkFlag(Flag.CLOSED_DOOR);}
 	public boolean isUpLadder() 			{return checkFlag(Flag.UP_LADDER);}
 	public boolean isDownLadder() 			{return checkFlag(Flag.DOWN_LADDER);}
 	
-	public void setVisible(boolean b)		{setFlag(b, Flag.VISIBLE);}
+	public void setVisible(boolean b)		{
+		System.out.println(Integer.toBinaryString(flags));
+		setFlag(b, Flag.VISIBLE);
+		System.out.println(Integer.toBinaryString(flags)+"\n");}
 	public void setSeen(boolean b) 			{setFlag(b, Flag.SEEN);}
 	
 	/**
@@ -201,17 +206,24 @@ public class Tile {
 	}
 
 	/**
-	 * Ставит персонажа на этот тайл, если тут никого нет.
+	 * Ставит персонажа на этот тайл, если 
+	 * <li>тут никого нет</li>
+	 * <li>проходимо</li>
+	 * <li>не instantKiller</li>
 	 * @param chr кого ставим
 	 * @return поставился ли
 	 */
 	public boolean putCharacter(Character chr) {
-		if (charHere != null) {
+		if (charHere != null || !isPassable() || isInstantKiller()) {
 			return false;
 		} else {
 			charHere = chr;
 			return true;
 		}
+	}
+	
+	public Character getCharacter() {
+		return charHere;
 	}
 
 	/**
@@ -221,5 +233,13 @@ public class Tile {
 	public void dropItem(Item item) {
 		itemsHere.add(item);
 	}
-	
+
+	public List<Item> getItemList() {
+		return itemsHere;
+	}
+
+	public int getFlags() {
+		return flags;
+	}
+
 }

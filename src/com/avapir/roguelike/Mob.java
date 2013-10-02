@@ -1,11 +1,18 @@
 package com.avapir.roguelike;
 
-public abstract class Mob extends Character {
-	
-	public Mob(String n, HiddenStats s) {
-		super(n, s);
+import java.awt.Point;
+
+public class Mob extends Character {
+
+	public Mob(int x, int y, String n, HiddenStats s, AI ai, CharacterType t) {
+		super(x, y, n, s, ai, t);
+		// TODO Auto-generated constructor stub
 	}
 
-	protected abstract void chechAggroArea();
+	@Override
+	public boolean move(Point dp) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 }
