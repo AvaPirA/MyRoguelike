@@ -93,8 +93,8 @@ public class Game {
 			hero = new Hero(-1, -1, "Hero", new HiddenStats(),
 					CharacterType.Player);
 			Point p = currentMap.putCharacter(hero);
-			currentX = p.x - GameWindow.getWidthInTiles() * 2;
-			currentY = p.y - GameWindow.getHeightInTiles() * 2;
+			currentX = p.x - GameWindow.getWidthInTiles() / 2;
+			currentY = p.y - GameWindow.getHeightInTiles() / 2;
 			System.out.println(currentX);
 			System.out.println(currentY);
 			p = null;
