@@ -1,8 +1,12 @@
-package com.avapir.roguelike;
+
+package com.avapir.roguelike.game;
 
 import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.avapir.roguelike.locatable.Item;
+import com.avapir.roguelike.locatable.Mob;
 
 /**
  * Представление одной ячейки карты. Умеет управлять тем, что лежит на ней,
@@ -29,7 +33,7 @@ public class Tile {
 	/**
 	 * Кто стоит на тайле (игрок, монстр, ???)
 	 */
-	private Character charHere;
+	private Mob charHere;
 	/**
 	 * Вещи, которые лежат на тайле
 	 */
@@ -196,8 +200,8 @@ public class Tile {
 	 * Убирает всё живое с тайла
 	 * @return кто стоял
 	 */
-	public Character removeCharacter() {
-		Character c = charHere;
+	public Mob removeCharacter() {
+		Mob c = charHere;
 		charHere = null;
 		return c;
 	}
@@ -210,7 +214,7 @@ public class Tile {
 	 * @param chr кого ставим
 	 * @return поставился ли
 	 */
-	public boolean putCharacter(Character chr) {
+	public boolean putCharacter(Mob chr) {
 		if (charHere != null || !isPassable() || isInstantKiller()) {
 			return false;
 		} else {
@@ -219,7 +223,7 @@ public class Tile {
 		}
 	}
 	
-	public Character getCharacter() {
+	public Mob getCharacter() {
 		return charHere;
 	}
 

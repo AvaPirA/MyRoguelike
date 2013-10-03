@@ -1,11 +1,25 @@
-package com.avapir.roguelike;
+package com.avapir.roguelike.locatable;
 
 import java.awt.Point;
 
 import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.game.ai.AI;
 
-public abstract class Character {
+public abstract class Mob implements Locatable {
+	public enum MobType {
 
+		Player, Undead, Elder, NPC
+
+	}
+
+	public static abstract class Stats {
+
+		protected int[] values;
+
+		protected abstract void setToDefault();
+
+	}
+	
 	protected final String name;
 	protected final PrimaryStats primary;
 	protected final HiddenStats hidStats;
@@ -13,10 +27,9 @@ public abstract class Character {
 	private int Y;
 
 	private AI intel;
-	private final CharacterType type;
+	private final MobType type;
 
-	public Character(int x, int y, String n, HiddenStats s, AI ai,
-			CharacterType t) {
+	public Mob(int x, int y, String n, HiddenStats s, AI ai, MobType t) {
 		name = n;
 		hidStats = s;
 		if (ai == null) {
@@ -62,7 +75,7 @@ public abstract class Character {
 		 * LUcK
 		 */
 		private static final int PRIMARY_STATS_AMOUNT = 6;
-		private CharacterType charType;
+		private MobType charType;
 
 		public int getStr() {
 			return values[0];
@@ -88,7 +101,7 @@ public abstract class Character {
 			return values[5];
 		}
 
-		public PrimaryStats(CharacterType t, int... StrAgiVitIntDexLuk) {
+		public PrimaryStats(MobType t, int... StrAgiVitIntDexLuk) {
 			charType = t;
 			if (StrAgiVitIntDexLuk.length == 0) {
 				setToDefault();

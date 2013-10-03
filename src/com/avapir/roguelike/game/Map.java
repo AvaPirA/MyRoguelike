@@ -1,13 +1,12 @@
-package com.avapir.roguelike.core;
+package com.avapir.roguelike.game;
 
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.avapir.roguelike.Character;
-import com.avapir.roguelike.Item;
-import com.avapir.roguelike.Tile;
+import com.avapir.roguelike.locatable.Item;
+import com.avapir.roguelike.locatable.Mob;
 
 public class Map {
 
@@ -54,7 +53,7 @@ public class Map {
 	 * @param y
 	 * @return смог ли поставить
 	 */
-	public boolean putCharacter(Character chr, int x, int y) {
+	public boolean putCharacter(Mob chr, int x, int y) {
 		if (hasTile(x, y)) {
 			try {
 				field[chr.getY()][chr.getX()].removeCharacter();
@@ -78,7 +77,7 @@ public class Map {
 	 * @throws RuntimeException
 	 *             если не находит подходящий тайл за {@code ЧИСЛО_ТАЙЛОВ * 2}
 	 */
-	public Point putCharacter(Character c) {
+	public Point putCharacter(Mob c) {
 		int x = random.nextInt(WIDTH_MAP), y = random.nextInt(HEIGHT_MAP);
 		int counter = 0;
 		int maxCounter = HEIGHT_MAP * WIDTH_MAP * 2;// просто на всякий случай
@@ -100,7 +99,7 @@ public class Map {
 	 * @param y
 	 * @return кто стоял
 	 */
-	public Character removeCharacter(int x, int y) {
+	public Mob removeCharacter(int x, int y) {
 		return field[y][x].removeCharacter();
 	}
 

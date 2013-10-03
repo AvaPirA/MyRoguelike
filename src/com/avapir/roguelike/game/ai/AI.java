@@ -1,4 +1,4 @@
-package com.avapir.roguelike;
+package com.avapir.roguelike.game.ai;
 
 public interface AI {
 

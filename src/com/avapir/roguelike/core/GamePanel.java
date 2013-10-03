@@ -14,7 +14,8 @@ import java.util.StringTokenizer;
 
 import javax.swing.JPanel;
 
-import com.avapir.roguelike.Tile;
+import com.avapir.roguelike.game.Map;
+import com.avapir.roguelike.game.Tile;
 
 public class GamePanel extends JPanel {
 
@@ -93,7 +94,6 @@ public class GamePanel extends JPanel {
 
 	@Override
 	public void paintComponent(Graphics g) {
-		System.err.println(4564);
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 		paintBackground(g2);

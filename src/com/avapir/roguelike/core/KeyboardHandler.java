@@ -4,6 +4,8 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import com.avapir.roguelike.game.Map;
+
 public class KeyboardHandler implements KeyListener {
 
 	@Override

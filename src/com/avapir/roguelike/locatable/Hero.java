@@ -1,18 +1,15 @@
-package com.avapir.roguelike.core;
+package com.avapir.roguelike.locatable;
 
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.avapir.roguelike.AI;
-import com.avapir.roguelike.Character;
-import com.avapir.roguelike.CharacterType;
-import com.avapir.roguelike.Item;
-import com.avapir.roguelike.Stats;
+import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.game.Map;
 
-public class Hero extends Character {
+public class Hero extends Mob implements Locatable{
 
-	public Hero(int x, int y, String n, HiddenStats s, CharacterType t) {
+	public Hero(int x, int y, String n, HiddenStats s, MobType t) {
 		super(x, y, n, s, null, t);
 		//TODO
 		inventory=new Inventory();
@@ -87,7 +84,7 @@ public class Hero extends Character {
 		}
 	}
 
-	private void attackMonster(Character mob) {
+	private void attackMonster(Mob mob) {
 		// TODO Auto-generated method stub
 
 	}

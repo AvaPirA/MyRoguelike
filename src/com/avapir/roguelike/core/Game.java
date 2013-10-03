@@ -6,9 +6,11 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
-import com.avapir.roguelike.Character;
-import com.avapir.roguelike.Character.HiddenStats;
-import com.avapir.roguelike.CharacterType;
+import com.avapir.roguelike.game.Map;
+import com.avapir.roguelike.locatable.Hero;
+import com.avapir.roguelike.locatable.Mob;
+import com.avapir.roguelike.locatable.Mob.HiddenStats;
+import com.avapir.roguelike.locatable.Mob.MobType;
 
 public class Game {
 	private final String title;
@@ -49,8 +51,8 @@ public class Game {
 		return currentY;
 	}
 
-	private Character hero;
-	private List<Character> mobs;
+	private Mob hero;
+	private List<Mob> mobs;
 	private final int mobsScaler;
 
 	private Map currentMap;
@@ -83,7 +85,7 @@ public class Game {
 			maps.add(index, currentMap);
 
 			hero = new Hero(-1, -1, "Hero", new HiddenStats(),
-					CharacterType.Player);
+					MobType.Player);
 			Point p = currentMap.putCharacter(hero);
 			currentX = p.x - GameWindow.getWidthInTiles() * 2;
 			currentY = p.y - GameWindow.getHeightInTiles() * 2;
@@ -92,7 +94,7 @@ public class Game {
 		} else {
 			currentMap = maps.get(index);
 			hero = new Hero(-1, -1, "Hero", new HiddenStats(),
-					CharacterType.Player);
+					MobType.Player);
 			Point p = currentMap.putCharacter(hero);
 			currentX = p.x - GameWindow.getWidthInTiles() / 2;
 			currentY = p.y - GameWindow.getHeightInTiles() / 2;
@@ -121,23 +123,23 @@ public class Game {
 
 	}
 
-	public Character getHero() {
+	public Mob getHero() {
 		return hero;
 	}
 
 	public void move(Point p) {
 		checkStep(p);
-			System.out.println(currentX);
-			System.out.println(currentY);
+		
 		if (p.x == -1) {
-			if (hero.getX() > 14 && hero.getX() < 187) {
+			if (hero.getX() > 14 && hero.getX() < 186) {
 				currentX += p.x;
 			}
 		} else if (p.x == 1) {
-			if (hero.getX() > 15 && hero.getX() < 186) {
+			if (hero.getX() > 15 && hero.getX() < 187) {
 				currentX += p.x;
 			}
 		}
+		
 		if (p.y == -1) {
 			if (hero.getY() > 10 && hero.getY() < 190) {
 				currentY += p.y;
@@ -157,7 +159,7 @@ public class Game {
 	}
 
 	public void computeAI() {
-		for (Character c : mobs) {
+		for (Mob c : mobs) {
 			c.doAI();
 		}
 	}

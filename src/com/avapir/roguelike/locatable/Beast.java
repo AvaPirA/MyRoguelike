@@ -1,10 +1,12 @@
-package com.avapir.roguelike;
+package com.avapir.roguelike.locatable;
 
 import java.awt.Point;
 
-public class Mob extends Character {
+import com.avapir.roguelike.game.ai.AI;
 
-	public Mob(int x, int y, String n, HiddenStats s, AI ai, CharacterType t) {
+public class Beast extends Mob implements Locatable{
+
+	public Beast(int x, int y, String n, HiddenStats s, AI ai, MobType t) {
 		super(x, y, n, s, ai, t);
 		// TODO Auto-generated constructor stub
 	}

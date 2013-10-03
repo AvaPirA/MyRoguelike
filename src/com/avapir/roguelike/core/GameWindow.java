@@ -5,7 +5,7 @@ import java.awt.Toolkit;
 
 import javax.swing.JPanel;
 
-import com.avapir.roguelike.Tile;
+import com.avapir.roguelike.game.Tile;
 
 /**
  * Стандартное окно. Умеет считать высоту\ширину игрового окна в тайлах. Знает
