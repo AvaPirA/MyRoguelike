@@ -43,7 +43,6 @@ public class Map {
 		if (hasTile(x, y)) {
 			return field[y][x];
 		} else {
-			System.err.println(x+" "+y);
 			return null;
 		}
 	}
@@ -149,11 +148,11 @@ public class Map {
 			usedSeeds.add(seed);
 			for (int i = 0; i < map.WIDTH_MAP; i++) {
 				for (int j = 0; j < map.HEIGHT_MAP; j++) {
-					if(random.nextInt(100)>30) {
-						map.field[j][i] = new Tile(Tile.Type.EMPTY);	
-					}else{
+//					if(random.nextInt(100)>30) {
+//						map.field[j][i] = new Tile(Tile.Type.EMPTY);	
+//					}else{
 						map.field[j][i] = new Tile(Tile.Type.GRASS);
-					}
+//					}
 				}
 			}
 		}
@@ -187,10 +186,7 @@ public class Map {
 
 		for (;;) {
 			if (hasTile(x1, y1)) {
-				System.out.println(field[y1][x1].getFlags());
 				field[y1][x1].setVisible(true);
-				System.out.println(field[y1][x1].getFlags());
-				System.out.println("######################################");
 				// field[x1][y1].lastseenID = field[x1][y1].getID();
 			} else
 				break;

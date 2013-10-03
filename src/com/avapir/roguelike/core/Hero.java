@@ -1,6 +1,7 @@
 package com.avapir.roguelike.core;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.avapir.roguelike.AI;
@@ -13,10 +14,16 @@ public class Hero extends Character {
 
 	public Hero(int x, int y, String n, HiddenStats s, CharacterType t) {
 		super(x, y, n, s, null, t);
+		//TODO
+		inventory=new Inventory();
 	}
 
 	private class Inventory {
 
+		public Inventory() {
+			items = new ArrayList<>();
+		}
+		
 		private List<Item> items;
 		private int storageWeight;
 

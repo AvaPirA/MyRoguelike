@@ -150,11 +150,6 @@ public class Tile {
 	}
 	
 	private boolean checkFlag(int flag) {
-//		System.out.println(Integer.toBinaryString(flags));
-//		System.out.println(Integer.toBinaryString(flag));
-//		System.out.println(Integer.toBinaryString(flags & flag));
-//		System.out.println();
-		
 		return flag == (flags & flag);
 	}
 	private void addFlags(int newFlag) {

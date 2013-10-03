@@ -17,23 +17,29 @@ public class KeyboardHandler implements KeyListener {
 		Game g = Game.getInstance();
 		Map map = g.getCurrentMap();
 		Point p;
-		boolean madeTurn = true;;
+		boolean madeTurn = true;
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_RIGHT:
 			p = new Point(1, 0);
+			break;
 		case KeyEvent.VK_LEFT:
 			p = new Point(-1, 0);
+			break;
 		case KeyEvent.VK_UP:
-			p = new Point(0, 1);
-		case KeyEvent.VK_DOWN:
 			p = new Point(0, -1);
+			break;
+		case KeyEvent.VK_DOWN:
+			p = new Point(0, 1);
+			break;
 		default:
 			madeTurn = false;
 			p = new Point(0, 0);
+			break;
 		}
-		if(madeTurn) {
+		if (madeTurn) {
+			g.getHero().move(p);
 			g.move(p);
-			map.computeFOV(g.getHero().getX(), g.getHero().getY(), g.getHero().getHiddenStats().getFOVR());
+			g.endOfTurn();
 		}
 	}
 

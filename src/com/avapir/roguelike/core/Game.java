@@ -67,8 +67,9 @@ public class Game {
 
 	public void start() {
 		maps = new ArrayList<>();
-		currentMap = new Map(200, 200);// TODO потом мб надо поставить подходящий
-								// конструктор
+		currentMap = new Map(200, 200);// TODO потом мб надо поставить
+										// подходящий
+		// конструктор
 		maps.add(currentMap);
 		gameWindow = new GameWindow(title);
 		gameWindow.setVisible(true);
@@ -95,8 +96,6 @@ public class Game {
 			Point p = currentMap.putCharacter(hero);
 			currentX = p.x - GameWindow.getWidthInTiles() / 2;
 			currentY = p.y - GameWindow.getHeightInTiles() / 2;
-			System.out.println(currentX);
-			System.out.println(currentY);
 			p = null;
 			placeMobsAndItems(index);
 
@@ -111,11 +110,10 @@ public class Game {
 		}
 	}
 
-	private void endOfTurn() {
+	void endOfTurn() {
 		currentMap.computeFOV(hero.getX(), hero.getY(), hero.getHiddenStats()
 				.getFOVR());
 		gameWindow.repaint();
-		System.out.println(turnCounter++);
 	}
 
 	public void done() {
@@ -129,14 +127,32 @@ public class Game {
 
 	public void move(Point p) {
 		checkStep(p);
-		currentX = p.x;
-		currentY = p.y;
+			System.out.println(currentX);
+			System.out.println(currentY);
+		if (p.x == -1) {
+			if (hero.getX() > 14 && hero.getX() < 187) {
+				currentX += p.x;
+			}
+		} else if (p.x == 1) {
+			if (hero.getX() > 15 && hero.getX() < 186) {
+				currentX += p.x;
+			}
+		}
+		if (p.y == -1) {
+			if (hero.getY() > 10 && hero.getY() < 190) {
+				currentY += p.y;
+			}
+		} else if (p.y == 1) {
+			if (hero.getY() > 11 && hero.getY() < 191) {
+				currentY += p.y;
+			}
+		}
 	}
 
 	public static void checkStep(Point dp) {
 		if (!(dp.x == 1 || dp.x == 0 || dp.x == -1)
 				&& (dp.y == 1 || dp.y == 0 || dp.y == -1)) {
-			throw new RuntimeException("Wrong step: "+dp);
+			throw new RuntimeException("Wrong step: " + dp);
 		}
 	}
 
