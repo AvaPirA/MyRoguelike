@@ -1,7 +1,6 @@
 
 package com.avapir.roguelike.game;
 
-import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -189,7 +188,7 @@ public class Tile {
 	public boolean isWet() 					{return checkFlag(Flag.WET);}
 	public boolean isInstantKiller() 		{return checkFlag(Flag.INSTANT_DEATH);}
 	
-	public boolean isOpenable() 			{return checkFlag(Flag.CLOSED_DOOR);}
+	public boolean isClosed() 			{return checkFlag(Flag.CLOSED_DOOR);}
 	public boolean isUpLadder() 			{return checkFlag(Flag.UP_LADDER);}
 	public boolean isDownLadder() 			{return checkFlag(Flag.DOWN_LADDER);}
 	
@@ -223,7 +222,7 @@ public class Tile {
 		}
 	}
 	
-	public Mob getCharacter() {
+	public Mob getMob() {
 		return charHere;
 	}
 

@@ -1,7 +1,12 @@
 package com.avapir.roguelike.game.ai;
 
-public interface AI {
+import java.util.Random;
 
-	public void computeAI();
+import com.avapir.roguelike.locatable.Mob;
+
+public interface AI {
+	
+	static final Random r = new Random();
+	public void computeAI(Mob m);
 	
 }

@@ -1,5 +1,7 @@
 package com.avapir.roguelike.core;
 
+import static com.avapir.roguelike.core.RoguelikeMain.BORG;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -19,11 +21,15 @@ import com.avapir.roguelike.game.Tile;
 
 public class GamePanel extends JPanel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private GameWindow parentWindow;
-	private Log log;
+//	private Log log;
 	private final int WIDTH_IN_TILES;
 	private final int HEIGHT_IN_TILES;
-	private KeyboardHandler listener;
 
 	private static final Toolkit tKit = Toolkit.getDefaultToolkit();
 
@@ -45,7 +51,7 @@ public class GamePanel extends JPanel {
 	}
 
 	public boolean hasTileOnScreen(int y, int x) {
-		Game g = Game.getInstance();
+		Game g = Game.getInstanceLast();
 		return (y >= g.Y() && y < HEIGHT_IN_TILES + g.Y())
 				&& (x >= g.X() && x < WIDTH_IN_TILES + g.X());
 	}
@@ -53,7 +59,7 @@ public class GamePanel extends JPanel {
 	public GamePanel(GameWindow window, int tilesX, int tilesY) {
 		super();
 		parentWindow = window;
-		log = new Log();
+//		log = new Log();
 		WIDTH_IN_TILES = tilesX;
 		HEIGHT_IN_TILES = tilesY;
 		addKeyListener(new KeyboardHandler());
@@ -95,11 +101,15 @@ public class GamePanel extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		Graphics2D g2 = (Graphics2D) g;
-		paintBackground(g2);
-		paintMap(g2, Game.getInstance().getCurrentMap());
-		paintGUI(g2);
-		paintLog(g2);
+		if (!BORG) {
+			Graphics2D g2 = (Graphics2D) g;
+			paintBackground(g2);
+			paintMap(g2, Game.getInstanceLast().getMap());
+			paintGUI(g2);
+			paintLog(g2);
+		} else {
+			//TODO BORG RUN PAINTING
+		}
 	}
 
 	private void paintGUI(Graphics2D g2) {
@@ -113,8 +123,8 @@ public class GamePanel extends JPanel {
 	}
 
 	private void paintMap(Graphics2D g2, Map map) {
-		int ox = Game.getInstance().X();
-		int oy = Game.getInstance().Y();
+		int ox = Game.getInstanceLast().X();
+		int oy = Game.getInstanceLast().Y();
 		for (int i = 0; i < HEIGHT_IN_TILES; i++) {
 			for (int j = 0; j < WIDTH_IN_TILES; j++) {
 				// indexes on the Map
@@ -150,7 +160,7 @@ public class GamePanel extends JPanel {
 		} else if (tile.isGrass()) {
 			drawImage(g2, tKit.getImage("res/sprite/grass.png"), xx, yy);
 		}
-		if (tile.getCharacter() != null) {
+		if (tile.getMob() != null) {
 			drawImage(g2, tKit.getImage("res/sprite/hero.png"), xx, yy);
 		}
 	}

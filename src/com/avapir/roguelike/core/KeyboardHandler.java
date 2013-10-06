@@ -4,8 +4,6 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-import com.avapir.roguelike.game.Map;
-
 public class KeyboardHandler implements KeyListener {
 
 	@Override
@@ -16,8 +14,7 @@ public class KeyboardHandler implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		Game g = Game.getInstance();
-		Map map = g.getCurrentMap();
+		Game g = Game.getInstanceLast();
 		Point p;
 		boolean madeTurn = true;
 		switch (e.getKeyCode()) {
@@ -41,7 +38,7 @@ public class KeyboardHandler implements KeyListener {
 		if (madeTurn) {
 			g.getHero().move(p);
 			g.move(p);
-			g.endOfTurn();
+			g.EOT();
 		}
 	}
 

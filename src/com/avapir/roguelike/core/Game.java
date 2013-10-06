@@ -9,8 +9,6 @@ import javax.swing.JFrame;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Mob;
-import com.avapir.roguelike.locatable.Mob.HiddenStats;
-import com.avapir.roguelike.locatable.Mob.MobType;
 
 public class Game {
 	private final String title;
@@ -24,8 +22,18 @@ public class Game {
 
 	private static Game instance;
 
-	public static Game getInstance() {
+	/**
+	 * @return последняя созданная игра
+	 */
+	public static Game getInstanceLast() {
 		return instance;
+	}
+
+	public static void checkStep(Point dp) {
+		if (!(dp.x == 1 || dp.x == 0 || dp.x == -1)
+				&& (dp.y == 1 || dp.y == 0 || dp.y == -1)) {
+			throw new RuntimeException("Wrong step: " + dp);
+		}
 	}
 
 	public void repaint() {
@@ -37,6 +45,10 @@ public class Game {
 	}
 
 	private int turnCounter;
+
+	public int getTurnCounter() {
+		return turnCounter;
+	}
 
 	private GameWindow gameWindow;
 
@@ -51,19 +63,21 @@ public class Game {
 		return currentY;
 	}
 
-	private Mob hero;
+	private Hero hero;
 	private List<Mob> mobs;
 	private final int mobsScaler;
 
 	private Map currentMap;
 	private List<Map> maps;
 
+	private boolean gameOver;
+
 	public void init() {
 		// TODO Auto-generated method stub
 
 	}
 
-	public Map getCurrentMap() {
+	public Map getMap() {
 		return currentMap;
 	}
 
@@ -84,8 +98,7 @@ public class Game {
 			currentMap = new Map(200, 200);//
 			maps.add(index, currentMap);
 
-			hero = new Hero(-1, -1, "Hero", new HiddenStats(),
-					MobType.Player);
+			hero = new Hero(-1, -1, "Hero");
 			Point p = currentMap.putCharacter(hero);
 			currentX = p.x - GameWindow.getWidthInTiles() * 2;
 			currentY = p.y - GameWindow.getHeightInTiles() * 2;
@@ -93,8 +106,7 @@ public class Game {
 			placeMobsAndItems(index);
 		} else {
 			currentMap = maps.get(index);
-			hero = new Hero(-1, -1, "Hero", new HiddenStats(),
-					MobType.Player);
+			hero = new Hero(-1, -1, "Hero");
 			Point p = currentMap.putCharacter(hero);
 			currentX = p.x - GameWindow.getWidthInTiles() / 2;
 			currentY = p.y - GameWindow.getHeightInTiles() / 2;
@@ -102,7 +114,7 @@ public class Game {
 			placeMobsAndItems(index);
 
 		}
-		endOfTurn();
+		EOT();
 	}
 
 	private void placeMobsAndItems(int scaler) {
@@ -112,10 +124,38 @@ public class Game {
 		}
 	}
 
-	void endOfTurn() {
-		currentMap.computeFOV(hero.getX(), hero.getY(), hero.getHiddenStats()
-				.getFOVR());
+	void EOT() {
+		// TODO SET GAME.BISY
+		if (gameOver) {
+			return;
+		}
+		currentMap.computeFOV(hero.getX(), hero.getY(),
+				Hero.StatsFormulas.getFOVR(hero));
+		doAI();
+		doTurnEffects();
+		checkGameOverConditions();
+		turnCounter++;
 		gameWindow.repaint();
+	}
+
+	private void checkGameOverConditions() {
+		if (hero.getHP() <= 0) {
+			gameOver = true;
+		}
+	}
+
+	private void doAI() {
+		hero.doAI();
+		for (Mob m : mobs) {
+			m.doAI();
+		}
+	}
+
+	private void doTurnEffects() {
+		hero.doTurnEffects();
+		for (Mob m : mobs) {
+			m.doTurnEffects();
+		}
 	}
 
 	public void done() {
@@ -123,13 +163,13 @@ public class Game {
 
 	}
 
-	public Mob getHero() {
+	public Hero getHero() {
 		return hero;
 	}
 
 	public void move(Point p) {
 		checkStep(p);
-		
+
 		if (p.x == -1) {
 			if (hero.getX() > 14 && hero.getX() < 186) {
 				currentX += p.x;
@@ -139,7 +179,7 @@ public class Game {
 				currentX += p.x;
 			}
 		}
-		
+
 		if (p.y == -1) {
 			if (hero.getY() > 10 && hero.getY() < 190) {
 				currentY += p.y;
@@ -148,13 +188,6 @@ public class Game {
 			if (hero.getY() > 11 && hero.getY() < 191) {
 				currentY += p.y;
 			}
-		}
-	}
-
-	public static void checkStep(Point dp) {
-		if (!(dp.x == 1 || dp.x == 0 || dp.x == -1)
-				&& (dp.y == 1 || dp.y == 0 || dp.y == -1)) {
-			throw new RuntimeException("Wrong step: " + dp);
 		}
 	}
 

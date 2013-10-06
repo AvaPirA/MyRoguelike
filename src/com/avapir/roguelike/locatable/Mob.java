@@ -1,173 +1,199 @@
 package com.avapir.roguelike.locatable;
 
+import static com.avapir.roguelike.core.RoguelikeMain.BORG;
+
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.avapir.roguelike.battle.Armor;
+import com.avapir.roguelike.battle.Attack;
+import com.avapir.roguelike.battle.Battle;
 import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.ai.AI;
+import com.avapir.roguelike.game.ai.SlimeAI;
 
-public abstract class Mob implements Locatable {
-	public enum MobType {
+public class Mob implements Locatable {
 
-		Player, Undead, Elder, NPC
+	static final class MobSet {
+		private static final Mob slime = new Mob(-1, -1, 15, 0, new Attack(2),
+				new Armor(0), new SlimeAI(), "Slime");
+
+		public static Mob getSlime() {
+			return new Mob(slime);
+		}
+	}
+
+	private static final class Borg implements AI {
+
+		@Override
+		public void computeAI(Mob m) {
+			// TODO Auto-generated method stub
+
+		}
 
 	}
 
-	public static abstract class Stats {
-
-		protected int[] values;
-
-		protected abstract void setToDefault();
-
+	{
+		mobID = mobs++;
 	}
-	
-	protected final String name;
-	protected final PrimaryStats primary;
-	protected final HiddenStats hidStats;
-	private int X;
-	private int Y;
+	public final int mobID;
+	private static int mobs = 0;
+
+	protected final List<Effect> effects;
+
+	private double HP;
+	private double MP;
+	private Attack baseAttack;
+	private Armor baseArmor;
 
 	private AI intel;
-	private final MobType type;
+	public final String name;
 
-	public Mob(int x, int y, String n, HiddenStats s, AI ai, MobType t) {
+	private Mob(int x, int y, int hp, int mp, Attack bAtk, Armor bDef, AI ai,
+			String n) {
+		X = x;
+		Y = y;
+		HP = hp;
+		MP = mp;
+		baseAttack = bAtk;
+		baseArmor = bDef;
+		intel = ai;
 		name = n;
-		hidStats = s;
-		if (ai == null) {
-			intel = new AI() {
-				@Override
-				public void computeAI() {
-				}
-			};
+		effects = new ArrayList<>();
+	}
+
+	public Mob(int x, int y, AI ai, String n) {
+		intel = BORG ? new Borg() : ai;
+		name = n;
+		effects = new ArrayList<>();
+		Map m = Game.getInstanceLast().getMap();
+		if (m.hasTile(x, y)) {
+			m.putCharacter(this, x, y);
 		} else {
-			intel = ai;
+			m.putCharacter(this);
 		}
-		type = t;
-		primary = new PrimaryStats(t);
-		Game.getInstance().getCurrentMap().putCharacter(this, x, y);
+
+	}
+
+	private Mob(Mob m) {
+		X = m.X;
+		Y = m.Y;
+		baseArmor = m.baseArmor;
+		baseAttack = m.baseAttack;
+		effects = new ArrayList<>();
+		effects.addAll(m.effects);
+		HP = m.HP;
+		MP = m.MP;
+		intel = m.intel;
+		name = m.name;
 	}
 
 	public String getName() {
 		return name;
 	}
-
-	public HiddenStats getHiddenStats() {
-		return hidStats;
+	public double getHP() {
+		return HP;
 	}
-
-	public abstract boolean move(Point dp);
-
-	public static class PrimaryStats extends Stats {
-
-		private static final class DFT {
-			/* STR AGI VIT INT DEX LUK */
-			static final int[] PLAYER = { 3, 3, 3, 3, 3, 1 };// 16
-			static final int[] NPC = { 50, 100, 100, 50, 50, 10 };// 360
-			static final int[] ELDER = { 290, 120, 390, 700, 400, 100 };// 2000
-			static final int[] UNDEAD = { 120, 40, 120, 0, 40, 0 };// 320
+	public double getMP() {
+		return MP;
+	}
+	public boolean move(Point dp) {
+		Game.checkStep(dp);
+		if (dp.x == 0 && dp.y == 0) {
+			return false;
 		}
+		Game g = Game.getInstanceLast();
+		Map m = g.getMap();
 
-		/**
-		 * STRength <br>
-		 * AGIlity <br>
-		 * VITality <br>
-		 * INTelligence <br>
-		 * DEXterity <br>
-		 * LUcK
-		 */
-		private static final int PRIMARY_STATS_AMOUNT = 6;
-		private MobType charType;
-
-		public int getStr() {
-			return values[0];
-		}
-
-		public int getAgi() {
-			return values[1];
-		}
-
-		public int getVit() {
-			return values[2];
-		}
-
-		public int getInt() {
-			return values[3];
-		}
-
-		public int getDex() {
-			return values[4];
-		}
-
-		public int getLuk() {
-			return values[5];
-		}
-
-		public PrimaryStats(MobType t, int... StrAgiVitIntDexLuk) {
-			charType = t;
-			if (StrAgiVitIntDexLuk.length == 0) {
-				setToDefault();
-			} else if (StrAgiVitIntDexLuk.length != PRIMARY_STATS_AMOUNT) {
-				throw new RuntimeException("Wrong stats init");
-			} else {
-				values = new int[PRIMARY_STATS_AMOUNT];
-				for (int i = 0; i < values.length; i++) {
-					values[i] = StrAgiVitIntDexLuk[i];
+		int ny = (getY() + dp.y);
+		int nx = (getX() + dp.x);
+		if (m.hasTile(nx, ny)) {
+			if (m.getTile(nx, ny).getMob() != null) {
+				if(mobID==0) {
+					g.getHero().gainXPfromDamage(attackMob(new Point(nx, ny)));
 				}
+				attackMob(new Point(nx, ny));
+			} else if (m.getTile(nx, ny).isPassable()) {
+				m.putCharacter(this, nx, ny);
+				if (this.mobID == 0) {
+					switch (m.getTile(nx, ny).getItemList().size()) {
+					case 1:
+						g.log("Здесь есть "
+								+ m.getTile(nx, ny).getItemList().get(0)
+										.getName().toLowerCase() + ".");
+					case 0:
+						break;
+					default:
+						g.log("Здесь лежит много вещей.");
+					}
+				}
+			} else if (m.getTile(nx, ny).isClosed() && mobID == 0) {
+				// g.TryToOpen(ny, nx, true);
 			}
-		}
-
-		@Override
-		protected void setToDefault() {
-			values = new int[PRIMARY_STATS_AMOUNT];
-			switch (charType) {
-			case Player:
-				arrcpy(DFT.PLAYER);
-				break;
-			case Elder:
-				arrcpy(DFT.ELDER);
-				break;
-			case NPC:
-				arrcpy(DFT.NPC);
-			case Undead:
-				arrcpy(DFT.UNDEAD);
-				break;
-			}
-		}
-
-		private void arrcpy(int[] a) {
-			System.arraycopy(a, 0, values, 0, PRIMARY_STATS_AMOUNT);
+			g.repaint();
+			return true;
+		} else {
+			return false;
 		}
 	}
 
-	public static class HiddenStats extends Stats {
+	protected float attackMob(Point dp) {
+		Mob defender = Game.getInstanceLast().getMap().getTile(dp.x, dp.y)
+				.getMob();
+		float damage = Battle.computeDamage(getAttack(),
+				defender.getDefence());
+		defender.getDamage(damage);
+		return damage;
+	}
 
-		@Override
-		protected void setToDefault() {
+	private void getDamage(float dmg) {
+		HP -= dmg;
+	}
 
-		}
+	protected Armor getDefence() {
+		return baseArmor;
+	}
 
-		public int getFOVR() {
-			return 5;
+	protected Attack getAttack() {
+		return baseAttack;
+	}
+
+	public void doAI() {
+		intel.computeAI(this);
+	}
+
+	public void doTurnEffects() {
+		for (int i = 0; i < effects.size(); i++) {
+			Effect e = effects.get(i);
+			if (e.getAndDecrementTime() == 0 || !e.isAppliedForAll()
+					&& this instanceof Hero) {
+				e.onRemove(this);
+				effects.remove(i);
+			} else {
+				e.applyTo(this);
+			}
 		}
 	}
 
+	private int X;
+	private int Y;
+
+	@Override
 	public int getX() {
 		return X;
 	}
 
+	@Override
 	public int getY() {
 		return Y;
 	}
 
-	public void setX(int x) {
+	@Override
+	public void setLocation(int x, int y) {
 		X = x;
-	}
-
-	public void setY(int y) {
 		Y = y;
-	}
-
-	public void doAI() {
-		intel.computeAI();
 	}
 
 }

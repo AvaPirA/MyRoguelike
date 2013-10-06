@@ -58,11 +58,9 @@ public class Map {
 			try {
 				field[chr.getY()][chr.getX()].removeCharacter();
 			} catch (ArrayIndexOutOfBoundsException e) {
-				// placing "from memory" (like initializeing hero on start of
-				// the game)
+				// placing "from memory"
 			}
-			chr.setX(x);
-			chr.setY(y);
+			chr.setLocation(x,y);
 			return field[y][x].putCharacter(chr);
 		} else {
 			return false;
@@ -80,7 +78,7 @@ public class Map {
 	public Point putCharacter(Mob c) {
 		int x = random.nextInt(WIDTH_MAP), y = random.nextInt(HEIGHT_MAP);
 		int counter = 0;
-		int maxCounter = HEIGHT_MAP * WIDTH_MAP * 2;// просто на всякий случай
+		int maxCounter = HEIGHT_MAP * WIDTH_MAP * 4;// просто на всякий случай
 
 		while (!putCharacter(c, x, y)) {
 			x = random.nextInt(WIDTH_MAP);
@@ -147,11 +145,11 @@ public class Map {
 			usedSeeds.add(seed);
 			for (int i = 0; i < map.WIDTH_MAP; i++) {
 				for (int j = 0; j < map.HEIGHT_MAP; j++) {
-//					if(random.nextInt(100)>30) {
-//						map.field[j][i] = new Tile(Tile.Type.EMPTY);	
-//					}else{
-						map.field[j][i] = new Tile(Tile.Type.GRASS);
-//					}
+					// if(random.nextInt(100)>30) {
+					// map.field[j][i] = new Tile(Tile.Type.EMPTY);
+					// }else{
+					map.field[j][i] = new Tile(Tile.Type.GRASS);
+					// }
 				}
 			}
 		}
