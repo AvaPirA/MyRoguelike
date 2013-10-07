@@ -11,6 +11,7 @@ import com.avapir.roguelike.battle.Attack;
  * 
  */
 public class Item implements Locatable {
+
 	public static enum ItemType {
 		ArmorHead, ArmorBody, ArmorLegs, ArmorArms, Weapon, Consumable
 	}
@@ -19,32 +20,46 @@ public class Item implements Locatable {
 		itemID = items++;
 	}
 	@SuppressWarnings("unused")
-	private final int itemID;
-	public static int items = 0;
-	
-	private String name;
-	private Attack damage;
-	private Armor armor;
-	private int weight;
+	private final int	itemID;
+	public static int	items	= 0;
+
+	private String		name;
+	private Attack		damage;
+	private Armor		armor;
+	private int			weight;
 
 	public String getName() {
 		return name;
 	}
+
 	public Attack getAttack() {
 		return damage;
 	}
+
 	public Armor getArmor() {
 		return armor;
 	}
+
 	public int getWeight() {
 		return weight;
 	}
-	private int X;
-	private int Y;
+
+	private int	X;
+	private int	Y;
+
 	@Override
-	public int getX() {return X;}
+	public int getX() {
+		return X;
+	}
+
 	@Override
-	public int getY() {return Y;}
+	public int getY() {
+		return Y;
+	}
+
 	@Override
-	public void setLocation(int x, int y) {X = x; Y = y;}
+	public void setLocation(final int x, final int y) {
+		X = x;
+		Y = y;
+	}
 }

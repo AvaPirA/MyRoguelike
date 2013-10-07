@@ -17,8 +17,9 @@ import com.avapir.roguelike.game.ai.SlimeAI;
 public class Mob implements Locatable {
 
 	static final class MobSet {
-		private static final Mob slime = new Mob(-1, -1, 15, 0, new Attack(2),
-				new Armor(0), new SlimeAI(), "Slime");
+
+		private static final Mob	slime	= new Mob(-1, -1, 15, 0, new Attack(2), new Armor(0),
+													new SlimeAI(), "Slime");
 
 		public static Mob getSlime() {
 			return new Mob(slime);
@@ -28,7 +29,7 @@ public class Mob implements Locatable {
 	private static final class Borg implements AI {
 
 		@Override
-		public void computeAI(Mob m) {
+		public void computeAI(final Mob m, Game g) {
 			// TODO Auto-generated method stub
 
 		}
@@ -38,21 +39,21 @@ public class Mob implements Locatable {
 	{
 		mobID = mobs++;
 	}
-	public final int mobID;
-	private static int mobs = 0;
+	public final int				mobID;
+	private static int				mobs	= 0;
 
-	protected final List<Effect> effects;
+	protected final List<Effect>	effects;
 
-	private double HP;
-	private double MP;
-	private Attack baseAttack;
-	private Armor baseArmor;
+	private double					HP;
+	private double					MP;
+	private Attack					baseAttack;
+	private Armor					baseArmor;
 
-	private AI intel;
-	public final String name;
+	private final AI				intel;
+	public final String				name;
 
-	private Mob(int x, int y, int hp, int mp, Attack bAtk, Armor bDef, AI ai,
-			String n) {
+	private Mob(final int x, final int y, final int hp, final int mp, final Attack bAtk,
+			final Armor bDef, final AI ai, final String n) {
 		X = x;
 		Y = y;
 		HP = hp;
@@ -64,20 +65,23 @@ public class Mob implements Locatable {
 		effects = new ArrayList<>();
 	}
 
-	public Mob(int x, int y, AI ai, String n) {
-		intel = BORG ? new Borg() : ai;
+	public Mob(final int x, final int y, final AI ai, final String n, Map m) {
+		intel = BORG ? new Borg() : ai != null ? ai : new AI() {
+
+			@Override
+			public void computeAI(Mob m, Game g) {
+				// TODO Auto-generated method stub
+
+			}
+		};
 		name = n;
 		effects = new ArrayList<>();
-		Map m = Game.getInstanceLast().getMap();
-		if (m.hasTile(x, y)) {
+		if (m != null && m.hasTile(x, y)) {
 			m.putCharacter(this, x, y);
-		} else {
-			m.putCharacter(this);
 		}
-
 	}
 
-	private Mob(Mob m) {
+	private Mob(final Mob m) {
 		X = m.X;
 		Y = m.Y;
 		baseArmor = m.baseArmor;
@@ -93,38 +97,36 @@ public class Mob implements Locatable {
 	public String getName() {
 		return name;
 	}
+
 	public double getHP() {
 		return HP;
 	}
+
 	public double getMP() {
 		return MP;
 	}
-	public boolean move(Point dp) {
-		Game.checkStep(dp);
-		if (dp.x == 0 && dp.y == 0) {
-			return false;
-		}
-		Game g = Game.getInstanceLast();
-		Map m = g.getMap();
 
-		int ny = (getY() + dp.y);
-		int nx = (getX() + dp.x);
+	public boolean move(final Point dp, Game g) {
+		Game.checkStep(dp);
+		if (dp.x == 0 && dp.y == 0) { return false; }
+		final Map m = g.getMap();
+
+		final int ny = getY() + dp.y;
+		final int nx = getX() + dp.x;
 		if (m.hasTile(nx, ny)) {
 			if (m.getTile(nx, ny).getMob() != null) {
-				if(mobID==0) {
-					g.getHero().gainXPfromDamage(attackMob(new Point(nx, ny)));
-				}
-				attackMob(new Point(nx, ny));
+				float dmg = attackMob(new Point(nx, ny), g);
+				if (mobID == 0) g.getHero().gainXPfromDamage(dmg);
 			} else if (m.getTile(nx, ny).isPassable()) {
 				m.putCharacter(this, nx, ny);
 				if (this.mobID == 0) {
 					switch (m.getTile(nx, ny).getItemList().size()) {
 					case 1:
 						g.log("Здесь есть "
-								+ m.getTile(nx, ny).getItemList().get(0)
-										.getName().toLowerCase() + ".");
+								+ m.getTile(nx, ny).getItemList().get(0).getName().toLowerCase()
+								+ ".");
 					case 0:
-						break;
+					break;
 					default:
 						g.log("Здесь лежит много вещей.");
 					}
@@ -139,16 +141,14 @@ public class Mob implements Locatable {
 		}
 	}
 
-	protected float attackMob(Point dp) {
-		Mob defender = Game.getInstanceLast().getMap().getTile(dp.x, dp.y)
-				.getMob();
-		float damage = Battle.computeDamage(getAttack(),
-				defender.getDefence());
+	protected float attackMob(final Point dp, Game g) {
+		final Mob defender = g.getMap().getTile(dp.x, dp.y).getMob();
+		final float damage = Battle.computeDamage(getAttack(), defender.getDefence());
 		defender.getDamage(damage);
 		return damage;
 	}
 
-	private void getDamage(float dmg) {
+	private void getDamage(final float dmg) {
 		HP -= dmg;
 	}
 
@@ -160,15 +160,14 @@ public class Mob implements Locatable {
 		return baseAttack;
 	}
 
-	public void doAI() {
-		intel.computeAI(this);
+	public void doAI(Game g) {
+		intel.computeAI(this, g);
 	}
 
 	public void doTurnEffects() {
 		for (int i = 0; i < effects.size(); i++) {
-			Effect e = effects.get(i);
-			if (e.getAndDecrementTime() == 0 || !e.isAppliedForAll()
-					&& this instanceof Hero) {
+			final Effect e = effects.get(i);
+			if (e.getAndDecrementTime() == 0 || !e.isAppliedForAll() && this instanceof Hero) {
 				e.onRemove(this);
 				effects.remove(i);
 			} else {
@@ -177,8 +176,8 @@ public class Mob implements Locatable {
 		}
 	}
 
-	private int X;
-	private int Y;
+	private int	X;
+	private int	Y;
 
 	@Override
 	public int getX() {
@@ -191,7 +190,7 @@ public class Mob implements Locatable {
 	}
 
 	@Override
-	public void setLocation(int x, int y) {
+	public void setLocation(final int x, final int y) {
 		X = x;
 		Y = y;
 	}

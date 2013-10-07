@@ -1,38 +1,34 @@
 package com.avapir.roguelike.battle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.avapir.roguelike.locatable.Effect;
 
+/**
+ * Physical<br>
+ * Magic<br>
+ * Water<br>
+ * Fire<br>
+ * Lightning<br>
+ * Curse
+ */
 public class Attack {
 
-	private static final int TOTAL_DMG_TYPES = 6;
+	private static final int	TOTAL_DMG_TYPES	= 6;
+	private final float[]		damage			= new float[TOTAL_DMG_TYPES];
+	private List<Effect>		effects			= new ArrayList<Effect>();
 
-	/**
-	 * Physical<br>
-	 * Magic<br>
-	 * Water<br>
-	 * Fire<br>
-	 * Lightning<br>
-	 * Curse
-	 */
-	private final float[] damage = new float[TOTAL_DMG_TYPES];
-	private List<Effect> effects;
-
-	public Attack(float... input) {
-		if (input.length > TOTAL_DMG_TYPES) {
-			throw new RuntimeException("Unknown damage type");
-		}
+	public Attack(final float... input) {
+		if (input.length > TOTAL_DMG_TYPES) { throw new RuntimeException("Unknown damage type"); }
 		for (int i = 0; i < input.length; i++) {
 			damage[i] = input[i];
 		}
 	}
-	
-	public Attack() {
-		
-	}
 
-	public Attack addDamage(Attack atk) {
+	public Attack() {}
+
+	public Attack addDamage(final Attack atk) {
 		for (int i = 0; i < TOTAL_DMG_TYPES; i++) {
 			damage[i] += atk.damage[i];
 		}
@@ -42,7 +38,7 @@ public class Attack {
 		return this;
 	}
 
-	public Attack addEffect(Effect eff) {
+	public Attack addEffect(final Effect eff) {
 		effects.add(eff);
 		return this;
 	}

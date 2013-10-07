@@ -1,5 +1,6 @@
 package com.avapir.roguelike.core;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,163 +12,72 @@ import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Mob;
 
 public class Game {
-	private final String title;
 
-	public Game(String t) {
-		title = t;
-		mobsScaler = 15;
-		instance = this;
-		turnCounter = 0;
+	public static void checkStep(final Point dp) {
+		assert !(dp.x == 1 || dp.x == 0 || dp.x == -1) && (dp.y == 1 || dp.y == 0 || dp.y == -1);
 	}
 
-	private static Game instance;
+	private List<Map>	maps	= new ArrayList<>();
+	private Map			currentMap;
+	private int			currentX;
+	private int			currentY;
 
-	/**
-	 * @return последняя созданная игра
-	 */
-	public static Game getInstanceLast() {
-		return instance;
-	}
+	private GameWindow	gameWindow;
 
-	public static void checkStep(Point dp) {
-		if (!(dp.x == 1 || dp.x == 0 || dp.x == -1)
-				&& (dp.y == 1 || dp.y == 0 || dp.y == -1)) {
-			throw new RuntimeException("Wrong step: " + dp);
-		}
-	}
+	private Hero		hero;
+	private List<Mob>	mobs;
+	private final int	mobsAmountScaler;
 
-	public void repaint() {
-		gameWindow.repaint();
-	}
+	private int			turnCounter;
+	private boolean		gameOver;
 
-	public void log(String s) {
-		// TODO
-	}
-
-	private int turnCounter;
-
-	public int getTurnCounter() {
-		return turnCounter;
-	}
-
-	private GameWindow gameWindow;
-
-	private int currentX;
-	private int currentY;
-
-	public int X() {
-		return currentX;
-	}
-
-	public int Y() {
-		return currentY;
-	}
-
-	private Hero hero;
-	private List<Mob> mobs;
-	private final int mobsScaler;
-
-	private Map currentMap;
-	private List<Map> maps;
-
-	private boolean gameOver;
-
-	public void init() {
-		// TODO Auto-generated method stub
-
-	}
-
-	public Map getMap() {
-		return currentMap;
+	public Game(final String t) {
+		gameWindow = new GameWindow(t, this);
+		mobsAmountScaler = 15;
 	}
 
 	public void start() {
-		maps = new ArrayList<>();
-		currentMap = new Map(200, 200);// TODO потом мб надо поставить
-										// подходящий
-		// конструктор
-		maps.add(currentMap);
-		gameWindow = new GameWindow(title);
-		gameWindow.setVisible(true);
-		gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		switchToMap(0);
-	}
-
-	private void switchToMap(int index) {
-		if (maps.get(index) == null) {
-			currentMap = new Map(200, 200);//
-			maps.add(index, currentMap);
-
-			hero = new Hero(-1, -1, "Hero");
-			Point p = currentMap.putCharacter(hero);
-			currentX = p.x - GameWindow.getWidthInTiles() * 2;
-			currentY = p.y - GameWindow.getHeightInTiles() * 2;
-			p = null;
-			placeMobsAndItems(index);
-		} else {
-			currentMap = maps.get(index);
-			hero = new Hero(-1, -1, "Hero");
-			Point p = currentMap.putCharacter(hero);
-			currentX = p.x - GameWindow.getWidthInTiles() / 2;
-			currentY = p.y - GameWindow.getHeightInTiles() / 2;
-			p = null;
-			placeMobsAndItems(index);
-
-		}
-		EOT();
-	}
-
-	private void placeMobsAndItems(int scaler) {
-		mobs = new ArrayList<>(mobsScaler * scaler);
-		for (int i = 0; i < mobsScaler * scaler; i++) {
-
-		}
-	}
-
-	void EOT() {
-		// TODO SET GAME.BISY
-		if (gameOver) {
-			return;
-		}
-		currentMap.computeFOV(hero.getX(), hero.getY(),
-				Hero.StatsFormulas.getFOVR(hero));
-		doAI();
-		doTurnEffects();
-		checkGameOverConditions();
-		turnCounter++;
-		gameWindow.repaint();
-	}
-
-	private void checkGameOverConditions() {
-		if (hero.getHP() <= 0) {
-			gameOver = true;
-		}
-	}
-
-	private void doAI() {
-		hero.doAI();
-		for (Mob m : mobs) {
-			m.doAI();
-		}
-	}
-
-	private void doTurnEffects() {
-		hero.doTurnEffects();
-		for (Mob m : mobs) {
-			m.doTurnEffects();
-		}
+		// TODO потом мб надо поставить подходящий конструктор для карты
+		int firstMap = 0;
+		maps.add(firstMap, new Map(200, 200));
+		hero = new Hero(-1, -1, "Hero", currentMap);
+		switchToMap(firstMap);
+		turnCounter = 0;
 	}
 
 	public void done() {
-		// TODO Auto-generated method stub
+		gameWindow.setVisible(true);
+	}
 
+	private void doAIforAll() {
+		hero.doAI(this);
+		for (final Mob mob : mobs) {
+			mob.doAI(this);
+		}
 	}
 
 	public Hero getHero() {
 		return hero;
 	}
 
-	public void move(Point p) {
+	public Map getMap() {
+		return currentMap;
+	}
+
+	public int getTurnCounter() {
+		return turnCounter;
+	}
+
+	public void init() {
+		gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gameWindow.setBackground(Color.black);
+	}
+
+	public void log(final String s) {
+		// TODO
+	}
+
+	public void move(final Point p) {
 		checkStep(p);
 
 		if (p.x == -1) {
@@ -191,10 +101,67 @@ public class Game {
 		}
 	}
 
-	public void computeAI() {
-		for (Mob c : mobs) {
-			c.doAI();
+	public void repaint() {
+		gameWindow.repaint();
+	}
+
+	public int X() {
+		return currentX;
+	}
+
+	public int Y() {
+		return currentY;
+	}
+
+	private void checkGameOverConditions() {
+//		if (hero.getHP() <= 0) {
+//			System.out.println("LOL");
+//			gameOver = true;
+//		}
+	}
+
+	private void doTurnEffects() {
+		hero.doTurnEffects();
+		for (final Mob m : mobs) {
+			m.doTurnEffects();
 		}
+	}
+
+	private void placeMobsAndItems(final int scaler) {
+		mobs = new ArrayList<>(mobsAmountScaler * scaler);
+		for (int i = 0; i < mobsAmountScaler * scaler; i++) {
+
+		}
+	}
+
+	private void setScreenCenterAt(Point p) {
+		currentX = p.x - GameWindow.getWidthInTiles() / 2;
+		currentY = p.y - GameWindow.getHeightInTiles() / 2;
+	}
+
+	private void switchToMap(final int index) {
+
+		if (maps.get(index) == null) {
+			currentMap = new Map(200, 200);
+			maps.add(index, currentMap);
+		} else {
+			currentMap = maps.get(index);
+		}
+		setScreenCenterAt(currentMap.putCharacter(hero));
+		placeMobsAndItems(index);
+
+		EOT();
+	}
+
+	void EOT() {
+		// TODO SET GAME.BISY
+		if (gameOver) { return; }
+		currentMap.computeFOV(hero.getX(), hero.getY(), Hero.StatsFormulas.getFOVR(hero));
+		doAIforAll();
+		doTurnEffects();
+		checkGameOverConditions();
+		turnCounter++;
+		gameWindow.repaint();
 	}
 
 }
