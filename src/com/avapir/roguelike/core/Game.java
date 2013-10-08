@@ -1,8 +1,12 @@
 package com.avapir.roguelike.core;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -15,6 +19,36 @@ public class Game {
 
 	public static void checkStep(final Point dp) {
 		assert !(dp.x == 1 || dp.x == 0 || dp.x == -1) && (dp.y == 1 || dp.y == 0 || dp.y == -1);
+	}
+
+	public class Log extends LinkedList<String> {
+
+		/**
+		 * 
+		 */
+		private static final long	serialVersionUID	= 1L;
+		private int					oneTurnCounter;
+
+		@Override
+		public boolean add(final String s) {
+			super.add("[" + oneTurnCounter + ":" + (turnCounter) + "] " + s);
+			oneTurnCounter++;
+			if (size() > 15 && oneTurnCounter <= 15) {
+				super.poll();
+			}
+			return true;// so as super.add()
+		}
+
+		public void refresh() {
+			oneTurnCounter = 0;
+		}
+
+	}
+
+	Log	gameLog	= new Log();
+
+	public void log(final String s) {
+		gameLog.add(s);
 	}
 
 	private List<Map>	maps	= new ArrayList<>();
@@ -39,14 +73,35 @@ public class Game {
 	public void start() {
 		// TODO потом мб надо поставить подходящий конструктор для карты
 		int firstMap = 0;
-		maps.add(firstMap, new Map(200, 200));
+		maps.add(firstMap, new Map(this, 200, 200));
 		hero = new Hero(-1, -1, "Hero", currentMap);
 		switchToMap(firstMap);
 		turnCounter = 0;
 	}
 
+	private void switchToMap(final int index) {
+
+		if (maps.get(index) == null) {
+			currentMap = new Map(this, 200, 200);
+			maps.add(index, currentMap);
+		} else {
+			currentMap = maps.get(index);
+		}
+		setScreenCenterAt(currentMap.putCharacter(hero));
+		placeMobsAndItems(index);
+
+		EOT();
+	}
+
 	public void done() {
+		loadFonts();
 		gameWindow.setVisible(true);
+	}
+
+	private void loadFonts() {
+		Graphics2D g2 = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR).createGraphics();
+		g2.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+		g2.drawString("asd", 0, 0);
 	}
 
 	private void doAIforAll() {
@@ -73,19 +128,15 @@ public class Game {
 		gameWindow.setBackground(Color.black);
 	}
 
-	public void log(final String s) {
-		// TODO
-	}
-
 	public void move(final Point p) {
 		checkStep(p);
-
+		log("Перешел в [" + hero.getX() + ", " + hero.getY() + "]");
 		if (p.x == -1) {
-			if (hero.getX() > 14 && hero.getX() < 186) {
+			if (hero.getX() > 14 && hero.getX() < 185) {
 				currentX += p.x;
 			}
 		} else if (p.x == 1) {
-			if (hero.getX() > 15 && hero.getX() < 187) {
+			if (hero.getX() > 15 && hero.getX() < 186) {
 				currentX += p.x;
 			}
 		}
@@ -114,10 +165,10 @@ public class Game {
 	}
 
 	private void checkGameOverConditions() {
-//		if (hero.getHP() <= 0) {
-//			System.out.println("LOL");
-//			gameOver = true;
-//		}
+		// if (hero.getHP() <= 0) {
+		// System.out.println("LOL");
+		// gameOver = true;
+		// }
 	}
 
 	private void doTurnEffects() {
@@ -128,29 +179,23 @@ public class Game {
 	}
 
 	private void placeMobsAndItems(final int scaler) {
-		mobs = new ArrayList<>(mobsAmountScaler * scaler);
+		mobs = new LinkedList<>();
+		mobs.add(Mob.MobSet.getSlime());
+		currentMap.putCharacter(mobs.get(0), hero.getX() + 10, hero.getY() + 10);
+		
 		for (int i = 0; i < mobsAmountScaler * scaler; i++) {
 
 		}
+	}
+	
+	public Mob removeMob(Mob m){
+		mobs.remove(m);
+		return m;
 	}
 
 	private void setScreenCenterAt(Point p) {
 		currentX = p.x - GameWindow.getWidthInTiles() / 2;
 		currentY = p.y - GameWindow.getHeightInTiles() / 2;
-	}
-
-	private void switchToMap(final int index) {
-
-		if (maps.get(index) == null) {
-			currentMap = new Map(200, 200);
-			maps.add(index, currentMap);
-		} else {
-			currentMap = maps.get(index);
-		}
-		setScreenCenterAt(currentMap.putCharacter(hero));
-		placeMobsAndItems(index);
-
-		EOT();
 	}
 
 	void EOT() {
@@ -161,6 +206,7 @@ public class Game {
 		doTurnEffects();
 		checkGameOverConditions();
 		turnCounter++;
+		gameLog.refresh();
 		gameWindow.repaint();
 	}
 

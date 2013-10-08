@@ -15,7 +15,7 @@ import com.avapir.roguelike.locatable.Effect;
  */
 public class Attack {
 
-	private static final int	TOTAL_DMG_TYPES	= 6;
+	public static final int	TOTAL_DMG_TYPES	= 6;
 	private final float[]		damage			= new float[TOTAL_DMG_TYPES];
 	private List<Effect>		effects			= new ArrayList<Effect>();
 
@@ -28,6 +28,10 @@ public class Attack {
 
 	public Attack() {}
 
+	public float getDamage(int index){
+		return damage[index];
+	}
+	
 	public Attack addDamage(final Attack atk) {
 		for (int i = 0; i < TOTAL_DMG_TYPES; i++) {
 			damage[i] += atk.damage[i];

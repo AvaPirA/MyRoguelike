@@ -16,7 +16,7 @@ import com.avapir.roguelike.game.ai.SlimeAI;
 
 public class Mob implements Locatable {
 
-	static final class MobSet {
+	public static final class MobSet {
 
 		private static final Mob	slime	= new Mob(-1, -1, 15, 0, new Attack(2), new Armor(0),
 													new SlimeAI(), "Slime");
@@ -40,14 +40,14 @@ public class Mob implements Locatable {
 		mobID = mobs++;
 	}
 	public final int				mobID;
-	private static int				mobs	= 0;
+	private static int				mobs		= 0;
 
 	protected final List<Effect>	effects;
 
-	private double					HP;
-	private double					MP;
-	private Attack					baseAttack;
-	private Armor					baseArmor;
+	protected float				HP			= 0;
+	protected float				MP			= 0;
+	protected Attack				baseAttack	= new Attack();
+	protected Armor					baseArmor	= new Armor();
 
 	private final AI				intel;
 	public final String				name;
@@ -98,11 +98,11 @@ public class Mob implements Locatable {
 		return name;
 	}
 
-	public double getHP() {
+	public float getHP() {
 		return HP;
 	}
 
-	public double getMP() {
+	public float getMP() {
 		return MP;
 	}
 
@@ -116,10 +116,13 @@ public class Mob implements Locatable {
 		if (m.hasTile(nx, ny)) {
 			if (m.getTile(nx, ny).getMob() != null) {
 				float dmg = attackMob(new Point(nx, ny), g);
-				if (mobID == 0) g.getHero().gainXPfromDamage(dmg);
+				if (mobID == 0) {
+					g.getHero().gainXPfromDamage(dmg, g);
+				}
 			} else if (m.getTile(nx, ny).isPassable()) {
 				m.putCharacter(this, nx, ny);
 				if (this.mobID == 0) {
+					g.move(dp);
 					switch (m.getTile(nx, ny).getItemList().size()) {
 					case 1:
 						g.log("Здесь есть "
@@ -134,7 +137,6 @@ public class Mob implements Locatable {
 			} else if (m.getTile(nx, ny).isClosed() && mobID == 0) {
 				// g.TryToOpen(ny, nx, true);
 			}
-			g.repaint();
 			return true;
 		} else {
 			return false;
@@ -143,8 +145,18 @@ public class Mob implements Locatable {
 
 	protected float attackMob(final Point dp, Game g) {
 		final Mob defender = g.getMap().getTile(dp.x, dp.y).getMob();
-		final float damage = Battle.computeDamage(getAttack(), defender.getDefence());
+		float damage = Battle.computeDamage(getAttack(), defender.getDefence());
 		defender.getDamage(damage);
+		g.log(this.getName() + " наносит " + damage + " урона по " + defender.getName());
+		g.log("У " + defender.getName() + " осталось "
+				+ com.avapir.roguelike.core.GamePanel.roundOneDigit(defender.getHP()) + " здоровья");
+		if (defender.getHP() <= 0) {
+			damage -= defender.getHP()*2;//bonus XP for Overkills
+			g.getMap().removeCharacter(defender.getX(), defender.getY());
+		} 
+		if(this.getHP()<=0){
+			g.getMap().removeCharacter(X, Y);
+		}
 		return damage;
 	}
 
@@ -152,12 +164,20 @@ public class Mob implements Locatable {
 		HP -= dmg;
 	}
 
-	protected Armor getDefence() {
+	public Armor getDefence() {
 		return baseArmor;
 	}
 
-	protected Attack getAttack() {
+	public float getDefence(int i) {
+		return getDefence().getArmor(i);
+	}
+
+	public Attack getAttack() {
 		return baseAttack;
+	}
+
+	public float getAttack(int i) {
+		return getAttack().getDamage(i);
 	}
 
 	public void doAI(Game g) {

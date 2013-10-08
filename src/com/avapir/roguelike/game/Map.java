@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.locatable.Item;
 import com.avapir.roguelike.locatable.Mob;
 
@@ -20,6 +21,8 @@ public class Map {
 	private static final int		DFT_HEIGHT	= 100;
 	private static final int		DFT_WIDTH	= 100;
 	private static final int		DFT_DELTA	= 20;					// percents
+
+	private final Game				game;
 
 	private final int				HEIGHT_MAP;
 	private final int				WIDTH_MAP;
@@ -97,7 +100,7 @@ public class Map {
 	 * @return кто стоял
 	 */
 	public Mob removeCharacter(final int x, final int y) {
-		return field[y][x].removeCharacter();
+		return game.removeMob(field[y][x].removeCharacter());
 	}
 
 	/**
@@ -112,7 +115,8 @@ public class Map {
 	}
 
 	@Deprecated
-	public Map(final int height, final int width) {
+	public Map(Game g, final int height, final int width) {
+		game = g;
 		HEIGHT_MAP = height;
 		WIDTH_MAP = width;
 		field = new Tile[height][width];
@@ -120,7 +124,8 @@ public class Map {
 		MapGenerator.generate(this);
 	}
 
-	public Map() {
+	public Map(Game g) {
+		game = g;
 		final int deltaHeight = DFT_HEIGHT * DFT_DELTA / 100;
 		final int deltaWidth = DFT_WIDTH * DFT_DELTA / 100;
 		HEIGHT_MAP = DFT_HEIGHT + random.nextInt(2 * deltaHeight) - deltaHeight;

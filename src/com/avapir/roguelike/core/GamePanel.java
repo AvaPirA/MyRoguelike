@@ -5,17 +5,21 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.TexturePaint;
 import java.awt.Toolkit;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
-import java.util.Deque;
-import java.util.LinkedList;
+import java.awt.image.BufferedImage;
 import java.util.StringTokenizer;
 
 import javax.swing.JPanel;
 
+import com.avapir.roguelike.battle.Armor;
+import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
+import com.avapir.roguelike.locatable.Hero;
+import com.avapir.roguelike.locatable.Mob;
 
 public class GamePanel extends JPanel {
 
@@ -25,28 +29,10 @@ public class GamePanel extends JPanel {
 	private static final long		serialVersionUID	= 1L;
 	private final Game				game;
 	private final GameWindow		parentWindow;
-	// private Log log;
 	private final int				WIDTH_IN_TILES;
 	private final int				HEIGHT_IN_TILES;
 
 	private static final Toolkit	tKit				= Toolkit.getDefaultToolkit();
-
-	public static class Log {
-
-		public Log() {
-			messagesQueue = new LinkedList<String>();
-		}
-
-		public Deque<String>	messagesQueue;
-
-		public void write(final String string) {
-			messagesQueue.add(string);
-			if (messagesQueue.size() > 15) {
-				messagesQueue.poll();
-			}
-		}
-
-	}
 
 	public boolean hasTileOnScreen(final int y, final int x) {
 		return y >= game.Y() && y < HEIGHT_IN_TILES + game.Y() && x >= game.X()
@@ -62,10 +48,6 @@ public class GamePanel extends JPanel {
 		HEIGHT_IN_TILES = tilesY;
 		addKeyListener(new KeyboardHandler(game));
 		setFocusable(true);
-	}
-
-	public void drawLog(final Graphics g) {
-		// TODO Auto-generated method stub
 	}
 
 	private static final Color[]	COLOR_SET	= { Color.BLACK, Color.WHITE, Color.RED,
@@ -110,13 +92,59 @@ public class GamePanel extends JPanel {
 	}
 
 	private void paintGUI(final Graphics2D g2) {
-		// TODO Auto-generated method stub
+		g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
+		final int guiOffH = HEIGHT_IN_TILES * Tile.SIZE_px / 2;
+		final int guiOffW = WIDTH_IN_TILES * Tile.SIZE_px + 15;
+		g2.setColor(Color.white);
+		final Hero h = game.getHero();
 
+		g2.setColor(Color.yellow);
+		dS(g2, guiOffW, guiOffH, h.getName());
+
+		g2.setColor(Color.green);
+		dS(g2, guiOffW, guiOffH + 25, h.getHP() + "/" + Hero.StatsFormulas.getMaxHP(h));
+
+		g2.setColor(Color.blue);
+		dS(g2, guiOffW, guiOffH + 40, h.getMP() + "/" + Hero.StatsFormulas.getMaxMP(h));
+
+		g2.setColor(Color.red);
+		for (int i = 0; i < Attack.TOTAL_DMG_TYPES; i++) {
+			final float heroDmg = roundOneDigit(h.getAttack(i));
+			final float pureDmg = roundOneDigit(((Mob) h).getAttack(i));
+			final float itemDmg = heroDmg - pureDmg;
+			dS(g2, guiOffW, guiOffH + 60 + i * 15, pureDmg + " + " + itemDmg + " = " + heroDmg);
+		}
+
+		g2.setColor(Color.orange);
+		for (int i = 0; i < Armor.TOTAL_DEF_TYPES; i++) {
+			final float heroDef = roundOneDigit(h.getDefence(i));
+			final float pureDef = roundOneDigit(((Mob) h).getDefence(i));
+			final float itemDef = heroDef - pureDef;
+			dS(g2, guiOffW + 150, guiOffH + 60 + i * 15, pureDef + " + " + itemDef + " = "
+					+ heroDef);
+		}
+		g2.setColor(Color.yellow);
+		final String[] stat = { "STR", "AGI", "VIT", "INT", "DEX", "LUK" };
+		for (int i = 0; i < 6; i++) {
+			dS(g2, guiOffW, guiOffH + 170 + i * 15, stat[i] + "  " + h.getStats().get(i));
+		}
 	}
 
-	private void paintLog(final Graphics2D g2) {
-		// TODO Auto-generated method stub
+	public static float roundOneDigit(float f) {
+		return Math.round(10 * f) / 10f;
+	}
 
+	private static Font	f	= new Font("Times New Roman", Font.PLAIN, 15);
+	{}
+
+	private void paintLog(final Graphics2D g2) {
+		int off = 15;
+		g2.setFont(f);
+		for (int i = 0; i < game.gameLog.size(); i++) {
+			g2.setColor(Color.white);
+			dS(g2, off + WIDTH_IN_TILES * Tile.SIZE_px, off + i * f.getSize() + 3,
+					game.gameLog.get(i));
+		}
 	}
 
 	private void paintMap(final Graphics2D g2, final Map map) {
@@ -124,6 +152,7 @@ public class GamePanel extends JPanel {
 		final int oy = game.Y();
 		for (int i = 0; i < HEIGHT_IN_TILES; i++) {
 			for (int j = 0; j < WIDTH_IN_TILES; j++) {
+
 				// indexes on the Map
 				final int x = ox + j;
 				final int y = oy + i;
@@ -131,9 +160,9 @@ public class GamePanel extends JPanel {
 				final int xx = j * Tile.SIZE_px;
 				final int yy = i * Tile.SIZE_px;
 				final Tile tile = map.getTile(x, y);
-
 				g2.setColor(Color.red);
 				if (map.hasTile(x, y)) {
+					drawImage(g2, tKit.getImage("res/sprite/empty.png"), xx, yy);
 					if (tile.isVisible()) {
 						paintTile(g2, tile, xx, yy);
 						dS(g2, xx, yy, "vis");
@@ -171,16 +200,32 @@ public class GamePanel extends JPanel {
 		}
 	}
 
-	private void paintBackground(final Graphics2D g2) {
-		g2.setColor(Color.BLACK);
-		final Rectangle2D canvas = new Rectangle2D.Double(0, 0, parentWindow.getWindowWidth(),
-				parentWindow.getWindowHeight());
-		g2.fill(canvas);
+	public static BufferedImage toBufferedImage(Image img) {
+		if (img instanceof BufferedImage) { return (BufferedImage) img; }
+
+		// Create a buffered image with transparency
+		BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null),
+				BufferedImage.TYPE_INT_ARGB);
+
+		// Draw the image on to the buffered image
+		Graphics2D bGr = bimage.createGraphics();
+		bGr.drawImage(img, 0, 0, null);
+		bGr.dispose();
+
+		// Return the buffered image
+		return bimage;
 	}
 
-	public void drawGUI(final Graphics g) {
-		// TODO Auto-generated method stub
-
+	private void paintBackground(final Graphics2D g2) {
+		// g2.setColor(Color.BLACK);
+		BufferedImage bgTexture = toBufferedImage(tKit.getImage("res/sprite/seamless_wall04.jpg"));
+		final Rectangle2D canvas = new Rectangle2D.Double(0, 0, parentWindow.getWindowWidth(),
+				parentWindow.getWindowHeight());
+		Rectangle2D tr = new Rectangle2D.Double(0, 0, bgTexture.getWidth(), bgTexture.getHeight());
+		// Create the TexturePaint.
+		TexturePaint tp = new TexturePaint(bgTexture, tr);
+		g2.setPaint(tp);
+		g2.fill(canvas);
 	}
 
 }

@@ -42,9 +42,7 @@ public class KeyboardHandler implements KeyListener {
 		break;
 		}
 		if (madeTurn) {
-			g.getHero().move(p, g);
-			g.move(p);
-			g.EOT();
+			if (g.getHero().move(p, g)) g.EOT();
 		}
 	}
 
