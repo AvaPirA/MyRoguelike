@@ -99,6 +99,8 @@ public class GamePanel extends JPanel {
 		final Hero h = game.getHero();
 
 		g2.setColor(Color.yellow);
+		dS(g2, guiOffW, guiOffH - 30, "X: " + h.getX());
+		dS(g2, guiOffW, guiOffH - 15, "Y: " + h.getY());
 		dS(g2, guiOffW, guiOffH, h.getName());
 
 		g2.setColor(Color.green);
@@ -130,7 +132,7 @@ public class GamePanel extends JPanel {
 		}
 	}
 
-	public static float roundOneDigit(float f) {
+	public static float roundOneDigit(final float f) {
 		return Math.round(10 * f) / 10f;
 	}
 
@@ -138,7 +140,7 @@ public class GamePanel extends JPanel {
 	{}
 
 	private void paintLog(final Graphics2D g2) {
-		int off = 15;
+		final int off = 15;
 		g2.setFont(f);
 		for (int i = 0; i < game.gameLog.size(); i++) {
 			g2.setColor(Color.white);
@@ -165,22 +167,22 @@ public class GamePanel extends JPanel {
 					drawImage(g2, tKit.getImage("res/sprite/empty.png"), xx, yy);
 					if (tile.isVisible()) {
 						paintTile(g2, tile, xx, yy);
-						dS(g2, xx, yy, "vis");
+						// dS(g2, xx, yy, "vis");
 					} else if (tile.isSeen()) {
 						paintTile(g2, tile, xx, yy);
 						drawImage(g2, tKit.getImage("res/sprite/wFog.png"), xx, yy);
-						dS(g2, xx, yy, "seen");
+						// dS(g2, xx, yy, "seen");
 					} else {
-						dS(g2, xx, yy, "invi");
+						// dS(g2, xx, yy, "invi");
 					}
 				} else {
-					dS(g2, xx, yy, "notile");
+					// dS(g2, xx, yy, "notile");
 				}
 			}
 		}
 	}
 
-	private void dS(final Graphics2D g2, final int xx, final int yy, String s) {
+	private void dS(final Graphics2D g2, final int xx, final int yy, final String s) {
 		g2.drawString(s, xx, yy + 8);
 	}
 
@@ -200,30 +202,34 @@ public class GamePanel extends JPanel {
 		}
 	}
 
-	public static BufferedImage toBufferedImage(Image img) {
-		if (img instanceof BufferedImage) { return (BufferedImage) img; }
-
-		// Create a buffered image with transparency
-		BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null),
-				BufferedImage.TYPE_INT_ARGB);
-
-		// Draw the image on to the buffered image
-		Graphics2D bGr = bimage.createGraphics();
+	public static BufferedImage toBufferedImage(final Image img) {
+		if (img instanceof BufferedImage) {
+			return (BufferedImage) img;
+		}
+		BufferedImage bimage = null;
+		try {
+			bimage = new BufferedImage(img.getWidth(null), img.getHeight(null),
+					BufferedImage.TYPE_INT_ARGB);
+		} catch (final IllegalArgumentException e1) {
+			return toBufferedImage(img);
+		}
+		final Graphics2D bGr = bimage.createGraphics();
 		bGr.drawImage(img, 0, 0, null);
 		bGr.dispose();
 
-		// Return the buffered image
 		return bimage;
 	}
 
 	private void paintBackground(final Graphics2D g2) {
 		// g2.setColor(Color.BLACK);
-		BufferedImage bgTexture = toBufferedImage(tKit.getImage("res/sprite/seamless_wall04.jpg"));
+		final BufferedImage bgTexture = toBufferedImage(tKit
+				.getImage("res/sprite/seamless_wall04.jpg"));
 		final Rectangle2D canvas = new Rectangle2D.Double(0, 0, parentWindow.getWindowWidth(),
 				parentWindow.getWindowHeight());
-		Rectangle2D tr = new Rectangle2D.Double(0, 0, bgTexture.getWidth(), bgTexture.getHeight());
+		final Rectangle2D tr = new Rectangle2D.Double(0, 0, bgTexture.getWidth(),
+				bgTexture.getHeight());
 		// Create the TexturePaint.
-		TexturePaint tp = new TexturePaint(bgTexture, tr);
+		final TexturePaint tp = new TexturePaint(bgTexture, tr);
 		g2.setPaint(tp);
 		g2.fill(canvas);
 	}

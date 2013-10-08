@@ -116,7 +116,7 @@ public class Map {
 	}
 
 	@Deprecated
-	public Map(Game g, final int height, final int width) {
+	public Map(final Game g, final int height, final int width) {
 		game = g;
 		HEIGHT_MAP = height;
 		WIDTH_MAP = width;
@@ -125,7 +125,7 @@ public class Map {
 		MapGenerator.generate(this);
 	}
 
-	public Map(Game g) {
+	public Map(final Game g) {
 		game = g;
 		final int deltaHeight = DFT_HEIGHT * DFT_DELTA / 100;
 		final int deltaWidth = DFT_WIDTH * DFT_DELTA / 100;
@@ -267,7 +267,7 @@ public class Map {
 		}
 	}
 
-	public static float distance(Point2D.Float p1, Point2D.Float p2) {
+	public static float distance(final Point2D.Float p1, final Point2D.Float p2) {
 		return (float) p1.distance(p2);
 	}
 

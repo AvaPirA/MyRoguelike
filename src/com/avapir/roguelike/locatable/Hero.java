@@ -13,35 +13,40 @@ import com.avapir.roguelike.game.Map;
 
 public class Hero extends Mob implements Locatable {
 
+//@formatter:off
 	private static final class DefaultStats {
-
-		/* STR AGI VIT INT DEX LUK */
-		static final int[]	PLAYER	= { 3, 3, 3, 2, 3, 1 };			// 16
-		static final int[]	NPC		= { 50, 100, 100, 50, 50, 10 };	// 360
-		static final int[]	ELDER	= { 290, 120, 390, 700, 400, 100 };	// 2000
-		static final int[]	UNDEAD	= { 120, 40, 120, 0, 40, 0 };		// 320
+									/* 	STR 	AGI 	VIT 	INT 	DEX 	LUK */
+		static final int[]	PLAYER	= { 3, 		3, 		3, 		3, 		2, 		1 };	// 16
+		static final int[]	NPC		= { 50, 	100, 	100, 	50, 	50, 	10 };	// 360
+		static final int[]	ELDER	= { 290, 	120,	390, 	700,	400, 	100 }; 	// 2000
+		static final int[]	UNDEAD	= { 120, 	40, 	120, 	0, 		40, 	0 };	// 320
 	}
+//@formatter:on
 
 	public static class StatsFormulas {
 
+		// correct
 		public static float getMaxHP(final Hero h) {
-			return 1 + 4 * h.stats.getStr() + 7 * h.stats.getVit();
+			final int baseHP = 2;
+			return baseHP + 4 * h.stats.getStr() + 7 * h.stats.getVit();
 		}
 
+		// correct
 		public static float getMaxMP(final Hero h) {
-			return 1 + 7 * h.stats.getInt();
+			final int baseMP = 1;
+			return baseMP + 7 * h.stats.getInt();
 		}
 
 		public static double addBonusXp(final Hero h, final double xp) {
 			final Random r = new Random();
-			final double L = r.nextInt(h.stats.getLuk() * 2);// up to 100% bonus for
-			// each
-			// 50 LUK
+			final double L = r.nextInt(h.stats.getLuk() * 2);
+			// up to 100% bonus for each 50 LUK
 			return (int) (xp * (1f + h.stats.getDex() / 300f + L / 100f));
 		}
 
 		public static int getFOVR(final Hero h) {
-			return 5 + h.stats.getInt() / 50;
+			final int baseFOVR = 5;
+			return baseFOVR + h.stats.getInt() / 50;
 		}
 
 		public static int getATKR(final Hero h) {
@@ -53,23 +58,28 @@ public class Hero extends Mob implements Locatable {
 			final float STR = h.stats.getStr();
 			final float DEX = h.stats.getDex();
 			final float INT = h.stats.getInt();
-			final float phys = 1.6f + STR + DEX * 0.4f + INT * 0.2f;
-			final float magi = 1.2f + INT + DEX * 0.4f;
-			return new Attack(phys, magi);
+			final float phy = 1.6f + STR + DEX * 0.4f + INT * 0.2f;
+			final float mag = 1.2f + INT + DEX * 0.4f;
+			return new Attack(phy, mag);
 		}
 
 		public static Armor getArmor(final Hero h) {
 			final float STR = h.stats.getStr();
 			final float AGI = h.stats.getAgi();
 			final float INT = h.stats.getInt();
-			final float phys = AGI * 7f / 10f + STR * 3f / 10f;
-			final float magi = INT / 2f;
-			return new Armor(phys, magi);
+			final float phy = AGI * 0.7f + STR * 0.3f;
+			final float mag = INT * 0.5f;
+			return new Armor(phy, mag);
 		}
-
 	}
 
 	public final class PrimaryStats {
+
+		private void ac(final int[] a) {
+			System.arraycopy(a, 0, values, 0, PRIMARY_STATS_AMOUNT);
+		}
+
+//@formatter:off
 
 		/**
 		 * STRength <br>
@@ -82,49 +92,23 @@ public class Hero extends Mob implements Locatable {
 		private static final int	PRIMARY_STATS_AMOUNT	= 6;
 		private final int[]			values					= new int[PRIMARY_STATS_AMOUNT];
 
-		public int get(int i) {
-			return values[i];
-		}
+		public int get(final int i) {return values[i];}
 
-		public int getStr() {
-			return values[0];
-		}
-
-		public int getAgi() {
-			return values[1];
-		}
-
-		public int getVit() {
-			return values[2];
-		}
-
-		public int getInt() {
-			return values[3];
-		}
-
-		public int getDex() {
-			return values[4];
-		}
-
-		public int getLuk() {
-			return values[5];
-		}
+		public int getStr() {return values[0];}
+		public int getAgi() {return values[1];}
+		public int getVit() {return values[2];}
+		public int getInt() {return values[3];}
+		public int getDex() {return values[4];}
+		public int getLuk() {return values[5];}
 
 		public PrimaryStats(final Hero h) {
-			if (name.contains("NPC")) {
-				ac(DefaultStats.NPC);
-			} else if (name.contains("Elder")) {
-				ac(DefaultStats.ELDER);
-			} else if (name.contains("Undead")) {
-				ac(DefaultStats.UNDEAD);
-			} else {
-				ac(DefaultStats.PLAYER);
+			if (name.contains("NPC")) {				ac(DefaultStats.NPC);
+			} else if (name.contains("Elder")) {	ac(DefaultStats.ELDER);
+			} else if (name.contains("Undead")) {	ac(DefaultStats.UNDEAD);
+			} else {								ac(DefaultStats.PLAYER);
 			}
 		}
-
-		private void ac(final int[] a) {
-			System.arraycopy(a, 0, values, 0, PRIMARY_STATS_AMOUNT);
-		}
+//@formatter:on
 	}
 
 	protected static final class HiddenStats {
@@ -176,7 +160,9 @@ public class Hero extends Mob implements Locatable {
 		Attack getDamage() {
 			final Attack atk = new Attack();
 			for (final int index : wearedItems) {
-				if (index < items.size() - 1) atk.addDamage(items.get(index).getAttack());
+				if (index < items.size() - 1) {
+					atk.addDamage(items.get(index).getAttack());
+				}
 			}
 			return atk;
 		}
@@ -184,7 +170,9 @@ public class Hero extends Mob implements Locatable {
 		Armor getArmor() {
 			final Armor def = new Armor();
 			for (final int index : wearedItems) {
-				if (index < items.size() - 1) def.addArmor(items.get(index).getArmor());
+				if (index < items.size() - 1) {
+					def.addArmor(items.get(index).getArmor());
+				}
 			}
 			return def;
 		}
@@ -201,7 +189,7 @@ public class Hero extends Mob implements Locatable {
 
 	}
 
-	public Hero(final int x, final int y, final String n, Map m) {
+	public Hero(final int x, final int y, final String n, final Map m) {
 		super(x, y, null, n, m);
 		// TODO
 		name = n;
@@ -237,18 +225,17 @@ public class Hero extends Mob implements Locatable {
 	}
 
 	@Override
-	public boolean move(final Point dp, Game g) {
+	public Point move(final Point dp, final Game g) {
 		if (inventory.isOverweighted()) {
 			g.log("Вы #2#перегружены!#^#");
-			return false;
+			return null;
 		}
 		if (inventory.hasTooMuchItems()) {
 			g.log("Вы несете #2#слишком много вещей!#^#");
-			return false;
+			return null;
 		}
 
-		boolean res = super.move(dp, g);
-		return res;
+		return super.move(dp, g);
 	}
 
 	@Override
@@ -256,7 +243,8 @@ public class Hero extends Mob implements Locatable {
 		return super.getDefence().addArmor(inventory.getArmor());
 	}
 
-	public float getDefence(int i) {
+	@Override
+	public float getDefence(final int i) {
 		return getDefence().getArmor(i);
 	}
 
@@ -265,7 +253,8 @@ public class Hero extends Mob implements Locatable {
 		return super.getAttack().addDamage(inventory.getDamage());
 	}
 
-	public float getAttack(int i) {
+	@Override
+	public float getAttack(final int i) {
 		return getAttack().getDamage(i);
 	}
 
@@ -291,9 +280,9 @@ public class Hero extends Mob implements Locatable {
 		level++;
 	}
 
-	public void gainXPfromDamage(final float dmg, Game g) {
+	public void gainXPfromDamage(final float dmg, final Game g) {
 		final int xp = (int) Math.pow(dmg, 6 / 5f);
-		int gainedXP = (int) StatsFormulas.addBonusXp(this, xp);
+		final int gainedXP = (int) StatsFormulas.addBonusXp(this, xp);
 		XP += gainedXP;
 		g.log(getName() + " получает " + gainedXP + " опыта");
 

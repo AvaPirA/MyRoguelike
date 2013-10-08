@@ -11,7 +11,6 @@ import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.battle.Battle;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.game.Map;
-import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.game.ai.AI;
 import com.avapir.roguelike.game.ai.SlimeAI;
 
@@ -30,7 +29,7 @@ public class Mob implements Locatable {
 	private static final class Borg implements AI {
 
 		@Override
-		public void computeAI(final Mob m, Game g) {
+		public void computeAI(final Mob m, final Game g) {
 			// TODO Auto-generated method stub
 
 		}
@@ -66,11 +65,11 @@ public class Mob implements Locatable {
 		effects = new ArrayList<>();
 	}
 
-	public Mob(final int x, final int y, final AI ai, final String n, Map m) {
+	public Mob(final int x, final int y, final AI ai, final String n, final Map m) {
 		intel = BORG ? new Borg() : ai != null ? ai : new AI() {
 
 			@Override
-			public void computeAI(Mob m, Game g) {
+			public void computeAI(final Mob m, final Game g) {
 				// TODO Auto-generated method stub
 
 			}
@@ -107,23 +106,23 @@ public class Mob implements Locatable {
 		return MP;
 	}
 
-	public boolean move(final Point dp, Game g) {
+	public Point move(final Point dp, final Game g) {
 		Game.checkStep(dp);
-		if (dp.x == 0 && dp.y == 0) { return false; }
+		if (dp.x == 0 && dp.y == 0) { return null; }
 		final Map m = g.getMap();
 
 		final int ny = getY() + dp.y;
 		final int nx = getX() + dp.x;
 		if (m.hasTile(nx, ny)) {
 			if (m.getTile(nx, ny).getMob() != null) {
-				float dmg = attackMob(new Point(nx, ny), g);
+				final float dmg = attackMob(new Point(nx, ny), g);
 				if (mobID == 0) {
 					g.getHero().gainXPfromDamage(dmg, g);
 				}
+				return new Point(0,0);
 			} else if (m.getTile(nx, ny).isPassable()) {
 				m.putCharacter(this, nx, ny);
 				if (this.mobID == 0) {
-					g.move(dp);
 					switch (m.getTile(nx, ny).getItemList().size()) {
 					case 1:
 						g.log("Здесь есть "
@@ -137,14 +136,15 @@ public class Mob implements Locatable {
 				}
 			} else if (m.getTile(nx, ny).isClosed() && mobID == 0) {
 				// g.TryToOpen(ny, nx, true);
+				return new Point(0,0);
 			}
-			return true;
+			return dp;
 		} else {
-			return false;
+			return null;
 		}
 	}
 
-	protected float attackMob(final Point dp, Game g) {
+	protected float attackMob(final Point dp, final Game g) {
 		final Mob defender = g.getMap().getTile(dp.x, dp.y).getMob();
 		float damage = Battle.computeDamage(getAttack(), defender.getDefence());
 		defender.getDamage(damage);
@@ -169,7 +169,7 @@ public class Mob implements Locatable {
 		return baseArmor;
 	}
 
-	public float getDefence(int i) {
+	public float getDefence(final int i) {
 		return getDefence().getArmor(i);
 	}
 
@@ -177,11 +177,11 @@ public class Mob implements Locatable {
 		return baseAttack;
 	}
 
-	public float getAttack(int i) {
+	public float getAttack(final int i) {
 		return getAttack().getDamage(i);
 	}
 
-	public void doAI(Game g) {
+	public void doAI(final Game g) {
 		intel.computeAI(this, g);
 	}
 

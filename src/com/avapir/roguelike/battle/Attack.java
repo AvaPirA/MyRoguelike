@@ -17,7 +17,7 @@ public class Attack {
 
 	public static final int	TOTAL_DMG_TYPES	= 6;
 	private final float[]		damage			= new float[TOTAL_DMG_TYPES];
-	private List<Effect>		effects			= new ArrayList<Effect>();
+	private final List<Effect>		effects			= new ArrayList<Effect>();
 
 	public Attack(final float... input) {
 		if (input.length > TOTAL_DMG_TYPES) { throw new RuntimeException("Unknown damage type"); }
@@ -28,7 +28,7 @@ public class Attack {
 
 	public Attack() {}
 
-	public float getDamage(int index){
+	public float getDamage(final int index){
 		return damage[index];
 	}
 	

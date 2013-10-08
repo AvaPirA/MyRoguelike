@@ -51,19 +51,19 @@ public class Game {
 		gameLog.add(s);
 	}
 
-	private List<Map>	maps	= new ArrayList<>();
-	private Map			currentMap;
-	private int			currentX;
-	private int			currentY;
+	private final List<Map>		maps	= new ArrayList<>();
+	private Map					currentMap;
+	private int					currentX;
+	private int					currentY;
 
-	private GameWindow	gameWindow;
+	private final GameWindow	gameWindow;
 
-	private Hero		hero;
-	private List<Mob>	mobs;
-	private final int	mobsAmountScaler;
+	private Hero				hero;
+	private List<Mob>			mobs;
+	private final int			mobsAmountScaler;
 
-	private int			turnCounter;
-	private boolean		gameOver;
+	private int					turnCounter;
+	private boolean				gameOver;
 
 	public Game(final String t) {
 		gameWindow = new GameWindow(t, this);
@@ -72,7 +72,7 @@ public class Game {
 
 	public void start() {
 		// TODO потом мб надо поставить подходящий конструктор для карты
-		int firstMap = 0;
+		final int firstMap = 0;
 		maps.add(firstMap, new Map(this, 200, 200));
 		hero = new Hero(-1, -1, "Hero", currentMap);
 		switchToMap(firstMap);
@@ -90,7 +90,7 @@ public class Game {
 		setScreenCenterAt(currentMap.putCharacter(hero));
 		placeMobsAndItems(index);
 
-		EOT();
+		EOT(new Point(0,0));
 	}
 
 	public void done() {
@@ -99,7 +99,8 @@ public class Game {
 	}
 
 	private void loadFonts() {
-		Graphics2D g2 = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR).createGraphics();
+		final Graphics2D g2 = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR)
+				.createGraphics();
 		g2.setFont(new Font("Times New Roman", Font.PLAIN, 12));
 		g2.drawString("asd", 0, 0);
 	}
@@ -131,25 +132,8 @@ public class Game {
 	public void move(final Point p) {
 		checkStep(p);
 		log("Перешел в [" + hero.getX() + ", " + hero.getY() + "]");
-		if (p.x == -1) {
-			if (hero.getX() > 14 && hero.getX() < 185) {
-				currentX += p.x;
-			}
-		} else if (p.x == 1) {
-			if (hero.getX() > 15 && hero.getX() < 186) {
-				currentX += p.x;
-			}
-		}
-
-		if (p.y == -1) {
-			if (hero.getY() > 10 && hero.getY() < 190) {
-				currentY += p.y;
-			}
-		} else if (p.y == 1) {
-			if (hero.getY() > 11 && hero.getY() < 191) {
-				currentY += p.y;
-			}
-		}
+		currentX += p.x;
+		currentY += p.y;
 	}
 
 	public void repaint() {
@@ -182,25 +166,28 @@ public class Game {
 		mobs = new LinkedList<>();
 		mobs.add(Mob.MobSet.getSlime());
 		currentMap.putCharacter(mobs.get(0), hero.getX() + 10, hero.getY() + 10);
-		
+
 		for (int i = 0; i < mobsAmountScaler * scaler; i++) {
 
 		}
 	}
-	
-	public Mob removeMob(Mob m){
+
+	public Mob removeMob(final Mob m) {
 		mobs.remove(m);
 		return m;
 	}
 
-	private void setScreenCenterAt(Point p) {
+	private void setScreenCenterAt(final Point p) {
 		currentX = p.x - GameWindow.getWidthInTiles() / 2;
 		currentY = p.y - GameWindow.getHeightInTiles() / 2;
 	}
 
-	void EOT() {
+	void EOT(Point p) {
+		move(p);
 		// TODO SET GAME.BISY
-		if (gameOver) { return; }
+		if (gameOver) {
+			return;
+		}
 		currentMap.computeFOV(hero.getX(), hero.getY(), Hero.StatsFormulas.getFOVR(hero));
 		doAIforAll();
 		doTurnEffects();

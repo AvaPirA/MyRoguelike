@@ -20,7 +20,7 @@ public class Armor {
 		}
 	}
 
-	public float getArmor(int index){
+	public float getArmor(final int index){
 		return armor[index];
 	}
 	

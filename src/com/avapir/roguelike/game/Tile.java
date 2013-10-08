@@ -15,67 +15,30 @@ import com.avapir.roguelike.locatable.Mob;
  */
 public class Tile {
 
-	/**
-	 * Размер тайла в пикселях
-	 */
-	public static final int	SIZE_px	= 32;
+	public static final int	SIZE_px		= 32;
 
-	/**
-	 * Изначальный тип тайла
-	 */
+	private Mob				charHere	= null;
+	private List<Item>		itemsHere	= new ArrayList<>();
 	private final Tile.Type	initialType;
-	/**
-	 * Свойства тайла
-	 */
 	private int				flags;
-	/**
-	 * Кто стоит на тайле (игрок, монстр, ???)
-	 */
-	private Mob				charHere;
-	/**
-	 * Вещи, которые лежат на тайле
-	 */
-	private List<Item>		itemsHere;
 
-	/**
-	 * Создает типовой тайл по образцу. На тайле будет пусто
-	 * 
-	 * @param it
-	 */
 	public Tile(final Tile.Type it) {
 		initialType = it;
 		flags = Tile.Type.examples[it.ordinal()].flags;
-		charHere = null;
-		itemsHere = new ArrayList<>();
 	}
 
-	/**
-	 * Создает типовой тайл с кастомными флагами. Применяется в {@link Tile.Type} для создания
-	 * образцов
-	 * 
-	 * @param t
-	 * @param flg
-	 */
 	private Tile(final Tile.Type t, final int... flg) {
 		initialType = t;
 		for (final int f : flg) {
 			flags |= f;
 		}
-		charHere = null;
-		itemsHere = new ArrayList<>();
-
 	}
 
-	/**
-	 * Восстанавливает тайл из образца
-	 */
 	public void restoreDefault() {
 		if (initialType == null) {
 			return;
 		} else {
 			flags = Tile.Type.examples[initialType.ordinal()].flags;
-			charHere = null;
-			itemsHere = new ArrayList<>();
 		}
 	}
 
@@ -177,88 +140,33 @@ public class Tile {
 		}
 	}
 
-	public boolean isVisible() {
-		return checkFlag(Flag.VISIBLE);
-	}
+//@formatter:off
+	public boolean isVisible() 			{return checkFlag(Flag.VISIBLE);}
+	public boolean isSeen() 			{return checkFlag(Flag.SEEN);}
+	public boolean isLantern() 			{return checkFlag(Flag.LIGHT_ON);}
+	public boolean isTransparent()		{return checkFlag(Flag.TRANSPARENT);}
 
-	public boolean isSeen() {
-		return checkFlag(Flag.SEEN);
-	}
+	public boolean isPassable() 		{return checkFlag(Flag.PASSABLE);}
+	public boolean isEmpty() 			{return checkFlag(Flag.EMPTY);}
+	
+	public boolean isGrass() 			{return checkFlag(Flag.GRASS);}
+	public boolean isStone() 			{return checkFlag(Flag.STONES);}
+	public boolean isIce() 				{return checkFlag(Flag.ICE);}
+	public boolean isPoisioning() 		{return checkFlag(Flag.POISIONING);}
+	public boolean isFlaming() 			{return checkFlag(Flag.FLAMING);}
+	public boolean isWet() 				{return checkFlag(Flag.WET);}
+	public boolean isInstantKiller()	{return checkFlag(Flag.INSTANT_DEATH);}
 
-	public boolean isLantern() {
-		return checkFlag(Flag.LIGHT_ON);
-	}
+	public boolean isClosed() 			{return checkFlag(Flag.CLOSED_DOOR);}
+	public boolean isUpLadder() 		{return checkFlag(Flag.UP_LADDER);}
+	public boolean isDownLadder() 		{return checkFlag(Flag.DOWN_LADDER);}
 
-	public boolean isTransparent() {
-		return checkFlag(Flag.TRANSPARENT);
-	}
+	
+	public void setVisible(final boolean b) {setFlag(b, Flag.VISIBLE);}
+	public void setSeen(final boolean b) 	{setFlag(b, Flag.SEEN);}
+//@formatter:on
 
-	public boolean isPassable() {
-		return checkFlag(Flag.PASSABLE);
-	}
-
-	public boolean isEmpty() {
-		return checkFlag(Flag.EMPTY);
-	}
-
-	public boolean isGrass() {
-		return checkFlag(Flag.GRASS);
-	}
-
-	public boolean isStone() {
-		return checkFlag(Flag.STONES);
-	}
-
-	public boolean isIce() {
-		return checkFlag(Flag.ICE);
-	}
-
-	public boolean isPoisioning() {
-		return checkFlag(Flag.POISIONING);
-	}
-
-	public boolean isFlaming() {
-		return checkFlag(Flag.FLAMING);
-	}
-
-	public boolean isWet() {
-		return checkFlag(Flag.WET);
-	}
-
-	public boolean isInstantKiller() {
-		return checkFlag(Flag.INSTANT_DEATH);
-	}
-
-	public boolean isClosed() {
-		return checkFlag(Flag.CLOSED_DOOR);
-	}
-
-	public boolean isUpLadder() {
-		return checkFlag(Flag.UP_LADDER);
-	}
-
-	public boolean isDownLadder() {
-		return checkFlag(Flag.DOWN_LADDER);
-	}
-
-	public void setVisible(final boolean b) {
-		setFlag(b, Flag.VISIBLE);
-	}
-
-	public void setSeen(final boolean b) {
-		setFlag(b, Flag.SEEN);
-	}
-
-	/**
-	 * Убирает всё живое с тайла
-	 * 
-	 * @return кто стоял
-	 */
-	public Mob removeCharacter() {
-		final Mob c = charHere;
-		charHere = null;
-		return c;
-	}
+	// add-methods
 
 	/**
 	 * Ставит персонажа на этот тайл, если <li>тут никого нет</li> <li>проходимо</li> <li>не
@@ -277,10 +185,6 @@ public class Tile {
 		}
 	}
 
-	public Mob getMob() {
-		return charHere;
-	}
-
 	/**
 	 * Кладет на тайл новый предмет
 	 * 
@@ -291,12 +195,30 @@ public class Tile {
 		itemsHere.add(item);
 	}
 
-	public List<Item> getItemList() {
-		return itemsHere;
+	// get-methods
+
+	public Mob getMob() {
+		return charHere;
 	}
 
 	public int getFlags() {
 		return flags;
 	}
 
+	public List<Item> getItemList() {
+		return itemsHere;
+	}
+
+	// remove-methods
+
+	/**
+	 * Убирает всё живое с тайла
+	 * 
+	 * @return кто стоял
+	 */
+	public Mob removeCharacter() {
+		final Mob c = charHere;
+		charHere = null;
+		return c;
+	}
 }

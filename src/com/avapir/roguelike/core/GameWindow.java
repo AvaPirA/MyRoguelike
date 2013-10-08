@@ -37,11 +37,11 @@ public class GameWindow extends javax.swing.JFrame {
 	}
 
 	public static int getWidthInTiles() {
-		return WINDOW_WIDTH / Tile.SIZE_px - 10;
+		return WINDOW_WIDTH / Tile.SIZE_px - 1 - 10;
 	}
 
 	public static int getHeightInTiles() {
-		return WINDOW_HEIGHT / Tile.SIZE_px;
+		return WINDOW_HEIGHT / Tile.SIZE_px - 1;
 	}
 	
 	public GameWindow(final String title, final Game game) {
