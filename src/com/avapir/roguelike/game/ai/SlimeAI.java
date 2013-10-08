@@ -13,13 +13,12 @@ public class SlimeAI implements AI {
 		System.out.println("slime");
 		final int x = m.getX();
 		final int y = m.getY();
-		final Point p = new Point(r.nextInt(2) - 1, r.nextInt(2) - 1);
+		Point p = new Point(r.nextInt(2) - 1, r.nextInt(2) - 1);
 		for (int i = x - 4; i < x + 4; i++) {
 			for (int j = y - 4; j < y + 4; j++) {
 				Tile t = g.getMap().getTile(i, j);
 				if (t != null && t.getMob() != null && t.getMob().mobID == 0) {
-					g.log("Slime target is at "+x+" "+y);
-					p.setLocation(i < x ? -1 : 1, j < y ? -1 : 1);
+					p.move(i < x ? -1 : i > x ? 1 : 0, j < y ? -1 : j > y ? 1 : 0);
 				}
 			}
 		}

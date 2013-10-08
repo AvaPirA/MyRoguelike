@@ -1,6 +1,7 @@
 package com.avapir.roguelike.game;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -264,6 +265,10 @@ public class Map {
 			delta += 2 * (x - y);
 			--y;
 		}
+	}
+
+	public static float distance(Point2D.Float p1, Point2D.Float p2) {
+		return (float) p1.distance(p2);
 	}
 
 }

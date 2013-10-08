@@ -37,8 +37,9 @@ public class KeyboardHandler implements KeyListener {
 			p = new Point(0, 1);
 		break;
 		default:
-			madeTurn = false;
+			madeTurn = true;
 			p = new Point(0, 0);
+			g.EOT();
 		break;
 		}
 		if (madeTurn) {

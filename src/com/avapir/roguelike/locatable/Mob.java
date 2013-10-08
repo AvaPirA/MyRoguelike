@@ -11,6 +11,7 @@ import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.battle.Battle;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.game.Map;
+import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.game.ai.AI;
 import com.avapir.roguelike.game.ai.SlimeAI;
 
@@ -44,8 +45,8 @@ public class Mob implements Locatable {
 
 	protected final List<Effect>	effects;
 
-	protected float				HP			= 0;
-	protected float				MP			= 0;
+	protected float					HP			= 0;
+	protected float					MP			= 0;
 	protected Attack				baseAttack	= new Attack();
 	protected Armor					baseArmor	= new Armor();
 
@@ -151,10 +152,10 @@ public class Mob implements Locatable {
 		g.log("У " + defender.getName() + " осталось "
 				+ com.avapir.roguelike.core.GamePanel.roundOneDigit(defender.getHP()) + " здоровья");
 		if (defender.getHP() <= 0) {
-			damage -= defender.getHP()*2;//bonus XP for Overkills
+			damage -= defender.getHP() * 2;// bonus XP for Overkills
 			g.getMap().removeCharacter(defender.getX(), defender.getY());
-		} 
-		if(this.getHP()<=0){
+		}
+		if (this.getHP() <= 0) {
 			g.getMap().removeCharacter(X, Y);
 		}
 		return damage;
