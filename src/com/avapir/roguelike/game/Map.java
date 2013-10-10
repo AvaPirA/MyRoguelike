@@ -95,7 +95,7 @@ public class Map {
 	}
 
 	/**
-	 * Убирает персонажа с определенного тайла
+	 * Убирает персонажа с определенного тайла и из {@link Game#mobs}
 	 * 
 	 * @param x
 	 * @param y
@@ -273,9 +273,9 @@ public class Map {
 	}
 
 	public List<Tile> getVisible() {
-		List<Tile> list = new ArrayList<>();
-		for (Tile[] tt : field) {
-			for (Tile t : tt) {
+		final List<Tile> list = new ArrayList<>();
+		for (final Tile[] tt : field) {
+			for (final Tile t : tt) {
 				if (t.isVisible()) {
 					list.add(t);
 				}

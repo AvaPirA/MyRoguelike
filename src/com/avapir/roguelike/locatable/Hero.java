@@ -83,18 +83,18 @@ public class Hero extends Mob implements Locatable {
 		 * DEXterity <br>
 		 * LUcK
 		 */
-		private static final int	PRIMARY_STATS_AMOUNT	= 6;
-		private final int[]			values					= new int[PRIMARY_STATS_AMOUNT];
+		public static final int	PRIMARY_STATS_AMOUNT	= 6;
+		private final int[]		values					= new int[PRIMARY_STATS_AMOUNT];
 
 		//@formatter:off
-		public PrimaryStats(String name) {
+		public PrimaryStats(final String name) {
 			if (name.contains("NPC")) {				ac(DefaultStats.NPC);
 			} else if (name.contains("Elder")) {	ac(DefaultStats.ELDER);
 			} else if (name.contains("Undead")) {	ac(DefaultStats.UNDEAD);
 			} else {								ac(DefaultStats.PLAYER);
 			}
 		}
-		
+
 		public int values(final int i) {return values[i];}
 
 		public int getStr() {return values[0];}
@@ -184,7 +184,8 @@ public class Hero extends Mob implements Locatable {
 
 	}
 
-	private static final int[]	XP_TO_LVL	= { 0, 555555555 };
+	private static final int[]	XP_TO_LVL	= { 150, 400, 850, 2_000, 3_500, 7_000, 15_000, 25_000,
+			43_000							};
 
 	private final String		name;
 	private final Inventory		inventory	= new Inventory();
@@ -198,7 +199,7 @@ public class Hero extends Mob implements Locatable {
 		// TODO
 		name = n;
 		stats = new PrimaryStats(name);
-		level = 1;
+		level = 0;
 		XP = 0;
 		restore();
 	}
@@ -207,7 +208,7 @@ public class Hero extends Mob implements Locatable {
 		maxHP = Hero.StatsFormulas.getMaxHP(this);
 		maxMP = Hero.StatsFormulas.getMaxMP(this);
 		HP = maxHP;
-		MP = maxMP/2;
+		MP = maxMP / 2;
 		baseAttack.replaceBy(Hero.StatsFormulas.getAttack(this));
 		baseArmor.replaceBy(Hero.StatsFormulas.getArmor(this));
 	}
@@ -262,27 +263,53 @@ public class Hero extends Mob implements Locatable {
 	@Override
 	public void doTurnEffects() {
 		super.doTurnEffects();
-		while (lvlUp()) {
-			gainLvl();
-		}
 	}
 
 	private boolean lvlUp() {
-		return XP >= XP_TO_LVL[level - 1];
+		return XP >= XP_TO_LVL[level];
 	}
 
-	private void gainLvl() {
+	private void gainLvl(Game g) {
 		// TODO
-
 		level++;
+		XP = 0;
+		restore();
+		g.log(String.format("%s достиг %s уровня!", name, level));
+		g.getWindowsManager().showNewLevel(true);
 	}
 
 	public void gainXPfromDamage(final float dmg, final Game g) {
 		final int xp = (int) Math.pow(dmg, 6 / 5f);
 		final int gainedXP = (int) StatsFormulas.addBonusXp(this, xp);
 		XP += gainedXP;
-		g.log(getName() + " получает " + gainedXP + " опыта");
+		g.log(String.format("%s получает %s опыта", getName(), gainedXP));
+		while (lvlUp()) {
+			gainLvl(g);
+		}
 
+	}
+
+	@Override
+	protected void receiveDamage(final float dmg, final Game g) {
+		super.receiveDamage(dmg, g);
+		if (HP <= 0) {
+			HP = 0;
+			g.gameOver();
+			g.repaint();
+		}
+	}
+
+	public int getXP() {
+		return XP;
+	}
+
+	public int getAdvanceXP() {
+		return XP_TO_LVL[level];
+	}
+
+	public int getLevel() {
+		// TODO Auto-generated method stub
+		return level;
 	}
 
 }

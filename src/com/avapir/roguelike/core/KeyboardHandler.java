@@ -6,11 +6,17 @@ import java.awt.event.KeyListener;
 
 public class KeyboardHandler implements KeyListener {
 
-	private final Game	g;
+	enum GameState {
+		MOVE, VIEW, DISTANCE_ATTACK
+	}
+
+	private final Game		g;
+	private final GameState	state;
 
 	public KeyboardHandler(final Game game) {
 		super();
 		g = game;
+		state = GameState.MOVE;
 	}
 
 	@Override
@@ -22,8 +28,23 @@ public class KeyboardHandler implements KeyListener {
 	@Override
 	public void keyPressed(final KeyEvent e) {
 		if (g.isOver()) {
-			gameOver(e);
+			afterGameOverPressings(e);
+			return;
 		}
+
+		switch (state) {
+		case DISTANCE_ATTACK:
+		break;
+		case MOVE:
+			move(e);
+		break;
+		case VIEW:
+		default:
+			throw new IllegalStateException("Wrong game state");
+		}
+	}
+
+	private void move(final KeyEvent e) {
 		Point p;
 		boolean madeTurn = true;
 		switch (e.getKeyCode()) {
@@ -55,15 +76,16 @@ public class KeyboardHandler implements KeyListener {
 		case KeyEvent.VK_NUMPAD9:
 			p = new Point(1, -1);
 		break;
-
+		case KeyEvent.VK_END:
+			p = new Point(0, 0);
 		default:
-			madeTurn = true;
+			madeTurn = false;
 			p = new Point(0, 0);
 			g.EOT(p);
 		break;
 		}
 		if (madeTurn) {
-			Point resultMove = g.getHero().move(p, g);
+			final Point resultMove = g.getHero().move(p, g);
 			if (resultMove != null) {
 				g.EOT(resultMove);
 			}
@@ -72,7 +94,7 @@ public class KeyboardHandler implements KeyListener {
 
 	private int	gameOverPressed	= 0;
 
-	private void gameOver(KeyEvent e) {
+	private void afterGameOverPressings(final KeyEvent e) {
 		gameOverPressed++;
 		if (gameOverPressed > 0) {
 			System.exit(0);

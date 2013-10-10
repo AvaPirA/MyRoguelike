@@ -1,6 +1,5 @@
 package com.avapir.roguelike.core;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -12,14 +11,22 @@ import java.util.Random;
 
 import javax.swing.JFrame;
 
+import com.avapir.roguelike.core.gui.AbstractGamePanel;
+import com.avapir.roguelike.core.gui.GameWindow;
+import com.avapir.roguelike.core.gui.InventoryWindow;
+import com.avapir.roguelike.core.gui.NewLevelWindow;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Mob;
 
 public class Game {
 
-	public static void checkStep(final Point dp) {
-		assert !(dp.x == 1 || dp.x == 0 || dp.x == -1) && (dp.y == 1 || dp.y == 0 || dp.y == -1);
+	public static boolean checkStep(final Point dp) {
+		if (!((dp.x == 1 || dp.x == 0 || dp.x == -1) && (dp.y == 1 || dp.y == 0 || dp.y == -1))) {
+			throw new IllegalArgumentException("Wrong step");
+		} else {
+			return !(dp.x == 0 && dp.y == 0);
+		}
 	}
 
 	public class Log extends LinkedList<String> {
@@ -46,36 +53,38 @@ public class Game {
 
 	}
 
-	Log	gameLog	= new Log();
+	private Log	gameLog	= new Log();
 
 	public void log(final String s) {
 		gameLog.add(s);
 	}
 
-	private final List<Map>		maps	= new ArrayList<>();
-	private Map					currentMap;
-	private int					currentX;
-	private int					currentY;
+	public Log getLog() {
+		return gameLog;
+	}
 
-	private final GameWindow	gameWindow;
+	private final List<Map>			maps	= new ArrayList<>();
+	private final WindowsManager	winManager;
 
-	private Hero				hero;
-	private List<Mob>			mobs;
-	private final int			mobsAmountScaler;
+	private Hero					hero;
+	private Map						currentMap;
+	private int						currentX;
+	private int						currentY;
 
-	private int					turnCounter;
-	private boolean				gameOver;
+	private List<Mob>				mobs;
+
+	private int						turnCounter;
+	private boolean					gameOver;
 
 	public Game(final String t) {
-		gameWindow = new GameWindow(t, this);
-		mobsAmountScaler = 15;
+		winManager = new WindowsManager(t, this);
+		hero = new Hero(-1, -1, "Hero", currentMap);
 	}
 
 	public void start() {
-		// TODO потом мб надо поставить подходящий конструктор для карты
+		// TODO потом надо поставить подходящий конструктор для карты
 		final int firstMap = 0;
 		maps.add(firstMap, new Map(this, 200, 200));
-		hero = new Hero(-1, -1, "Hero", currentMap);
 		switchToMap(firstMap);
 		turnCounter = 0;
 	}
@@ -96,7 +105,7 @@ public class Game {
 
 	public void done() {
 		loadFonts();
-		gameWindow.setVisible(true);
+		winManager.showGame(true);
 	}
 
 	private void loadFonts() {
@@ -125,20 +134,18 @@ public class Game {
 		return turnCounter;
 	}
 
-	public void init() {
-		gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		gameWindow.setBackground(Color.black);
-	}
+	public void init() {}
 
 	public void move(final Point p) {
-		checkStep(p);
-		log("Перешел в [" + hero.getX() + ", " + hero.getY() + "]");
+		if (checkStep(p)) {
+			log("Перешел в [" + hero.getX() + ", " + hero.getY() + "]");
+		}
 		currentX += p.x;
 		currentY += p.y;
 	}
 
 	public void repaint() {
-		gameWindow.repaint();
+		winManager.repaintGame();
 	}
 
 	public int X() {
@@ -164,13 +171,11 @@ public class Game {
 
 	private void placeMobsAndItems(final int scaler) {
 		mobs = new LinkedList<>();
-		// mobs.add(Mob.MobSet.getSlime());
-		// currentMap.putCharacter(mobs.get(0), hero.getX() + 10, hero.getY() + 10);
 
-		Random r = new Random();
+		final Random r = new Random();
 		for (int x = 0; x < currentMap.getWidth(); x++) {
 			for (int y = 0; y < currentMap.getHeight(); y++) {
-				if (r.nextInt(70) == 1) {
+				if (currentMap.hasTile(x, y) && r.nextInt(70) == 1) {
 					mobs.add(Mob.MobSet.getSlime());
 					currentMap.putCharacter(mobs.get(mobs.size() - 1), x, y);
 				}
@@ -184,16 +189,23 @@ public class Game {
 	}
 
 	private void setScreenCenterAt(final Point p) {
-		currentX = p.x - GameWindow.getWidthInTiles() / 2;
-		currentY = p.y - GameWindow.getHeightInTiles() / 2;
+		currentX = p.x - AbstractGamePanel.getWidthInTiles() / 2;
+		currentY = p.y - AbstractGamePanel.getHeightInTiles() / 2;
 	}
 
-	void EOT(Point p) {
-		move(p);
+	/**
+	 * Обрабатывает всю хурму после хода игрока, если не выполнилось условие конца игры.
+	 * 
+	 * 
+	 * @param mapMove
+	 *            если герой сдвинулся, то нужно сдвинуть карту в том же направлении
+	 */
+	void EOT(final Point mapMove) {
+		move(mapMove);
 		checkGameOverConditions();
 		// TODO SET GAME.BISY
 		if (gameOver) {
-			gameWindow.repaint();
+			repaint();
 			return;
 		}
 		currentMap.computeFOV(hero.getX(), hero.getY(), Hero.StatsFormulas.getFOVR(hero));
@@ -202,15 +214,58 @@ public class Game {
 
 		turnCounter++;
 		gameLog.refresh();
-		gameWindow.repaint();
+		repaint();
 	}
 
 	public boolean isOver() {
 		return gameOver;
 	}
 
+	/**
+	 * Устанавливает состояния конца игры
+	 */
 	public void gameOver() {
 		gameOver = true;
+	}
+
+	public static final class WindowsManager {
+		private final GameWindow		gameWindow;
+		private final NewLevelWindow	newLevelWindow;
+		private final InventoryWindow	inventoryWindow;
+
+		public WindowsManager(String title, Game game) {
+			gameWindow = new GameWindow(title, game);
+			gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+			newLevelWindow = new NewLevelWindow(game);
+			newLevelWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+			inventoryWindow = new InventoryWindow(game);
+			inventoryWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		}
+
+		public void repaintGame() {
+			gameWindow.repaint();
+		}
+
+		public void showGame(boolean visibility) {
+			gameWindow.setVisible(visibility);
+		}
+
+		public void showInventory(boolean visibility) {
+			// TODO
+			// inventoryWindow.setVisible(visibility);
+		}
+
+		public void showNewLevel(boolean visibility) {
+			// TODO
+			// newLevelWindow.setVisible(visibility);
+		}
+
+	}
+
+	public WindowsManager getWindowsManager() {
+		return winManager;
 	}
 
 }

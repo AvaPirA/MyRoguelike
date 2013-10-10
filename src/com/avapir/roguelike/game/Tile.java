@@ -15,12 +15,12 @@ import com.avapir.roguelike.locatable.Mob;
  */
 public class Tile {
 
-	public static final int	SIZE_px		= 32;
+	public static final int		SIZE_px		= 32;
 
-	private Mob				charHere	= null;
-	private List<Item>		itemsHere	= new ArrayList<>();
-	private final Tile.Type	initialType;
-	private int				flags;
+	private Mob					charHere	= null;
+	private final List<Item>	itemsHere	= new ArrayList<>();
+	private final Tile.Type		initialType;
+	private int					flags;
 
 	public Tile(final Tile.Type it) {
 		initialType = it;
@@ -142,7 +142,7 @@ public class Tile {
 		}
 	}
 
-//@formatter:off
+	//@formatter:off
 	public boolean isVisible() 			{return checkFlag(Flag.VISIBLE);}
 	public boolean isSeen() 			{return checkFlag(Flag.SEEN);}
 	public boolean isLantern() 			{return checkFlag(Flag.LIGHT_ON);}
@@ -150,7 +150,7 @@ public class Tile {
 
 	public boolean isPassable() 		{return checkFlag(Flag.PASSABLE);}
 	public boolean isEmpty() 			{return checkFlag(Flag.EMPTY);}
-	
+
 	public boolean isGrass() 			{return checkFlag(Flag.GRASS);}
 	public boolean isStone() 			{return checkFlag(Flag.STONES);}
 	public boolean isIce() 				{return checkFlag(Flag.ICE);}
@@ -163,10 +163,10 @@ public class Tile {
 	public boolean isUpLadder() 		{return checkFlag(Flag.UP_LADDER);}
 	public boolean isDownLadder() 		{return checkFlag(Flag.DOWN_LADDER);}
 
-	
+
 	public void setVisible(final boolean b) {setFlag(b, Flag.VISIBLE);}
 	public void setSeen(final boolean b) 	{setFlag(b, Flag.SEEN);}
-//@formatter:on
+	//@formatter:on
 
 	// add-methods
 
@@ -210,8 +210,8 @@ public class Tile {
 	public List<Item> getItemList() {
 		return itemsHere;
 	}
-	
-	public Type getType(){
+
+	public Type getType() {
 		return initialType;
 	}
 

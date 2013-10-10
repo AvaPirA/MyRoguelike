@@ -10,7 +10,7 @@ import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.battle.Battle;
 import com.avapir.roguelike.core.Game;
-import com.avapir.roguelike.core.GamePanel;
+import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.game.ai.AI;
@@ -24,7 +24,7 @@ public class Mob implements Locatable {
 													new SlimeAI(), "Slime");
 
 		public static Mob getSlime() {
-			Mob m = new Mob(slime);
+			final Mob m = new Mob(slime);
 			return m;
 		}
 
@@ -157,7 +157,7 @@ public class Mob implements Locatable {
 
 		final int ny = getY() + dp.y;
 		final int nx = getX() + dp.x;
-		Tile t = g.getMap().getTile(nx, ny);
+		final Tile t = g.getMap().getTile(nx, ny);
 		if (t != null) {
 			if (t.getMob() != null) {
 				final float dmg = attackMob(new Point(nx, ny), g);
@@ -170,7 +170,7 @@ public class Mob implements Locatable {
 				if (this == g.getHero()) {
 					switch (t.getItemList().size()) {
 					case 1:
-						g.log("Здесь есть " + t.getItemList().get(0).getName() + ".");
+						g.log(String.format("Здесь есть %s.",t.getItemList().get(0).getName()));
 					case 0:
 					break;
 					default:
@@ -191,14 +191,14 @@ public class Mob implements Locatable {
 
 	protected float attackMob(final Point dp, final Game g) {
 
-		Mob defender = g.getMap().getTile(dp.x, dp.y).getMob();
+		final Mob defender = g.getMap().getTile(dp.x, dp.y).getMob();
 		if (defender != g.getHero() && this != g.getHero()) { return 0; }
 		float damage = Battle.computeDamage(getAttack(), defender.getArmor());
 		defender.receiveDamage(damage, g);
 
 		g.log(String.format("%s наносит %s урона по %s", this.getName(), damage, defender.getName()));
 		g.log(String.format("У %s осталось %s здоровья", defender.getName(),
-				GamePanel.roundOneDigit(defender.getHP())));
+				AbstractGamePanel.roundOneDigit(defender.getHP())));
 
 		if (defender.getHP() <= 0) {
 			damage -= defender.getHP() * 2;// bonus XP for Overkills
@@ -207,15 +207,10 @@ public class Mob implements Locatable {
 		return damage;
 	}
 
-	private void receiveDamage(final float dmg, Game g) {
+	protected void receiveDamage(final float dmg, final Game g) {
 		HP -= dmg;
 		if (HP <= 0) {
-			HP = 0;
 			g.getMap().removeCharacter(X, Y);
-			if (this == g.getHero()) {
-				g.gameOver();
-				g.repaint();
-			}
 		}
 	}
 

@@ -43,7 +43,7 @@ public class Armor {
 		return this;
 	}
 
-	public Armor replaceBy(Armor armor) {
+	public Armor replaceBy(final Armor armor) {
 		if (armor == null) { return this; }
 		for (int i = 0; i < TOTAL_DEF_TYPES; i++) {
 			this.armor[i] = armor.armor[i];

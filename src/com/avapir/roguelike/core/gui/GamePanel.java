@@ -1,51 +1,38 @@
-package com.avapir.roguelike.core;
+package com.avapir.roguelike.core.gui;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.TexturePaint;
-import java.awt.Toolkit;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.util.StringTokenizer;
-
-import javax.swing.JPanel;
 
 import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
+import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.core.KeyboardHandler;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Mob;
 
-public class GamePanel extends JPanel {
+public class GamePanel extends AbstractGamePanel {
 
 	/**
 	 * 
 	 */
-	private static final long		serialVersionUID	= 1L;
-	private final Game				game;
-	private final GameWindow		parentWindow;
-	private final int				WIDTH_IN_TILES;
-	private final int				HEIGHT_IN_TILES;
+	private static final long	serialVersionUID	= 1L;
+	private final Game			game;
+	private int					WIDTH_IN_TILES;
+	private int					HEIGHT_IN_TILES;
 
-	private static final Toolkit	tKit				= Toolkit.getDefaultToolkit();
-
-	public boolean hasTileOnScreen(final int y, final int x) {
-		return y >= game.Y() && y < HEIGHT_IN_TILES + game.Y() && x >= game.X()
-				&& x < WIDTH_IN_TILES + game.X();
-	}
-
-	public GamePanel(final Game g, final GameWindow window, final int tilesX, final int tilesY) {
+	public GamePanel(final Game g) {
 		super();
 		game = g;
-		parentWindow = window;
-		// log = new Log();
-		WIDTH_IN_TILES = tilesX;
-		HEIGHT_IN_TILES = tilesY;
+		WIDTH_IN_TILES = getWidthInTiles();
+		HEIGHT_IN_TILES = getHeightInTiles();
 		addKeyListener(new KeyboardHandler(game));
 		setFocusable(true);
 	}
@@ -71,7 +58,7 @@ public class GamePanel extends JPanel {
 				g2.setColor(COLOR_SET[col]);
 				continue;
 			}
-			dS(g2, lastX, lastY, token);
+			drawString(g2, lastX, lastY, token);
 			bounds = f.getStringBounds(token, context);
 			lastX += bounds.getWidth();
 		}
@@ -86,17 +73,18 @@ public class GamePanel extends JPanel {
 		paintMap(g2, game.getMap());
 		paintGUI(g2);
 		paintLog(g2);
-		if(game.isOver()){
-			Image img = tKit.getImage("res/sprite/gameover.png");
-			drawImage(g,img,(WIDTH_IN_TILES*Tile.SIZE_px-img.getWidth(null))/2, (HEIGHT_IN_TILES*Tile.SIZE_px-img.getHeight(null))/2);
-		} 
-
+		if (game.isOver()) {
+			final Image img = getImage("gameover.png");
+			drawImage(g, img, (WIDTH_IN_TILES * Tile.SIZE_px - img.getWidth(null)) / 2,
+					(HEIGHT_IN_TILES * Tile.SIZE_px - img.getHeight(null)) / 2);
+		}
 		// } else {
 		// TODO BORG RUN PAINTING
 		// }
 	}
 
-	private void paintGUI(final Graphics2D g2) {
+	@Override
+	protected void paintGUI(final Graphics2D g2) {
 		g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 		final int guiOffH = HEIGHT_IN_TILES * Tile.SIZE_px / 2;
 		final int guiOffW = WIDTH_IN_TILES * Tile.SIZE_px + 15;
@@ -104,22 +92,27 @@ public class GamePanel extends JPanel {
 		final Hero h = game.getHero();
 
 		g2.setColor(Color.yellow);
-		dS(g2, guiOffW, guiOffH - 30, "X: " + h.getX());
-		dS(g2, guiOffW, guiOffH - 15, "Y: " + h.getY());
-		dS(g2, guiOffW, guiOffH, h.getName());
+		drawString(g2, guiOffW, guiOffH - 30, "X: " + h.getX());
+		drawString(g2, guiOffW, guiOffH - 15, "Y: " + h.getY());
+		drawString(g2, guiOffW, guiOffH, h.getName());
+		drawString(g2, guiOffW + 50, guiOffH,
+				String.format("Level [%s] (%s/%s)", h.getLevel(), h.getXP(), h.getAdvanceXP()));
 
 		g2.setColor(Color.green);
-		dS(g2, guiOffW, guiOffH + 25, h.getHP() + "/" + Hero.StatsFormulas.getMaxHP(h));
+		drawString(g2, guiOffW, guiOffH + 20,
+				String.format("%s/%s", h.getHP(), Hero.StatsFormulas.getMaxHP(h)));
 
 		g2.setColor(Color.blue);
-		dS(g2, guiOffW, guiOffH + 40, h.getMP() + "/" + Hero.StatsFormulas.getMaxMP(h));
+		drawString(g2, guiOffW, guiOffH + 35,
+				String.format("%s/%s", h.getMP(), Hero.StatsFormulas.getMaxMP(h)));
 
 		g2.setColor(Color.red);
 		for (int i = 0; i < Attack.TOTAL_DMG_TYPES; i++) {
 			final float heroDmg = roundOneDigit(h.getAttack(i));
 			final float pureDmg = roundOneDigit(((Mob) h).getAttack(i));
 			final float itemDmg = heroDmg - pureDmg;
-			dS(g2, guiOffW, guiOffH + 60 + i * 15, pureDmg + " + " + itemDmg + " = " + heroDmg);
+			drawString(g2, guiOffW, guiOffH + 60 + i * 15,
+					String.format("%s + %s = %s", pureDmg, itemDmg, heroDmg));
 		}
 
 		g2.setColor(Color.orange);
@@ -127,30 +120,25 @@ public class GamePanel extends JPanel {
 			final float heroDef = roundOneDigit(h.getArmor(i));
 			final float pureDef = roundOneDigit(((Mob) h).getArmor(i));
 			final float itemDef = heroDef - pureDef;
-			dS(g2, guiOffW + 150, guiOffH + 60 + i * 15, pureDef + " + " + itemDef + " = "
-					+ heroDef);
+			drawString(g2, guiOffW + 150, guiOffH + 60 + i * 15,
+					String.format("%s + %s = %s", pureDef, itemDef, heroDef));
 		}
 		g2.setColor(Color.yellow);
 		final String[] stat = { "STR", "AGI", "VIT", "INT", "DEX", "LUK" };
 		for (int i = 0; i < 6; i++) {
-			dS(g2, guiOffW, guiOffH + 170 + i * 15, stat[i] + "  " + h.getStats().values(i));
+			drawString(g2, guiOffW, guiOffH + 170 + i * 15, stat[i] + "  " + h.getStats().values(i));
 		}
 	}
 
-	public static float roundOneDigit(final float f) {
-		return Math.round(10 * f) / 10f;
-	}
-
 	private static Font	f	= new Font("Times New Roman", Font.PLAIN, 15);
-	{}
 
 	private void paintLog(final Graphics2D g2) {
 		final int off = 15;
 		g2.setFont(f);
-		for (int i = 0; i < game.gameLog.size(); i++) {
+		for (int i = 0; i < game.getLog().size(); i++) {
 			g2.setColor(Color.white);
-			dS(g2, off + WIDTH_IN_TILES * Tile.SIZE_px, off + i * f.getSize() + 3,
-					game.gameLog.get(i));
+			drawString(g2, off + WIDTH_IN_TILES * Tile.SIZE_px, off + i * f.getSize() + 3, game
+					.getLog().get(i));
 		}
 	}
 
@@ -169,13 +157,13 @@ public class GamePanel extends JPanel {
 				final Tile tile = map.getTile(x, y);
 				g2.setColor(Color.red);
 				if (map.hasTile(x, y)) {
-					drawImage(g2, tKit.getImage("res/sprite/empty.png"), xx, yy);
+					drawImage(g2, getImage("empty.png"), xx, yy);
 					if (tile.isVisible()) {
 						paintTile(g2, tile, xx, yy);
 						// dS(g2, xx, yy, "vis");
 					} else if (tile.isSeen()) {
 						paintTile(g2, tile, xx, yy);
-						drawImage(g2, tKit.getImage("res/sprite/wFog.png"), xx, yy);
+						drawImage(g2, getImage("wFog.png"), xx, yy);
 						// dS(g2, xx, yy, "seen");
 					} else {
 						// dS(g2, xx, yy, "invi");
@@ -187,24 +175,16 @@ public class GamePanel extends JPanel {
 		}
 	}
 
-	private void dS(final Graphics2D g2, final int xx, final int yy, final String s) {
-		g2.drawString(s, xx, yy + 8);
-	}
-
-	private void drawImage(final Graphics g2, final Image img, final int xx, final int yy) {
-		g2.drawImage(img, xx, yy, this);
-	}
-
 	private void paintTile(final Graphics2D g2, final Tile tile, final int xx, final int yy) {
 		switch (tile.getType()) {
 		case GRASS:
-			drawImage(g2, tKit.getImage("res/sprite/grass.png"), xx, yy);
+			drawImage(g2, getImage("grass.png"), xx, yy);
 		break;
 		case TREE:
-			drawImage(g2, tKit.getImage("res/sprite/tree.png"), xx, yy);
+			drawImage(g2, getImage("tree.png"), xx, yy);
 		break;
 		default:
-			drawImage(g2, tKit.getImage("res/sprite/empty.png"), xx, yy);
+			drawImage(g2, getImage("empty.png"), xx, yy);
 		break;
 		}
 		if (tile.isVisible() && tile.getMob() != null) {
@@ -212,13 +192,12 @@ public class GamePanel extends JPanel {
 		}
 	}
 
-	private void paintMob(Mob mob, final Graphics2D g2, final int xx, final int yy) {
+	private void paintMob(final Mob mob, final Graphics2D g2, final int xx, final int yy) {
 		if (mob == game.getHero()) {
-			drawImage(g2, tKit.getImage("res/sprite/hero.png"), xx, yy);
+			drawImage(g2, getImage("hero.png"), xx, yy);
 		} else {
-			drawImage(g2,
-					tKit.getImage(String.format("res/sprite/%s.png", mob.getName().toLowerCase())),
-					xx, yy);
+			drawImage(g2, getImage(String.format("%s.png", mob.getName().toLowerCase())), xx,
+					yy);
 		}
 		if (mob == game.getHero()) {
 			g2.setColor(new Color(0, 255, 0, 128));
@@ -233,34 +212,9 @@ public class GamePanel extends JPanel {
 		g2.fillRect(xx, yy + 3, (int) (Tile.SIZE_px * mob.getMP() / mob.getMaxMp()), 2);
 	}
 
-	public static BufferedImage toBufferedImage(final Image img) {
-		if (img instanceof BufferedImage) { return (BufferedImage) img; }
-		BufferedImage bimage = null;
-		try {
-			bimage = new BufferedImage(img.getWidth(null), img.getHeight(null),
-					BufferedImage.TYPE_INT_ARGB);
-		} catch (final IllegalArgumentException e1) {
-			return toBufferedImage(img);
-		}
-		final Graphics2D bGr = bimage.createGraphics();
-		bGr.drawImage(img, 0, 0, null);
-		bGr.dispose();
-
-		return bimage;
-	}
-
-	private void paintBackground(final Graphics2D g2) {
-		// g2.setColor(Color.BLACK);
-		final BufferedImage bgTexture = toBufferedImage(tKit
-				.getImage("res/sprite/seamless_wall04.jpg"));
-		final Rectangle2D canvas = new Rectangle2D.Double(0, 0, parentWindow.getWindowWidth(),
-				parentWindow.getWindowHeight());
-		final Rectangle2D tr = new Rectangle2D.Double(0, 0, bgTexture.getWidth(),
-				bgTexture.getHeight());
-		// Create the TexturePaint.
-		final TexturePaint tp = new TexturePaint(bgTexture, tr);
-		g2.setPaint(tp);
-		g2.fill(canvas);
+	private boolean hasTileOnScreen(final int y, final int x) {
+		return y >= game.Y() && y < HEIGHT_IN_TILES + game.Y() && x >= game.X()
+				&& x < WIDTH_IN_TILES + game.X();
 	}
 
 }

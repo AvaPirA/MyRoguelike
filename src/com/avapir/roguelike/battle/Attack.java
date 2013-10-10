@@ -50,7 +50,6 @@ public class Attack {
 		return this;
 	}
 
-	
 	public Attack addDamageFromAttack(final Attack atk) {
 		if (atk == null) { return this; }
 
@@ -86,17 +85,17 @@ public class Attack {
 	public float[] getDamage() {
 		return damage;
 	}
-	
-	public Attack replaceBy(Attack attack){
-		if(attack == null){return this;}
-		
+
+	public Attack replaceBy(final Attack attack) {
+		if (attack == null) { return this; }
+
 		clear();
 		addAttack(attack);
 		return this;
 	}
-	
-	private void clear(){
-		for(int i = 0; i<TOTAL_DMG_TYPES; i++){
+
+	private void clear() {
+		for (int i = 0; i < TOTAL_DMG_TYPES; i++) {
 			damage[i] = 0;
 		}
 		effects.clear();
