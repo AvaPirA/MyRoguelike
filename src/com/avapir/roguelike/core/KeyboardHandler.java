@@ -21,6 +21,9 @@ public class KeyboardHandler implements KeyListener {
 
 	@Override
 	public void keyPressed(final KeyEvent e) {
+		if (g.isOver()) {
+			gameOver(e);
+		}
 		Point p;
 		boolean madeTurn = true;
 		switch (e.getKeyCode()) {
@@ -64,6 +67,15 @@ public class KeyboardHandler implements KeyListener {
 			if (resultMove != null) {
 				g.EOT(resultMove);
 			}
+		}
+	}
+
+	private int	gameOverPressed	= 0;
+
+	private void gameOver(KeyEvent e) {
+		gameOverPressed++;
+		if (gameOverPressed > 0) {
+			System.exit(0);
 		}
 	}
 

@@ -88,9 +88,8 @@ public class Map {
 		while (!putCharacter(c, x, y)) {
 			x = random.nextInt(WIDTH_MAP);
 			y = random.nextInt(HEIGHT_MAP);
-			if (counter++ > maxCounter) {
-				throw new RuntimeException("Bad map: no place to put character");
-			}
+			if (counter++ > maxCounter) { throw new RuntimeException(
+					"Bad map: no place to put character"); }
 		}
 		return new Point(x, y);
 	}
@@ -152,11 +151,11 @@ public class Map {
 			usedSeeds.add(seed);
 			for (int i = 0; i < map.WIDTH_MAP; i++) {
 				for (int j = 0; j < map.HEIGHT_MAP; j++) {
-					// if(random.nextInt(100)>30) {
-					// map.field[j][i] = new Tile(Tile.Type.EMPTY);
-					// }else{
-					map.field[j][i] = new Tile(Tile.Type.GRASS);
-					// }
+					if (random.nextInt(100) > 80) {
+						map.field[j][i] = new Tile(Tile.Type.TREE);
+					} else {
+						map.field[j][i] = new Tile(Tile.Type.GRASS);
+					}
 				}
 			}
 		}
@@ -271,6 +270,18 @@ public class Map {
 
 	public static float distance(final Point2D.Float p1, final Point2D.Float p2) {
 		return (float) p1.distance(p2);
+	}
+
+	public List<Tile> getVisible() {
+		List<Tile> list = new ArrayList<>();
+		for (Tile[] tt : field) {
+			for (Tile t : tt) {
+				if (t.isVisible()) {
+					list.add(t);
+				}
+			}
+		}
+		return list;
 	}
 
 }

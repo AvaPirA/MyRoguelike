@@ -12,6 +12,7 @@ import com.avapir.roguelike.battle.Battle;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.GamePanel;
 import com.avapir.roguelike.game.Map;
+import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.game.ai.AI;
 import com.avapir.roguelike.game.ai.SlimeAI;
 
@@ -35,6 +36,13 @@ public class Mob implements Locatable {
 		public void computeAI(final Mob m, final Game g) {
 			if (!g.isOver()) {
 				if (m == g.getHero()) {
+					// Hero h = (Hero) m;
+					// final int fovRad = Hero.StatsFormulas.getFOVR(h);
+					// final int minX = h.getX() - fovRad;
+					// final int maxX = h.getX() + fovRad;
+					// final int minY = h.getY() - fovRad;
+					// final int maxY = h.getY() + fovRad;
+					// цикл запили
 
 				}
 			}
@@ -81,7 +89,7 @@ public class Mob implements Locatable {
 		baseArmor.addArmor(bDef);
 
 		HP = hp;
-		
+
 		maxHP = HP;
 		maxMP = MP;
 
@@ -149,28 +157,30 @@ public class Mob implements Locatable {
 
 		final int ny = getY() + dp.y;
 		final int nx = getX() + dp.x;
-		if (m.hasTile(nx, ny)) {
-			if (m.getTile(nx, ny).getMob() != null) {
+		Tile t = g.getMap().getTile(nx, ny);
+		if (t != null) {
+			if (t.getMob() != null) {
 				final float dmg = attackMob(new Point(nx, ny), g);
 				if (this == g.getHero()) {
-					((Hero)this).gainXPfromDamage(dmg, g);
+					((Hero) this).gainXPfromDamage(dmg, g);
 				}
 				return new Point(0, 0);
-			} else if (m.getTile(nx, ny).isPassable()) {
+			} else if (t.isPassable()) {
 				m.putCharacter(this, nx, ny);
 				if (this == g.getHero()) {
-					switch (m.getTile(nx, ny).getItemList().size()) {
+					switch (t.getItemList().size()) {
 					case 1:
-						g.log("Здесь есть " + m.getTile(nx, ny).getItemList().get(0).getName()
-								+ ".");
+						g.log("Здесь есть " + t.getItemList().get(0).getName() + ".");
 					case 0:
 					break;
 					default:
 						g.log("Здесь лежит много вещей.");
 					}
 				}
-			} else if (m.getTile(nx, ny).isClosed() && this == g.getHero()) {
+			} else if (t.isClosed() && this == g.getHero()) {
 				// g.TryToOpen(ny, nx, true);
+				return new Point(0, 0);
+			} else {
 				return new Point(0, 0);
 			}
 			return dp;
@@ -180,27 +190,33 @@ public class Mob implements Locatable {
 	}
 
 	protected float attackMob(final Point dp, final Game g) {
+
 		Mob defender = g.getMap().getTile(dp.x, dp.y).getMob();
+		if (defender != g.getHero() && this != g.getHero()) { return 0; }
 		float damage = Battle.computeDamage(getAttack(), defender.getArmor());
-		defender.receiveDamage(damage);
-		
+		defender.receiveDamage(damage, g);
+
 		g.log(String.format("%s наносит %s урона по %s", this.getName(), damage, defender.getName()));
 		g.log(String.format("У %s осталось %s здоровья", defender.getName(),
 				GamePanel.roundOneDigit(defender.getHP())));
 
 		if (defender.getHP() <= 0) {
 			damage -= defender.getHP() * 2;// bonus XP for Overkills
-			g.getMap().removeCharacter(defender.getX(), defender.getY());
 		}
-		if (this.HP <= 0) {
-			g.getMap().removeCharacter(this.X, this.Y);
-		}
-		
+
 		return damage;
 	}
 
-	private void receiveDamage(final float dmg) {
+	private void receiveDamage(final float dmg, Game g) {
 		HP -= dmg;
+		if (HP <= 0) {
+			HP = 0;
+			g.getMap().removeCharacter(X, Y);
+			if (this == g.getHero()) {
+				g.gameOver();
+				g.repaint();
+			}
+		}
 	}
 
 	public Armor getArmor() {

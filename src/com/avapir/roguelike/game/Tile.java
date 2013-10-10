@@ -58,12 +58,14 @@ public class Tile {
 				return new Tile(EMPTY, Flag.EMPTY, Flag.PASSABLE, Flag.TRANSPARENT);
 			case GRASS:
 				return new Tile(GRASS, Flag.GRASS, Flag.PASSABLE, Flag.TRANSPARENT);
+			case TREE:
+				return new Tile(TREE, Flag.GRASS);
 			default:
 				return null;
 			}
 		}
 
-		static Tile[]	examples	= { getDefault(Type.EMPTY), getDefault(GRASS) };
+		static Tile[]	examples	= { getDefault(Type.EMPTY), getDefault(GRASS), getDefault(TREE) };
 	}
 
 	/**
@@ -207,6 +209,10 @@ public class Tile {
 
 	public List<Item> getItemList() {
 		return itemsHere;
+	}
+	
+	public Type getType(){
+		return initialType;
 	}
 
 	// remove-methods

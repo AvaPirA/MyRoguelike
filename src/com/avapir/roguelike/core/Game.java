@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.JFrame;
 
@@ -90,7 +91,7 @@ public class Game {
 		setScreenCenterAt(currentMap.putCharacter(hero));
 		placeMobsAndItems(index);
 
-		EOT(new Point(0,0));
+		EOT(new Point(0, 0));
 	}
 
 	public void done() {
@@ -107,8 +108,8 @@ public class Game {
 
 	private void doAIforAll() {
 		hero.doAI(this);
-		for (final Mob mob : mobs) {
-			mob.doAI(this);
+		for (int i = 0; i < mobs.size(); i++) {
+			mobs.get(i).doAI(this);
 		}
 	}
 
@@ -149,10 +150,9 @@ public class Game {
 	}
 
 	private void checkGameOverConditions() {
-		// if (hero.getHP() <= 0) {
-		// System.out.println("LOL");
-		// gameOver = true;
-		// }
+		if (hero.getHP() <= 0) {
+			gameOver = true;
+		}
 	}
 
 	private void doTurnEffects() {
@@ -164,11 +164,17 @@ public class Game {
 
 	private void placeMobsAndItems(final int scaler) {
 		mobs = new LinkedList<>();
-		mobs.add(Mob.MobSet.getSlime());
-		currentMap.putCharacter(mobs.get(0), hero.getX() + 10, hero.getY() + 10);
+		// mobs.add(Mob.MobSet.getSlime());
+		// currentMap.putCharacter(mobs.get(0), hero.getX() + 10, hero.getY() + 10);
 
-		for (int i = 0; i < mobsAmountScaler * scaler; i++) {
-
+		Random r = new Random();
+		for (int x = 0; x < currentMap.getWidth(); x++) {
+			for (int y = 0; y < currentMap.getHeight(); y++) {
+				if (r.nextInt(70) == 1) {
+					mobs.add(Mob.MobSet.getSlime());
+					currentMap.putCharacter(mobs.get(mobs.size() - 1), x, y);
+				}
+			}
 		}
 	}
 
@@ -184,21 +190,27 @@ public class Game {
 
 	void EOT(Point p) {
 		move(p);
+		checkGameOverConditions();
 		// TODO SET GAME.BISY
 		if (gameOver) {
+			gameWindow.repaint();
 			return;
 		}
 		currentMap.computeFOV(hero.getX(), hero.getY(), Hero.StatsFormulas.getFOVR(hero));
 		doAIforAll();
 		doTurnEffects();
-		checkGameOverConditions();
+
 		turnCounter++;
 		gameLog.refresh();
 		gameWindow.repaint();
 	}
 
-	public boolean isOver(){
+	public boolean isOver() {
 		return gameOver;
+	}
+
+	public void gameOver() {
+		gameOver = true;
 	}
 
 }

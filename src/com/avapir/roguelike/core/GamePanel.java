@@ -86,6 +86,11 @@ public class GamePanel extends JPanel {
 		paintMap(g2, game.getMap());
 		paintGUI(g2);
 		paintLog(g2);
+		if(game.isOver()){
+			Image img = tKit.getImage("res/sprite/gameover.png");
+			drawImage(g,img,(WIDTH_IN_TILES*Tile.SIZE_px-img.getWidth(null))/2, (HEIGHT_IN_TILES*Tile.SIZE_px-img.getHeight(null))/2);
+		} 
+
 		// } else {
 		// TODO BORG RUN PAINTING
 		// }
@@ -191,36 +196,45 @@ public class GamePanel extends JPanel {
 	}
 
 	private void paintTile(final Graphics2D g2, final Tile tile, final int xx, final int yy) {
-		if (tile.isEmpty()) {
-			drawImage(g2, tKit.getImage("res/sprite/empty.png"), xx, yy);
-		} else if (tile.isGrass()) {
+		switch (tile.getType()) {
+		case GRASS:
 			drawImage(g2, tKit.getImage("res/sprite/grass.png"), xx, yy);
+		break;
+		case TREE:
+			drawImage(g2, tKit.getImage("res/sprite/tree.png"), xx, yy);
+		break;
+		default:
+			drawImage(g2, tKit.getImage("res/sprite/empty.png"), xx, yy);
+		break;
 		}
-		if (tile.getMob() != null) {
-			paintMob(tile.getMob(),g2, xx, yy);
+		if (tile.isVisible() && tile.getMob() != null) {
+			paintMob(tile.getMob(), g2, xx, yy);
 		}
 	}
 
 	private void paintMob(Mob mob, final Graphics2D g2, final int xx, final int yy) {
-		drawImage(g2, tKit.getImage("res/sprite/hero.png"), xx, yy);
-		
-		if(mob == game.getHero()){
-			g2.setColor(new Color(0,255,0,128));
+		if (mob == game.getHero()) {
+			drawImage(g2, tKit.getImage("res/sprite/hero.png"), xx, yy);
 		} else {
-			g2.setColor(new Color(255,0,0,128));
+			drawImage(g2,
+					tKit.getImage(String.format("res/sprite/%s.png", mob.getName().toLowerCase())),
+					xx, yy);
+		}
+		if (mob == game.getHero()) {
+			g2.setColor(new Color(0, 255, 0, 128));
+		} else {
+			g2.setColor(new Color(255, 0, 0, 128));
 		}
 		g2.fillRect(xx, yy, Tile.SIZE_px, 3);
-		g2.fillRect(xx, yy, (int)(Tile.SIZE_px*mob.getHP()/mob.getMaxHp()), 3);
-		
-		g2.setColor(new Color(0,128,255,128));
-		g2.fillRect(xx, yy+3, Tile.SIZE_px, 2);
-		g2.fillRect(xx, yy+3, (int)(Tile.SIZE_px*mob.getMP()/mob.getMaxMp()), 2);
+		g2.fillRect(xx, yy, (int) (Tile.SIZE_px * mob.getHP() / mob.getMaxHp()), 3);
+
+		g2.setColor(new Color(0, 128, 255, 128));
+		g2.fillRect(xx, yy + 3, Tile.SIZE_px, 2);
+		g2.fillRect(xx, yy + 3, (int) (Tile.SIZE_px * mob.getMP() / mob.getMaxMp()), 2);
 	}
 
 	public static BufferedImage toBufferedImage(final Image img) {
-		if (img instanceof BufferedImage) {
-			return (BufferedImage) img;
-		}
+		if (img instanceof BufferedImage) { return (BufferedImage) img; }
 		BufferedImage bimage = null;
 		try {
 			bimage = new BufferedImage(img.getWidth(null), img.getHeight(null),
