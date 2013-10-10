@@ -10,6 +10,7 @@ import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.battle.Battle;
 import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.core.GamePanel;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.ai.AI;
 import com.avapir.roguelike.game.ai.SlimeAI;
@@ -22,74 +23,109 @@ public class Mob implements Locatable {
 													new SlimeAI(), "Slime");
 
 		public static Mob getSlime() {
-			return new Mob(slime);
+			Mob m = new Mob(slime);
+			return m;
 		}
+
 	}
 
 	private static final class Borg implements AI {
 
 		@Override
 		public void computeAI(final Mob m, final Game g) {
-			// TODO Auto-generated method stub
+			if (!g.isOver()) {
+				if (m == g.getHero()) {
 
+				}
+			}
 		}
 
 	}
 
-	{
-		mobID = mobs++;
-	}
-	public final int				mobID;
-	private static int				mobs		= 0;
+	// {
+	// mobID = mobs++;
+	// }
+	// public final int mobID;
+	// private static int mobs = 0;
 
-	protected final List<Effect>	effects;
-
-	protected float					HP			= 0;
-	protected float					MP			= 0;
-	protected Attack				baseAttack	= new Attack();
-	protected Armor					baseArmor	= new Armor();
-
+	private final String			name;
 	private final AI				intel;
-	public final String				name;
 
+	protected final List<Effect>	effects		= new ArrayList<>();
+	protected final Attack			baseAttack	= new Attack();
+	protected final Armor			baseArmor	= new Armor();
+
+	protected float					HP;
+	protected float					MP;
+	protected float					maxMP;
+	protected float					maxHP;
+
+	/**
+	 * Constructor used into {@link MobSet} to create fully described monsters.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param hp
+	 * @param mp
+	 * @param bAtk
+	 * @param bDef
+	 * @param ai
+	 * @param nm
+	 */
 	private Mob(final int x, final int y, final int hp, final int mp, final Attack bAtk,
-			final Armor bDef, final AI ai, final String n) {
+			final Armor bDef, final AI ai, final String nm) {
+		name = nm;
+		intel = ai;
+
+		baseAttack.addAttack(bAtk);
+		baseArmor.addArmor(bDef);
+
+		HP = hp;
+		
+		maxHP = HP;
+		maxMP = MP;
+
 		X = x;
 		Y = y;
-		HP = hp;
-		MP = mp;
-		baseAttack = bAtk;
-		baseArmor = bDef;
-		intel = ai;
-		name = n;
-		effects = new ArrayList<>();
 	}
 
+	/**
+	 * Public constructor
+	 * 
+	 * @param x
+	 * @param y
+	 * @param ai
+	 * @param n
+	 * @param m
+	 */
 	public Mob(final int x, final int y, final AI ai, final String n, final Map m) {
 		intel = BORG ? new Borg() : ai != null ? ai : new AI() {
-
 			@Override
-			public void computeAI(final Mob m, final Game g) {
-				// TODO Auto-generated method stub
-
-			}
+			public void computeAI(final Mob m, final Game g) {}
 		};
+
 		name = n;
-		effects = new ArrayList<>();
+
 		if (m != null && m.hasTile(x, y)) {
 			m.putCharacter(this, x, y);
 		}
 	}
 
+	/**
+	 * Copying constructor
+	 * 
+	 * @param m
+	 */
 	private Mob(final Mob m) {
 		X = m.X;
 		Y = m.Y;
-		baseArmor = m.baseArmor;
-		baseAttack = m.baseAttack;
-		effects = new ArrayList<>();
+		baseArmor.addArmor(baseArmor);
+		baseAttack.addAttack(m.baseAttack);
 		effects.addAll(m.effects);
 		HP = m.HP;
 		MP = m.MP;
+		maxHP = m.maxHP;
+		maxMP = m.maxMP;
 		intel = m.intel;
 		name = m.name;
 	}
@@ -116,17 +152,16 @@ public class Mob implements Locatable {
 		if (m.hasTile(nx, ny)) {
 			if (m.getTile(nx, ny).getMob() != null) {
 				final float dmg = attackMob(new Point(nx, ny), g);
-				if (mobID == 0) {
-					g.getHero().gainXPfromDamage(dmg, g);
+				if (this == g.getHero()) {
+					((Hero)this).gainXPfromDamage(dmg, g);
 				}
-				return new Point(0,0);
+				return new Point(0, 0);
 			} else if (m.getTile(nx, ny).isPassable()) {
 				m.putCharacter(this, nx, ny);
-				if (this.mobID == 0) {
+				if (this == g.getHero()) {
 					switch (m.getTile(nx, ny).getItemList().size()) {
 					case 1:
-						g.log("Здесь есть "
-								+ m.getTile(nx, ny).getItemList().get(0).getName().toLowerCase()
+						g.log("Здесь есть " + m.getTile(nx, ny).getItemList().get(0).getName()
 								+ ".");
 					case 0:
 					break;
@@ -134,9 +169,9 @@ public class Mob implements Locatable {
 						g.log("Здесь лежит много вещей.");
 					}
 				}
-			} else if (m.getTile(nx, ny).isClosed() && mobID == 0) {
+			} else if (m.getTile(nx, ny).isClosed() && this == g.getHero()) {
 				// g.TryToOpen(ny, nx, true);
-				return new Point(0,0);
+				return new Point(0, 0);
 			}
 			return dp;
 		} else {
@@ -145,32 +180,35 @@ public class Mob implements Locatable {
 	}
 
 	protected float attackMob(final Point dp, final Game g) {
-		final Mob defender = g.getMap().getTile(dp.x, dp.y).getMob();
-		float damage = Battle.computeDamage(getAttack(), defender.getDefence());
-		defender.getDamage(damage);
-		g.log(this.getName() + " наносит " + damage + " урона по " + defender.getName());
-		g.log("У " + defender.getName() + " осталось "
-				+ com.avapir.roguelike.core.GamePanel.roundOneDigit(defender.getHP()) + " здоровья");
+		Mob defender = g.getMap().getTile(dp.x, dp.y).getMob();
+		float damage = Battle.computeDamage(getAttack(), defender.getArmor());
+		defender.receiveDamage(damage);
+		
+		g.log(String.format("%s наносит %s урона по %s", this.getName(), damage, defender.getName()));
+		g.log(String.format("У %s осталось %s здоровья", defender.getName(),
+				GamePanel.roundOneDigit(defender.getHP())));
+
 		if (defender.getHP() <= 0) {
 			damage -= defender.getHP() * 2;// bonus XP for Overkills
 			g.getMap().removeCharacter(defender.getX(), defender.getY());
 		}
-		if (this.getHP() <= 0) {
-			g.getMap().removeCharacter(X, Y);
+		if (this.HP <= 0) {
+			g.getMap().removeCharacter(this.X, this.Y);
 		}
+		
 		return damage;
 	}
 
-	private void getDamage(final float dmg) {
+	private void receiveDamage(final float dmg) {
 		HP -= dmg;
 	}
 
-	public Armor getDefence() {
+	public Armor getArmor() {
 		return baseArmor;
 	}
 
-	public float getDefence(final int i) {
-		return getDefence().getArmor(i);
+	public float getArmor(final int i) {
+		return getArmor().getArmor(i);
 	}
 
 	public Attack getAttack() {
@@ -178,7 +216,23 @@ public class Mob implements Locatable {
 	}
 
 	public float getAttack(final int i) {
-		return getAttack().getDamage(i);
+		return getAttack().getDamageOfType(i);
+	}
+
+	/**
+	 * For status-bars
+	 */
+	public float getMaxHp() {
+		return maxHP;
+	}
+
+	/**
+	 * For status-bars
+	 * 
+	 * @return
+	 */
+	public float getMaxMp() {
+		return maxMP;
 	}
 
 	public void doAI(final Game g) {

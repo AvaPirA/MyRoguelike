@@ -197,4 +197,8 @@ public class Game {
 		gameWindow.repaint();
 	}
 
+	public boolean isOver(){
+		return gameOver;
+	}
+
 }

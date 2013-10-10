@@ -17,7 +17,7 @@ public class SlimeAI implements AI {
 		for (int i = x - 4; i < x + 4; i++) {
 			for (int j = y - 4; j < y + 4; j++) {
 				final Tile t = g.getMap().getTile(i, j);
-				if (t != null && t.getMob() != null && t.getMob().mobID == 0) {
+				if (t != null && t.getMob() != null && t.getMob() == g.getHero()) {
 					p.move(i < x ? -1 : i > x ? 1 : 0, j < y ? -1 : j > y ? 1 : 0);
 				}
 			}

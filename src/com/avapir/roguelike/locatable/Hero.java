@@ -13,25 +13,21 @@ import com.avapir.roguelike.game.Map;
 
 public class Hero extends Mob implements Locatable {
 
-//@formatter:off
-	private static final class DefaultStats {
+	private static final class DefaultStats {//@formatter:off
 									/* 	STR 	AGI 	VIT 	INT 	DEX 	LUK */
 		static final int[]	PLAYER	= { 3, 		3, 		3, 		3, 		2, 		1 };	// 16
 		static final int[]	NPC		= { 50, 	100, 	100, 	50, 	50, 	10 };	// 360
 		static final int[]	ELDER	= { 290, 	120,	390, 	700,	400, 	100 }; 	// 2000
 		static final int[]	UNDEAD	= { 120, 	40, 	120, 	0, 		40, 	0 };	// 320
-	}
-//@formatter:on
+	}//@formatter:on
 
-	public static class StatsFormulas {
+	public static final class StatsFormulas {
 
-		// correct
 		public static float getMaxHP(final Hero h) {
 			final int baseHP = 2;
 			return baseHP + 4 * h.stats.getStr() + 7 * h.stats.getVit();
 		}
 
-		// correct
 		public static float getMaxMP(final Hero h) {
 			final int baseMP = 1;
 			return baseMP + 7 * h.stats.getInt();
@@ -73,13 +69,11 @@ public class Hero extends Mob implements Locatable {
 		}
 	}
 
-	public final class PrimaryStats {
+	public static final class PrimaryStats {
 
 		private void ac(final int[] a) {
 			System.arraycopy(a, 0, values, 0, PRIMARY_STATS_AMOUNT);
 		}
-
-//@formatter:off
 
 		/**
 		 * STRength <br>
@@ -92,7 +86,16 @@ public class Hero extends Mob implements Locatable {
 		private static final int	PRIMARY_STATS_AMOUNT	= 6;
 		private final int[]			values					= new int[PRIMARY_STATS_AMOUNT];
 
-		public int get(final int i) {return values[i];}
+		//@formatter:off
+		public PrimaryStats(String name) {
+			if (name.contains("NPC")) {				ac(DefaultStats.NPC);
+			} else if (name.contains("Elder")) {	ac(DefaultStats.ELDER);
+			} else if (name.contains("Undead")) {	ac(DefaultStats.UNDEAD);
+			} else {								ac(DefaultStats.PLAYER);
+			}
+		}
+		
+		public int values(final int i) {return values[i];}
 
 		public int getStr() {return values[0];}
 		public int getAgi() {return values[1];}
@@ -100,15 +103,7 @@ public class Hero extends Mob implements Locatable {
 		public int getInt() {return values[3];}
 		public int getDex() {return values[4];}
 		public int getLuk() {return values[5];}
-
-		public PrimaryStats(final Hero h) {
-			if (name.contains("NPC")) {				ac(DefaultStats.NPC);
-			} else if (name.contains("Elder")) {	ac(DefaultStats.ELDER);
-			} else if (name.contains("Undead")) {	ac(DefaultStats.UNDEAD);
-			} else {								ac(DefaultStats.PLAYER);
-			}
-		}
-//@formatter:on
+		//@formatter:on
 	}
 
 	protected static final class HiddenStats {
@@ -135,7 +130,7 @@ public class Hero extends Mob implements Locatable {
 		}
 	}
 
-	private class Inventory {
+	private final class Inventory {
 
 		private static final int	SLOTS	= 5;
 
@@ -157,11 +152,11 @@ public class Hero extends Mob implements Locatable {
 		// return b;
 		// }
 
-		Attack getDamage() {
+		Attack getAttack() {
 			final Attack atk = new Attack();
 			for (final int index : wearedItems) {
 				if (index < items.size() - 1) {
-					atk.addDamage(items.get(index).getAttack());
+					atk.addAttack(items.get(index).getAttack());
 				}
 			}
 			return atk;
@@ -189,31 +184,33 @@ public class Hero extends Mob implements Locatable {
 
 	}
 
+	private static final int[]	XP_TO_LVL	= { 0, 555555555 };
+
+	private final String		name;
+	private final Inventory		inventory	= new Inventory();
+	private final PrimaryStats	stats;
+
+	private int					level;
+	private int					XP;
+
 	public Hero(final int x, final int y, final String n, final Map m) {
 		super(x, y, null, n, m);
 		// TODO
 		name = n;
-		stats = new PrimaryStats(this);
-		inventory = new Inventory();
+		stats = new PrimaryStats(name);
 		level = 1;
 		XP = 0;
 		restore();
 	}
 
 	private void restore() {
-		HP = Hero.StatsFormulas.getMaxHP(this);
-		MP = Hero.StatsFormulas.getMaxMP(this);
-		baseAttack = Hero.StatsFormulas.getAttack(this);
-		baseArmor = Hero.StatsFormulas.getArmor(this);
+		maxHP = Hero.StatsFormulas.getMaxHP(this);
+		maxMP = Hero.StatsFormulas.getMaxMP(this);
+		HP = maxHP;
+		MP = maxMP/2;
+		baseAttack.replaceBy(Hero.StatsFormulas.getAttack(this));
+		baseArmor.replaceBy(Hero.StatsFormulas.getArmor(this));
 	}
-
-	private final String		name;
-	private final Inventory		inventory;
-	private final PrimaryStats	stats;
-
-	private int					level;
-	private int					XP;
-	private static final int[]	XP_TO_LVL	= { 0, 555555555 };
 
 	@Override
 	public String getName() {
@@ -239,23 +236,23 @@ public class Hero extends Mob implements Locatable {
 	}
 
 	@Override
-	public Armor getDefence() {
-		return super.getDefence().addArmor(inventory.getArmor());
+	public Armor getArmor() {
+		return super.getArmor().addArmor(inventory.getArmor());
 	}
 
 	@Override
-	public float getDefence(final int i) {
-		return getDefence().getArmor(i);
+	public float getArmor(final int i) {
+		return getArmor().getArmor(i);
 	}
 
 	@Override
 	public Attack getAttack() {
-		return super.getAttack().addDamage(inventory.getDamage());
+		return super.getAttack().addAttack(inventory.getAttack());
 	}
 
 	@Override
 	public float getAttack(final int i) {
-		return getAttack().getDamage(i);
+		return getAttack().getDamageOfType(i);
 	}
 
 	public ListIterator<Item> getInventoryIterator() {

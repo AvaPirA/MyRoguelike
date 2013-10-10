@@ -63,6 +63,7 @@ public class Map {
 				field[chr.getY()][chr.getX()].removeCharacter();
 			} catch (final ArrayIndexOutOfBoundsException e) {
 				// placing "from memory"
+				// we will never get here since using if(hasTile(x, y))
 			}
 			chr.setLocation(x, y);
 			return field[y][x].putCharacter(chr);
@@ -87,8 +88,9 @@ public class Map {
 		while (!putCharacter(c, x, y)) {
 			x = random.nextInt(WIDTH_MAP);
 			y = random.nextInt(HEIGHT_MAP);
-			if (counter++ > maxCounter) { throw new RuntimeException(
-					"Bad map: no place to put character"); }
+			if (counter++ > maxCounter) {
+				throw new RuntimeException("Bad map: no place to put character");
+			}
 		}
 		return new Point(x, y);
 	}

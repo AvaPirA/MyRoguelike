@@ -119,8 +119,8 @@ public class GamePanel extends JPanel {
 
 		g2.setColor(Color.orange);
 		for (int i = 0; i < Armor.TOTAL_DEF_TYPES; i++) {
-			final float heroDef = roundOneDigit(h.getDefence(i));
-			final float pureDef = roundOneDigit(((Mob) h).getDefence(i));
+			final float heroDef = roundOneDigit(h.getArmor(i));
+			final float pureDef = roundOneDigit(((Mob) h).getArmor(i));
 			final float itemDef = heroDef - pureDef;
 			dS(g2, guiOffW + 150, guiOffH + 60 + i * 15, pureDef + " + " + itemDef + " = "
 					+ heroDef);
@@ -128,7 +128,7 @@ public class GamePanel extends JPanel {
 		g2.setColor(Color.yellow);
 		final String[] stat = { "STR", "AGI", "VIT", "INT", "DEX", "LUK" };
 		for (int i = 0; i < 6; i++) {
-			dS(g2, guiOffW, guiOffH + 170 + i * 15, stat[i] + "  " + h.getStats().get(i));
+			dS(g2, guiOffW, guiOffH + 170 + i * 15, stat[i] + "  " + h.getStats().values(i));
 		}
 	}
 
@@ -197,9 +197,24 @@ public class GamePanel extends JPanel {
 			drawImage(g2, tKit.getImage("res/sprite/grass.png"), xx, yy);
 		}
 		if (tile.getMob() != null) {
-			dS(g2, xx, yy, "MOB");
-			drawImage(g2, tKit.getImage("res/sprite/hero.png"), xx, yy);
+			paintMob(tile.getMob(),g2, xx, yy);
 		}
+	}
+
+	private void paintMob(Mob mob, final Graphics2D g2, final int xx, final int yy) {
+		drawImage(g2, tKit.getImage("res/sprite/hero.png"), xx, yy);
+		
+		if(mob == game.getHero()){
+			g2.setColor(new Color(0,255,0,128));
+		} else {
+			g2.setColor(new Color(255,0,0,128));
+		}
+		g2.fillRect(xx, yy, Tile.SIZE_px, 3);
+		g2.fillRect(xx, yy, (int)(Tile.SIZE_px*mob.getHP()/mob.getMaxHp()), 3);
+		
+		g2.setColor(new Color(0,128,255,128));
+		g2.fillRect(xx, yy+3, Tile.SIZE_px, 2);
+		g2.fillRect(xx, yy+3, (int)(Tile.SIZE_px*mob.getMP()/mob.getMaxMp()), 2);
 	}
 
 	public static BufferedImage toBufferedImage(final Image img) {
