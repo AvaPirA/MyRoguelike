@@ -191,16 +191,15 @@ public class Hero extends Mob implements Locatable {
 	private final Inventory		inventory	= new Inventory();
 	private final PrimaryStats	stats;
 
-	private int					level;
-	private int					XP;
+	private int					level		= 0;
+	private int					XP			= 0;
+	private int					freeStats	= 0;
 
 	public Hero(final int x, final int y, final String n, final Map m) {
 		super(x, y, null, n, m);
 		// TODO
 		name = n;
 		stats = new PrimaryStats(name);
-		level = 0;
-		XP = 0;
 		restore();
 	}
 
@@ -270,12 +269,12 @@ public class Hero extends Mob implements Locatable {
 	}
 
 	private void gainLvl(Game g) {
-		// TODO
-		level++;
 		XP = 0;
+		level++;
+		freeStats += 5;
 		restore();
 		g.log(String.format("%s достиг %s уровня!", name, level));
-		g.getWindowsManager().showNewLevel(true);
+		g.getWindowsManager();
 	}
 
 	public void gainXPfromDamage(final float dmg, final Game g) {
@@ -308,7 +307,6 @@ public class Hero extends Mob implements Locatable {
 	}
 
 	public int getLevel() {
-		// TODO Auto-generated method stub
 		return level;
 	}
 

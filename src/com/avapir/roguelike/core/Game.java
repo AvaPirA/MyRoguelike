@@ -13,8 +13,6 @@ import javax.swing.JFrame;
 
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.core.gui.GameWindow;
-import com.avapir.roguelike.core.gui.InventoryWindow;
-import com.avapir.roguelike.core.gui.NewLevelWindow;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Mob;
@@ -74,7 +72,6 @@ public class Game {
 	private List<Mob>				mobs;
 
 	private int						turnCounter;
-	private boolean					gameOver;
 
 	public Game(final String t) {
 		winManager = new WindowsManager(t, this);
@@ -82,6 +79,7 @@ public class Game {
 	}
 
 	public void start() {
+		state = GameState.MOVE;
 		// TODO потом надо поставить подходящий конструктор для карты
 		final int firstMap = 0;
 		maps.add(firstMap, new Map(this, 200, 200));
@@ -156,12 +154,6 @@ public class Game {
 		return currentY;
 	}
 
-	private void checkGameOverConditions() {
-		if (hero.getHP() <= 0) {
-			gameOver = true;
-		}
-	}
-
 	private void doTurnEffects() {
 		hero.doTurnEffects();
 		for (final Mob m : mobs) {
@@ -202,12 +194,7 @@ public class Game {
 	 */
 	void EOT(final Point mapMove) {
 		move(mapMove);
-		checkGameOverConditions();
 		// TODO SET GAME.BISY
-		if (gameOver) {
-			repaint();
-			return;
-		}
 		currentMap.computeFOV(hero.getX(), hero.getY(), Hero.StatsFormulas.getFOVR(hero));
 		doAIforAll();
 		doTurnEffects();
@@ -217,31 +204,27 @@ public class Game {
 		repaint();
 	}
 
-	public boolean isOver() {
-		return gameOver;
-	}
-
 	/**
 	 * Устанавливает состояния конца игры
 	 */
 	public void gameOver() {
-		gameOver = true;
+		setGameState(GameState.GAME_OVER);
 	}
 
 	public static final class WindowsManager {
 		private final GameWindow		gameWindow;
-		private final NewLevelWindow	newLevelWindow;
-		private final InventoryWindow	inventoryWindow;
+//		private final NewLevelWindow	newLevelWindow;
+//		private final InventoryWindow	inventoryWindow;
 
 		public WindowsManager(String title, Game game) {
 			gameWindow = new GameWindow(title, game);
 			gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-			newLevelWindow = new NewLevelWindow(game);
-			newLevelWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-			inventoryWindow = new InventoryWindow(game);
-			inventoryWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+//			newLevelWindow = new NewLevelWindow(game);
+//			newLevelWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+//
+//			inventoryWindow = new InventoryWindow(game);
+//			inventoryWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		}
 
 		public void repaintGame() {
@@ -252,20 +235,34 @@ public class Game {
 			gameWindow.setVisible(visibility);
 		}
 
-		public void showInventory(boolean visibility) {
-			// TODO
-			// inventoryWindow.setVisible(visibility);
-		}
-
-		public void showNewLevel(boolean visibility) {
-			// TODO
-			// newLevelWindow.setVisible(visibility);
-		}
+//		public void showInventory(boolean visibility) {
+//			// TODO
+//			// inventoryWindow.setVisible(visibility);
+//		}
+//
+//		public void showNewLevel(boolean visibility) {
+//			// TODO
+//			// newLevelWindow.setVisible(visibility);
+//		}
 
 	}
 
 	public WindowsManager getWindowsManager() {
 		return winManager;
+	}
+
+	public static enum GameState {
+		MOVE, INVENTORY, CHANGE_STATS, GAME_OVER, DISTANCE_ATTACK, VIEW
+	}
+
+	private GameState	state;
+
+	public GameState getState() {
+		return state;
+	}
+
+	public void setGameState(GameState state) {
+		this.state = state;
 	}
 
 }

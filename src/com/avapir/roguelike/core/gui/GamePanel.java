@@ -13,6 +13,7 @@ import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.KeyboardHandler;
+import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.locatable.Hero;
@@ -73,7 +74,7 @@ public class GamePanel extends AbstractGamePanel {
 		paintMap(g2, game.getMap());
 		paintGUI(g2);
 		paintLog(g2);
-		if (game.isOver()) {
+		if (game.getState() == GameState.GAME_OVER) {
 			final Image img = getImage("gameover.png");
 			drawImage(g, img, (WIDTH_IN_TILES * Tile.SIZE_px - img.getWidth(null)) / 2,
 					(HEIGHT_IN_TILES * Tile.SIZE_px - img.getHeight(null)) / 2);
@@ -85,6 +86,13 @@ public class GamePanel extends AbstractGamePanel {
 
 	@Override
 	protected void paintGUI(final Graphics2D g2) {
+		switch (game.getState()) {
+		case MOVE:
+			guiGame(g2);
+		}
+	}
+
+	private void guiGame(final Graphics2D g2) {
 		g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 		final int guiOffH = HEIGHT_IN_TILES * Tile.SIZE_px / 2;
 		final int guiOffW = WIDTH_IN_TILES * Tile.SIZE_px + 15;
@@ -196,8 +204,7 @@ public class GamePanel extends AbstractGamePanel {
 		if (mob == game.getHero()) {
 			drawImage(g2, getImage("hero.png"), xx, yy);
 		} else {
-			drawImage(g2, getImage(String.format("%s.png", mob.getName().toLowerCase())), xx,
-					yy);
+			drawImage(g2, getImage(String.format("%s.png", mob.getName().toLowerCase())), xx, yy);
 		}
 		if (mob == game.getHero()) {
 			g2.setColor(new Color(0, 255, 0, 128));

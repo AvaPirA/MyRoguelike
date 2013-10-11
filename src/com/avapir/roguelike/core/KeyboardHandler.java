@@ -4,47 +4,101 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import com.avapir.roguelike.core.Game.GameState;
+
 public class KeyboardHandler implements KeyListener {
 
-	enum GameState {
-		MOVE, VIEW, DISTANCE_ATTACK
-	}
-
-	private final Game		g;
-	private final GameState	state;
+	private final Game	game;
 
 	public KeyboardHandler(final Game game) {
 		super();
-		g = game;
-		state = GameState.MOVE;
+		this.game = game;
 	}
 
 	@Override
 	public void keyTyped(final KeyEvent e) {
-		// TODO Auto- method stub
-
-	}
-
-	@Override
-	public void keyPressed(final KeyEvent e) {
-		if (g.isOver()) {
-			afterGameOverPressings(e);
-			return;
-		}
-
-		switch (state) {
-		case DISTANCE_ATTACK:
-		break;
+		switch (game.getState()) {
 		case MOVE:
-			move(e);
+			moveType(e);
 		break;
+		case GAME_OVER:
+			afterGameOverPressings(e);
+		break;
+		case CHANGE_STATS:
+			changeStats();
 		case VIEW:
+			view(e);
+		case DISTANCE_ATTACK:
+			distanceAttack();
+		case INVENTORY:
+			inventory();
+			RoguelikeMain.unimplemented();
 		default:
 			throw new IllegalStateException("Wrong game state");
 		}
 	}
 
-	private void move(final KeyEvent e) {
+	private void moveType(KeyEvent e) {
+		switch (e.getKeyChar()) {
+		case 'i':
+			game.setGameState(GameState.INVENTORY);
+		break;
+		case 'd':
+			game.setGameState(GameState.DISTANCE_ATTACK);
+		break;
+		case 'v':
+			game.setGameState(GameState.VIEW);
+		break;
+		case 'c':
+			game.setGameState(GameState.CHANGE_STATS);
+		break;
+		}
+	}
+
+	@Override
+	public void keyPressed(final KeyEvent e) {
+		switch (game.getState()) {
+		case MOVE:
+			movePress(e);
+		break;
+		case GAME_OVER:
+			afterGameOverPressings(e);
+		break;
+		case CHANGE_STATS:
+			changeStats();
+		case VIEW:
+			view(e);
+		case DISTANCE_ATTACK:
+			distanceAttack();
+		case INVENTORY:
+			inventory();
+			RoguelikeMain.unimplemented();
+		default:
+			throw new IllegalStateException("Wrong game state");
+		}
+	}
+
+	private void inventory() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void distanceAttack() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void changeStats() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void view(KeyEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void movePress(final KeyEvent e) {
 		Point p;
 		boolean madeTurn = true;
 		switch (e.getKeyCode()) {
@@ -79,26 +133,16 @@ public class KeyboardHandler implements KeyListener {
 		case KeyEvent.VK_END:
 			p = new Point(0, 0);
 		default:
-			madeTurn = false;
-			p = new Point(0, 0);
-			g.EOT(p);
-		break;
+			return;
 		}
-		if (madeTurn) {
-			final Point resultMove = g.getHero().move(p, g);
-			if (resultMove != null) {
-				g.EOT(resultMove);
-			}
+		final Point resultMove = game.getHero().move(p, game);
+		if (resultMove != null) {
+			game.EOT(resultMove);
 		}
 	}
 
-	private int	gameOverPressed	= 0;
-
 	private void afterGameOverPressings(final KeyEvent e) {
-		gameOverPressed++;
-		if (gameOverPressed > 0) {
-			System.exit(0);
-		}
+		System.exit(0);
 	}
 
 	@Override

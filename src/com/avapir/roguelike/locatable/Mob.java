@@ -10,6 +10,7 @@ import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.battle.Battle;
 import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
@@ -34,7 +35,7 @@ public class Mob implements Locatable {
 
 		@Override
 		public void computeAI(final Mob m, final Game g) {
-			if (!g.isOver()) {
+			if (g.getState() != GameState.GAME_OVER) {
 				if (m == g.getHero()) {
 					// Hero h = (Hero) m;
 					// final int fovRad = Hero.StatsFormulas.getFOVR(h);
@@ -170,7 +171,7 @@ public class Mob implements Locatable {
 				if (this == g.getHero()) {
 					switch (t.getItemList().size()) {
 					case 1:
-						g.log(String.format("Здесь есть %s.",t.getItemList().get(0).getName()));
+						g.log(String.format("Здесь есть %s.", t.getItemList().get(0).getName()));
 					case 0:
 					break;
 					default:
