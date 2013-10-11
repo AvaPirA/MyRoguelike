@@ -20,7 +20,7 @@ public class Attack {
 	private final List<Effect>	effects			= new ArrayList<Effect>();
 
 	public Attack(final float... input) {
-		if (input.length > TOTAL_DMG_TYPES) { throw new RuntimeException("Unknown damage type"); }
+		if (input.length > TOTAL_DMG_TYPES) { throw new IllegalArgumentException("Unknown damage type"); }
 		for (int i = 0; i < input.length; i++) {
 			damage[i] = input[i];
 		}

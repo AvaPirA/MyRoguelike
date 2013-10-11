@@ -15,7 +15,7 @@ public class Armor {
 	private final float[]	armor			= new float[TOTAL_DEF_TYPES];
 
 	public Armor(final float... input) {
-		if (input.length > TOTAL_DEF_TYPES) { throw new RuntimeException("Unknown armor type"); }
+		if (input.length > TOTAL_DEF_TYPES) { throw new IllegalArgumentException("Unknown armor type"); }
 		for (int i = 0; i < input.length; i++) {
 			armor[i] = input[i];
 		}

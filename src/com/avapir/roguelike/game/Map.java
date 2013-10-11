@@ -12,23 +12,19 @@ import com.avapir.roguelike.locatable.Mob;
 
 public class Map {
 
-	private static final Random		random		= new Random();
+	private static final Random			random		= new Random();
 
-	/**
-	 * Список уже использованных seed для генерации карт. Надо бы не
-	 * повторяться!
-	 */
-	private static final List<Long>	usedSeeds	= new ArrayList<>();
-	private static final int		DFT_HEIGHT	= 100;
-	private static final int		DFT_WIDTH	= 100;
-	private static final int		DFT_DELTA	= 20;					// percents
+	private static final int			DFT_HEIGHT	= 100;
+	private static final int			DFT_WIDTH	= 100;
+	private static final int			DFT_DELTA	= 20;					// percents
 
-	private final Game				game;
+	private final Game					game;
+	private static final MapGenerator	generator	= new MapGenerator();
 
-	private final int				HEIGHT_MAP;
-	private final int				WIDTH_MAP;
-	private final Tile[][]			field;
-	private final String			title;
+	private final int					HEIGHT_MAP;
+	private final int					WIDTH_MAP;
+	private final Tile[][]				field;
+	private final String				title;
 
 	public int getHeight() {
 		return HEIGHT_MAP;
@@ -88,7 +84,7 @@ public class Map {
 		while (!putCharacter(c, x, y)) {
 			x = random.nextInt(WIDTH_MAP);
 			y = random.nextInt(HEIGHT_MAP);
-			if (counter++ > maxCounter) { throw new RuntimeException(
+			if (counter++ > maxCounter) { throw new IllegalStateException(
 					"Bad map: no place to put character"); }
 		}
 		return new Point(x, y);
@@ -123,7 +119,7 @@ public class Map {
 		WIDTH_MAP = width;
 		field = new Tile[height][width];
 		title = "untitled";
-		MapGenerator.generate(this);
+		generator.generate(this);
 	}
 
 	public Map(final Game g) {
@@ -134,7 +130,7 @@ public class Map {
 		WIDTH_MAP = DFT_WIDTH + random.nextInt(2 * deltaWidth) - deltaWidth;
 		field = new Tile[HEIGHT_MAP][WIDTH_MAP];
 		title = "untitled";
-		MapGenerator.generate(this);
+		generator.generate(this);
 	}
 
 	/**
@@ -142,8 +138,13 @@ public class Map {
 	 * соответствии с полученных seed
 	 */
 	private static class MapGenerator {
+		/**
+		 * Список уже использованных seed для генерации карт. Надо бы не
+		 * повторяться!
+		 */
+		final List<Long>	usedSeeds	= new ArrayList<>();
 
-		static void generate(final Map map) {
+		void generate(final Map map) {
 			long seed = random.nextLong();
 			while (usedSeeds.contains(seed)) {
 				seed = random.nextLong();
