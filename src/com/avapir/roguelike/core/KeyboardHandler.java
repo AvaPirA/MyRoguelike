@@ -57,6 +57,9 @@ public class KeyboardHandler implements KeyListener {
 
 	@Override
 	public void keyPressed(final KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			System.exit(0);
+		}
 		switch (game.getState()) {
 		case MOVE:
 			movePress(e);
