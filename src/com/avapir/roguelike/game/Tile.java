@@ -80,8 +80,8 @@ public class Tile {
 		public static final int	EMPTY_FLAG		= 0b00000000000000000000000000000000;
 
 		/* 0-8 FOV */
-		public static final int	VISIBLE			= 1 << 0;
-		public static final int	SEEN			= 1 << 1;
+//		public static final int	VISIBLE			= 1 << 0;
+//		public static final int	SEEN			= 1 << 1;
 		public static final int	LIGHT_ON		= 1 << 2;
 		public static final int	TRANSPARENT		= 1 << 3;
 		public static final int	F4				= 1 << 4;
@@ -143,10 +143,11 @@ public class Tile {
 	}
 
 	private boolean	visible;
+	private boolean	seen;
 
 	//@formatter:off
 	public boolean isVisible() 			{return visible;}
-	public boolean isSeen() 			{return checkFlag(Flag.SEEN);}
+	public boolean isSeen() 			{return seen;}
 	public boolean isLantern() 			{return checkFlag(Flag.LIGHT_ON);}
 	public boolean isTransparent()		{return checkFlag(Flag.TRANSPARENT);}
 
@@ -166,7 +167,7 @@ public class Tile {
 	public boolean isDownLadder() 		{return checkFlag(Flag.DOWN_LADDER);}
 
 	public void setVisible(final boolean b) {visible = b;}
-	public void setSeen(final boolean b) 	{setFlag(b, Flag.SEEN);}
+	public void setSeen(final boolean b) 	{seen = b;}
 	//@formatter:on
 
 	// add-methods
