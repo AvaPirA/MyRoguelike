@@ -142,8 +142,10 @@ public class Tile {
 		}
 	}
 
+	private boolean	visible;
+
 	//@formatter:off
-	public boolean isVisible() 			{return checkFlag(Flag.VISIBLE);}
+	public boolean isVisible() 			{return visible;}
 	public boolean isSeen() 			{return checkFlag(Flag.SEEN);}
 	public boolean isLantern() 			{return checkFlag(Flag.LIGHT_ON);}
 	public boolean isTransparent()		{return checkFlag(Flag.TRANSPARENT);}
@@ -163,8 +165,7 @@ public class Tile {
 	public boolean isUpLadder() 		{return checkFlag(Flag.UP_LADDER);}
 	public boolean isDownLadder() 		{return checkFlag(Flag.DOWN_LADDER);}
 
-
-	public void setVisible(final boolean b) {setFlag(b, Flag.VISIBLE);}
+	public void setVisible(final boolean b) {visible = b;}
 	public void setSeen(final boolean b) 	{setFlag(b, Flag.SEEN);}
 	//@formatter:on
 

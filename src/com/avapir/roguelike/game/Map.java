@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.Random;
 
 import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Item;
 import com.avapir.roguelike.locatable.Mob;
 
-public class Map {
+public class Map implements ILosMap {
 
 	private static final Random			random		= new Random();
 
@@ -19,6 +20,7 @@ public class Map {
 	private static final int			DFT_DELTA	= 20;					// percents
 
 	private final Game					game;
+	private IFovAlgorithm			permissiveFov	= new PermissiveFOV();
 	private static final MapGenerator	generator	= new MapGenerator();
 
 	private final int					HEIGHT_MAP;
@@ -237,52 +239,52 @@ public class Map {
 				}
 			}
 		}
-		int x = 0;
-		int y = radius;
-		int delta = 2 - 2 * radius;
-		int error = 0;
-		while (y >= 0) {
-			drawFOVLine(x0, y0, x0 + x, y0 + y);
-			drawFOVLine(x0, y0, x0 + x, y0 - y);
-			drawFOVLine(x0, y0, x0 - x, y0 + y);
-			drawFOVLine(x0, y0, x0 - x, y0 - y);
-			drawFOVLine(x0, y0, x0 + x - 1, y0 + y);
-			drawFOVLine(x0, y0, x0 + x - 1, y0 - y);
-			drawFOVLine(x0, y0, x0 - x, y0 + y - 1);
-			drawFOVLine(x0, y0, x0 - x, y0 - y - 1);
-
-			error = 2 * (delta + y) - 1;
-			if (delta < 0 && error <= 0) {
-				++x;
-				delta += 2 * x + 1;
-				continue;
-			}
-			error = 2 * (delta - x) - 1;
-			if (delta > 0 && error > 0) {
-				--y;
-				delta += 1 - 2 * y;
-				continue;
-			}
-			++x;
-			delta += 2 * (x - y);
-			--y;
-		}
+		permissiveFov.visitFieldOfView(this, x0, y0, radius);
+//		int x = 0;
+//		int y = radius;
+//		int delta = 2 - 2 * radius;
+//		int error = 0;
+//		while (y >= 0) {
+//			drawFOVLine(x0, y0, x0 + x, y0 + y);
+//			drawFOVLine(x0, y0, x0 + x, y0 - y);
+//			drawFOVLine(x0, y0, x0 - x, y0 + y);
+//			drawFOVLine(x0, y0, x0 - x, y0 - y);
+//			drawFOVLine(x0, y0, x0 + x - 1, y0 + y);
+//			drawFOVLine(x0, y0, x0 + x - 1, y0 - y);
+//			drawFOVLine(x0, y0, x0 - x, y0 + y - 1);
+//			drawFOVLine(x0, y0, x0 - x, y0 - y - 1);
+//
+//			error = 2 * (delta + y) - 1;
+//			if (delta < 0 && error <= 0) {
+//				++x;
+//				delta += 2 * x + 1;
+//				continue;
+//			}
+//			error = 2 * (delta - x) - 1;
+//			if (delta > 0 && error > 0) {
+//				--y;
+//				delta += 1 - 2 * y;
+//				continue;
+//			}
+//			++x;
+//			delta += 2 * (x - y);
+//			--y;
+//		}
 	}
 
 	public static float distance(final Point2D.Float p1, final Point2D.Float p2) {
 		return (float) p1.distance(p2);
 	}
 
-	public List<Tile> getVisible() {
-		final List<Tile> list = new ArrayList<>();
-		for (final Tile[] tt : field) {
-			for (final Tile t : tt) {
-				if (t.isVisible()) {
-					list.add(t);
-				}
-			}
-		}
-		return list;
+	@Override
+	public boolean isObstacle(int x, int y) {
+		return !getTile(x, y).isTransparent();
+	}
+
+	@Override
+	public void visit(int x, int y) {
+		getTile(x, y).setVisible(true);
+		getTile(x, y).setSeen(true);
 	}
 
 }

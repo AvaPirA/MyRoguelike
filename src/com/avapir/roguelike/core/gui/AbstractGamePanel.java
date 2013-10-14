@@ -3,12 +3,18 @@ package com.avapir.roguelike.core.gui;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.TexturePaint;
 import java.awt.Toolkit;
+import java.awt.Transparency;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import com.avapir.roguelike.game.Tile;
@@ -19,13 +25,12 @@ public abstract class AbstractGamePanel extends JPanel {
 	 * 
 	 */
 	private static final long		serialVersionUID	= 1L;
-
-	protected static final Toolkit	tKit				= Toolkit.getDefaultToolkit();
+	private static final Toolkit	tKit				= Toolkit.getDefaultToolkit();
 	protected static final int		SCREEN_WIDTH;
 	protected static final int		SCREEN_HEIGHT;
 
 	static {
-		Dimension dim = tKit.getScreenSize();
+		final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		SCREEN_HEIGHT = (int) dim.getHeight();
 		SCREEN_WIDTH = (int) dim.getWidth();
 	}
@@ -47,9 +52,9 @@ public abstract class AbstractGamePanel extends JPanel {
 	}
 
 	@Override
-	public void paintComponent(Graphics g) {
+	public void paintComponent(final Graphics g) {
 		super.paintComponent(g);
-		Graphics2D g2 = (Graphics2D) g;
+		final Graphics2D g2 = (Graphics2D) g;
 		paintBackground(g2);
 		paintGUI(g2);
 	}
@@ -66,39 +71,74 @@ public abstract class AbstractGamePanel extends JPanel {
 		g2.drawImage(img, xx, yy, this);
 	}
 
-	protected final void paintBackground(Graphics2D g2) {
-		BufferedImage bgTex = toBufferedImage(getImage("seamless_wall04.jpg"));
-		Rectangle2D canvas = new Rectangle2D.Double(0, 0, getWidth(), getHeight());
-		Rectangle2D tr = new Rectangle2D.Double(0, 0, bgTex.getWidth(), bgTex.getHeight());
+	protected final void paintBackground(final Graphics2D g2) {
+		final BufferedImage bgTex = toBufferedImage(getImage("background.png"));
+		final Rectangle2D canvas = new Rectangle2D.Double(0, 0, getWidth(), getHeight());
+		final Rectangle2D tr = new Rectangle2D.Double(0, 0, bgTex.getWidth(), bgTex.getHeight());
 
 		// Create the TexturePaint.
-		TexturePaint tp = new TexturePaint(bgTex, tr);
+		final TexturePaint tp = new TexturePaint(bgTex, tr);
 		g2.setPaint(tp);
 		g2.fill(canvas);
 	}
 
 	protected abstract void paintGUI(final Graphics2D g2);
 
-	public static BufferedImage toBufferedImage(final Image img) {
-		if (img instanceof BufferedImage) { return (BufferedImage) img; }
-		BufferedImage bimage = null;
-		try {
-			bimage = new BufferedImage(img.getWidth(null), img.getHeight(null),
-					BufferedImage.TYPE_INT_ARGB);
-		} catch (final IllegalArgumentException e1) {
-			return toBufferedImage(img);
+	public static BufferedImage toBufferedImage(Image image) {
+		if (image instanceof BufferedImage) {
+		return (BufferedImage) image;
 		}
-		final Graphics2D bGr = bimage.createGraphics();
-		bGr.drawImage(img, 0, 0, null);
-		bGr.dispose();
-
+		// This code ensures that all the pixels in the image are loaded
+		image = new ImageIcon(image).getImage();
+		// Determine if the image has transparent pixels; for this method's
+		// implementation, see e661 Determining If an Image Has Transparent Pixels
+		// boolean hasAlpha = hasAlpha(image);
+		// Create a buffered image with a format that's compatible with the screen
+		BufferedImage bimage = null;
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		try {
+			// Determine the type of transparency of the new buffered image
+			int transparency = Transparency.OPAQUE;
+			/*
+			 * if (hasAlpha) {
+			 * 
+			 * transparency = Transparency.BITMASK;
+			 * 
+			 * }
+			 */
+			// Create the buffered image
+			GraphicsDevice gs = ge.getDefaultScreenDevice();
+			GraphicsConfiguration gc = gs.getDefaultConfiguration();
+			bimage = gc.createCompatibleImage(
+			image.getWidth(null), image.getHeight(null), transparency);
+		} catch (HeadlessException e) {
+			// The system does not have a screen
+		}
+		if (bimage == null) {
+			// Create a buffered image using the default color model
+			int type = BufferedImage.TYPE_INT_RGB;
+			// int type = BufferedImage.TYPE_3BYTE_BGR;//by wang
+			/*
+			 * if (hasAlpha) {
+			 * 
+			 * type = BufferedImage.TYPE_INT_ARGB;
+			 * 
+			 * }
+			 */
+			bimage = new BufferedImage(image.getWidth(null), image.getHeight(null), type);
+		}
+		// Copy image to buffered image
+		Graphics g = bimage.createGraphics();
+		// Paint the image onto the buffered image
+		g.drawImage(image, 0, 0, null);
+		g.dispose();
 		return bimage;
 	}
 
-	private static final String	path	= "res/sprite/";
-
-	public Image getImage(String p) {
-		return tKit.getImage(path.concat(p));
+	protected Image getImage(final String filename) {
+		return tKit.getImage(path.concat(filename));
 	}
+
+	private static final String	path	= "res/sprite/";
 
 }

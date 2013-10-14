@@ -2,9 +2,6 @@ package com.avapir.roguelike.game;
 
 import java.util.LinkedList;
 
-import rlforj.math.Line2I;
-import rlforj.math.Point2I;
-
 /**
  * Precise permissive visibility algorithm.
  * 

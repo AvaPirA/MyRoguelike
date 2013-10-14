@@ -14,7 +14,7 @@ import com.avapir.roguelike.game.Map;
 public class Hero extends Mob implements Locatable {
 
 	private static final class DefaultStats {//@formatter:off
-									/* 	STR 	AGI 	VIT 	INT 	DEX 	LUK */
+		/* 	STR 	AGI 	VIT 	INT 	DEX 	LUK */
 		static final int[]	PLAYER	= { 3, 		3, 		3, 		3, 		2, 		1 };	// 16
 		static final int[]	NPC		= { 50, 	100, 	100, 	50, 	50, 	10 };	// 360
 		static final int[]	ELDER	= { 290, 	120,	390, 	700,	400, 	100 }; 	// 2000
@@ -185,7 +185,7 @@ public class Hero extends Mob implements Locatable {
 	}
 
 	private static final int[]	XP_TO_LVL	= { 150, 400, 850, 2_000, 3_500, 7_000, 15_000, 25_000,
-			43_000							};
+		43_000							};
 
 	private final String		name;
 	private final Inventory		inventory	= new Inventory();
@@ -268,7 +268,7 @@ public class Hero extends Mob implements Locatable {
 		return XP >= XP_TO_LVL[level];
 	}
 
-	private void gainLvl(Game g) {
+	private void gainLvl(final Game g) {
 		XP = 0;
 		level++;
 		freeStats += 5;

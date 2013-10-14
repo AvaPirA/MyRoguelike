@@ -61,7 +61,7 @@ public class Game {
 		return gameLog;
 	}
 
-	private final List<Map>			maps	= new ArrayList<>();
+	private final List<Map>			maps			= new ArrayList<>();
 	private final WindowsManager	winManager;
 
 	private Hero					hero;
@@ -82,7 +82,7 @@ public class Game {
 		state = GameState.MOVE;
 		// TODO потом надо поставить подходящий конструктор для карты
 		final int firstMap = 0;
-		maps.add(firstMap, new Map(this, 200, 200));
+		maps.add(firstMap, new Map(this, 40, 40));
 		switchToMap(firstMap);
 		turnCounter = 0;
 	}
@@ -90,7 +90,7 @@ public class Game {
 	private void switchToMap(final int index) {
 
 		if (maps.get(index) == null) {
-			currentMap = new Map(this, 200, 200);
+			currentMap = new Map(this, 40, 40);
 			maps.add(index, currentMap);
 		} else {
 			currentMap = maps.get(index);
@@ -212,19 +212,20 @@ public class Game {
 	}
 
 	public static final class WindowsManager {
-		private final GameWindow		gameWindow;
-//		private final NewLevelWindow	newLevelWindow;
-//		private final InventoryWindow	inventoryWindow;
+		private final GameWindow	gameWindow;
+
+		// private final NewLevelWindow newLevelWindow;
+		// private final InventoryWindow inventoryWindow;
 
 		public WindowsManager(String title, Game game) {
 			gameWindow = new GameWindow(title, game);
 			gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-//			newLevelWindow = new NewLevelWindow(game);
-//			newLevelWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-//
-//			inventoryWindow = new InventoryWindow(game);
-//			inventoryWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			// newLevelWindow = new NewLevelWindow(game);
+			// newLevelWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+			//
+			// inventoryWindow = new InventoryWindow(game);
+			// inventoryWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		}
 
 		public void repaintGame() {
@@ -235,15 +236,15 @@ public class Game {
 			gameWindow.setVisible(visibility);
 		}
 
-//		public void showInventory(boolean visibility) {
-//			// TODO
-//			// inventoryWindow.setVisible(visibility);
-//		}
-//
-//		public void showNewLevel(boolean visibility) {
-//			// TODO
-//			// newLevelWindow.setVisible(visibility);
-//		}
+		// public void showInventory(boolean visibility) {
+		// // TODO
+		// // inventoryWindow.setVisible(visibility);
+		// }
+		//
+		// public void showNewLevel(boolean visibility) {
+		// // TODO
+		// // newLevelWindow.setVisible(visibility);
+		// }
 
 	}
 

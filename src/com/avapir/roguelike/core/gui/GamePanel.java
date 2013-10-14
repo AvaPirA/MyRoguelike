@@ -12,8 +12,8 @@ import java.util.StringTokenizer;
 import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.core.Game;
-import com.avapir.roguelike.core.KeyboardHandler;
 import com.avapir.roguelike.core.Game.GameState;
+import com.avapir.roguelike.core.KeyboardHandler;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.locatable.Hero;
@@ -26,11 +26,12 @@ public class GamePanel extends AbstractGamePanel {
 	 */
 	private static final long	serialVersionUID	= 1L;
 	private final Game			game;
-	private int					WIDTH_IN_TILES;
-	private int					HEIGHT_IN_TILES;
+	private final int					WIDTH_IN_TILES;
+	private final int					HEIGHT_IN_TILES;
 
 	public GamePanel(final Game g) {
 		super();
+		
 		game = g;
 		WIDTH_IN_TILES = getWidthInTiles();
 		HEIGHT_IN_TILES = getHeightInTiles();
@@ -39,7 +40,7 @@ public class GamePanel extends AbstractGamePanel {
 	}
 
 	private static final Color[]	COLOR_SET	= { Color.BLACK, Color.WHITE, Color.RED,
-			Color.GREEN, Color.BLUE, Color.CYAN, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.PINK };
+		Color.GREEN, Color.BLUE, Color.CYAN, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.PINK };
 
 	void drawColorString(final Graphics g, final String str, int lastX, final int lastY) {
 		final Graphics2D g2 = (Graphics2D) g;
@@ -187,13 +188,13 @@ public class GamePanel extends AbstractGamePanel {
 		switch (tile.getType()) {
 		case GRASS:
 			drawImage(g2, getImage("grass.png"), xx, yy);
-		break;
+			break;
 		case TREE:
 			drawImage(g2, getImage("tree.png"), xx, yy);
-		break;
+			break;
 		default:
 			drawImage(g2, getImage("empty.png"), xx, yy);
-		break;
+			break;
 		}
 		if (tile.isVisible() && tile.getMob() != null) {
 			paintMob(tile.getMob(), g2, xx, yy);

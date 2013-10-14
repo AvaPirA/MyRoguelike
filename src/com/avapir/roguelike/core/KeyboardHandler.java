@@ -65,7 +65,7 @@ public class KeyboardHandler implements KeyListener {
 			movePress(e);
 		break;
 		case GAME_OVER:
-			afterGameOverPressings(e);
+//			afterGameOverPressings(e);
 		break;
 		case CHANGE_STATS:
 			changeStats();
