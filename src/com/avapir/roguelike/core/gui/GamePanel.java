@@ -181,17 +181,18 @@ public class GamePanel extends AbstractGamePanel {
 		}
 
 		/**
-		 * 255\0->255\0 0-74
-		 * 255->0\255\0 75-149
-		 * 0\255\0->255 150-224
-		 * 0\255->0\255 255-300
+		 * 255\0->255\0 0-74 ::: case 0
+		 * 255->0\255\0 75-149 ::: case 1
+		 * 0\255\0->255 150-224 ::: case 2
+		 * 0\255->0\255 255-299 ::: case 3
+		 * 300 ::: case 4
 		 * 
 		 * @param stat
 		 * @return
 		 */
 		private Color getStatColor(int stat) {
 			int r = 0, g = 0, b = 0;
-			int factor = 300 / 4;
+			int factor = Hero.PrimaryStats.MAX_STAT_VALUE / 4;
 			switch (stat / factor) {
 			case 0:
 				r = 255;
@@ -209,6 +210,8 @@ public class GamePanel extends AbstractGamePanel {
 				g = 255 - 255 * (stat - factor * 3) / factor;
 				b = 255;
 			break;
+			case 4:
+				b = 255;
 			}
 			return new Color(r, g, b, 64);
 		}

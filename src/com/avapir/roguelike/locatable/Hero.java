@@ -87,6 +87,8 @@ public class Hero extends Mob implements Locatable {
 		 */
 		public static final int	PRIMARY_STATS_AMOUNT	= 6;
 		public static final int	DEFAULT_STAT_INCREASE	= 5;
+		public static final int	MAX_STAT_VALUE			= 300;
+
 		private final int[]		values					= new int[PRIMARY_STATS_AMOUNT];
 		private int				freeStats				= 0;
 
@@ -110,7 +112,7 @@ public class Hero extends Mob implements Locatable {
 		//@formatter:on
 
 		public boolean isMaxed(int i) {
-			return values[i] >= 300;
+			return values[i] >= MAX_STAT_VALUE;
 		}
 
 		public void decrease(int cursor) {
