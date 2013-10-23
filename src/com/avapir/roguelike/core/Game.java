@@ -61,7 +61,7 @@ public class Game {
 		return gameLog;
 	}
 
-	private final List<Map>			maps			= new ArrayList<>();
+	private final List<Map>			maps	= new ArrayList<>();
 	private final WindowsManager	winManager;
 
 	private Hero					hero;
@@ -263,7 +263,25 @@ public class Game {
 	}
 
 	public void setGameState(GameState state) {
-		this.state = state;
+		if (this.state == state) {
+			this.state = GameState.MOVE;
+		} else {
+			this.state = state;
+		}
+		System.out.println("New state: " + state);
 	}
 
+	private ChangingStatsHandler	chs;
+
+	public ChangingStatsHandler getStatsHandler() {
+		return chs;
+	}
+
+	public void createStatsHandler() {
+		chs = new ChangingStatsHandler(this);
+	}
+
+	public void removeStatsHandler() {
+		chs = null;
+	}
 }

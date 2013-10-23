@@ -16,6 +16,7 @@ public class Hero extends Mob implements Locatable {
 	private static final class DefaultStats {//@formatter:off
 		/* 	STR 	AGI 	VIT 	INT 	DEX 	LUK */
 		static final int[]	PLAYER	= { 3, 		3, 		3, 		3, 		2, 		1 };	// 16
+//		static final int[]	PLAYER	= { 280, 		170,		230, 		90, 		70, 		47 };	// 16
 		static final int[]	NPC		= { 50, 	100, 	100, 	50, 	50, 	10 };	// 360
 		static final int[]	ELDER	= { 290, 	120,	390, 	700,	400, 	100 }; 	// 2000
 		static final int[]	UNDEAD	= { 120, 	40, 	120, 	0, 		40, 	0 };	// 320
@@ -56,6 +57,7 @@ public class Hero extends Mob implements Locatable {
 			final float INT = h.stats.getInt();
 			final float phy = 1.6f + STR + DEX * 0.4f + INT * 0.2f;
 			final float mag = 1.2f + INT + DEX * 0.4f;
+			System.out.println(STR+" "+DEX+" "+INT+" "+phy);
 			return new Attack(phy, mag);
 		}
 
@@ -84,7 +86,9 @@ public class Hero extends Mob implements Locatable {
 		 * LUcK
 		 */
 		public static final int	PRIMARY_STATS_AMOUNT	= 6;
+		public static final int	DEFAULT_STAT_INCREASE	= 5;
 		private final int[]		values					= new int[PRIMARY_STATS_AMOUNT];
+		private int				freeStats				= 0;
 
 		//@formatter:off
 		public PrimaryStats(final String name) {
@@ -95,15 +99,37 @@ public class Hero extends Mob implements Locatable {
 			}
 		}
 
-		public int values(final int i) {return values[i];}
-
-		public int getStr() {return values[0];}
-		public int getAgi() {return values[1];}
-		public int getVit() {return values[2];}
-		public int getInt() {return values[3];}
-		public int getDex() {return values[4];}
-		public int getLuk() {return values[5];}
+		public int	 values(final int i) {return values[i];}
+		public int[] getArray() {return values;}
+		public int 	 getStr()   {return values[0];}
+		public int 	 getAgi()   {return values[1];}
+		public int 	 getVit()   {return values[2];}
+		public int 	 getInt()   {return values[3];}
+		public int 	 getDex()   {return values[4];}
+		public int 	 getLuk()   {return values[5];}
 		//@formatter:on
+
+		public boolean isMaxed(int i) {
+			return values[i] >= 300;
+		}
+
+		public void decrease(int cursor) {
+			values[cursor]--;
+			freeStats++;
+		}
+
+		public void increase(int cursor) {
+			values[cursor]++;
+			freeStats--;
+		}
+
+		public boolean hasFreeStats() {
+			return freeStats > 0;
+		}
+
+		public int getFreeAmount() {
+			return freeStats;
+		}
 	}
 
 	protected static final class HiddenStats {
@@ -185,7 +211,7 @@ public class Hero extends Mob implements Locatable {
 	}
 
 	private static final int[]	XP_TO_LVL	= { 150, 400, 850, 2_000, 3_500, 7_000, 15_000, 25_000,
-		43_000							};
+			43_000							};
 
 	private final String		name;
 	private final Inventory		inventory	= new Inventory();
@@ -193,7 +219,6 @@ public class Hero extends Mob implements Locatable {
 
 	private int					level		= 0;
 	private int					XP			= 0;
-//	private int					freeStats	= 0;
 
 	public Hero(final int x, final int y, final String n, final Map m) {
 		super(x, y, null, n, m);
@@ -207,7 +232,19 @@ public class Hero extends Mob implements Locatable {
 		maxHP = Hero.StatsFormulas.getMaxHP(this);
 		maxMP = Hero.StatsFormulas.getMaxMP(this);
 		HP = maxHP;
-		MP = maxMP / 2;
+		MP = maxMP;
+		baseAttack.replaceBy(Hero.StatsFormulas.getAttack(this));
+		baseArmor.replaceBy(Hero.StatsFormulas.getArmor(this));
+	}
+
+	public void recomputeStats() {
+		float HPperc = HP / maxHP;
+		float MPperc = MP / maxMP;
+
+		maxHP = Hero.StatsFormulas.getMaxHP(this);
+		maxMP = Hero.StatsFormulas.getMaxMP(this);
+		HP = maxHP * HPperc;
+		MP = maxMP * MPperc;
 		baseAttack.replaceBy(Hero.StatsFormulas.getAttack(this));
 		baseArmor.replaceBy(Hero.StatsFormulas.getArmor(this));
 	}
@@ -271,7 +308,7 @@ public class Hero extends Mob implements Locatable {
 	private void gainLvl(final Game g) {
 		XP = 0;
 		level++;
-//		freeStats += 5;
+		stats.freeStats += PrimaryStats.DEFAULT_STAT_INCREASE;
 		restore();
 		g.log(String.format("%s достиг %s уровня!", name, level));
 		g.getWindowsManager();
@@ -289,13 +326,10 @@ public class Hero extends Mob implements Locatable {
 	}
 
 	@Override
-	protected void receiveDamage(final float dmg, final Game g) {
-		super.receiveDamage(dmg, g);
-		if (HP <= 0) {
-			HP = 0;
-			g.gameOver();
-			g.repaint();
-		}
+	protected void onDeath(final Game g) {
+		HP = 0;
+		g.gameOver();
+		g.repaint();
 	}
 
 	public int getXP() {

@@ -25,15 +25,49 @@ public class KeyboardHandler implements KeyListener {
 			afterGameOverPressings(e);
 		break;
 		case CHANGE_STATS:
-			changeStats();
+			changeStatsType(e);
+		break;
 		case VIEW:
-			view(e);
+			viewType(e);
+		break;
 		case DISTANCE_ATTACK:
-			distanceAttack();
+			distanceAttackType(e);
+		break;
 		case INVENTORY:
-			inventory();
-			RoguelikeMain.unimplemented();
+			inventoryType(e);
+		break;
 		default:
+			throw new IllegalStateException("Wrong game state");
+		}
+		game.repaint();
+	}
+
+	@Override
+	public void keyPressed(final KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			System.exit(0);
+		}
+		switch (game.getState()) {
+		case MOVE:
+			movePress(e);
+		break;
+		case GAME_OVER:
+			afterGameOverPressings(e);
+		break;
+		case CHANGE_STATS:
+			changeStatsPress(e);
+		break;
+		case VIEW:
+			viewPress(e);
+		break;
+		case DISTANCE_ATTACK:
+			distanceAttackPress(e);
+		break;
+		case INVENTORY:
+			inventoryPress(e);
+		break;
+		default:
+			System.out.println(game.getState());
 			throw new IllegalStateException("Wrong game state");
 		}
 	}
@@ -51,54 +85,75 @@ public class KeyboardHandler implements KeyListener {
 		break;
 		case 'c':
 			game.setGameState(GameState.CHANGE_STATS);
+			game.createStatsHandler();
 		break;
 		}
 	}
 
-	@Override
-	public void keyPressed(final KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			System.exit(0);
-		}
-		switch (game.getState()) {
-		case MOVE:
-			movePress(e);
-		break;
-		case GAME_OVER:
-//			afterGameOverPressings(e);
-		break;
-		case CHANGE_STATS:
-			changeStats();
-		case VIEW:
-			view(e);
-		case DISTANCE_ATTACK:
-			distanceAttack();
-		case INVENTORY:
-			inventory();
-			RoguelikeMain.unimplemented();
-		default:
-			throw new IllegalStateException("Wrong game state");
+	private void inventoryType(KeyEvent e) {
+		switch (e.getKeyChar()) {
+
 		}
 	}
 
-	private void inventory() {
-		// TODO Auto-generated method stub
+	private void inventoryPress(KeyEvent e) {
+		switch (e.getKeyCode()) {
 
+		}
 	}
 
-	private void distanceAttack() {
-		// TODO Auto-generated method stub
+	private void distanceAttackType(KeyEvent e) {
+		switch (e.getKeyChar()) {
 
+		}
 	}
 
-	private void changeStats() {
-		// TODO Auto-generated method stub
+	private void distanceAttackPress(KeyEvent e) {
+		switch (e.getKeyCode()) {
 
+		}
 	}
 
-	private void view(KeyEvent e) {
-		// TODO Auto-generated method stub
+	private void changeStatsType(KeyEvent e) {
+		switch (e.getKeyChar()) {
+		case 'c':
+			game.removeStatsHandler();
+			game.setGameState(GameState.MOVE);
+		}
+	}
 
+	private void changeStatsPress(KeyEvent e) {
+		ChangingStatsHandler csh = game.getStatsHandler();
+		switch (e.getKeyCode()) {
+		case KeyEvent.VK_UP:
+			System.out.println("u");
+			csh.pressUp();
+		break;
+		case KeyEvent.VK_DOWN:
+			System.out.println("d");
+			csh.pressDown();
+		break;
+		case KeyEvent.VK_LEFT:
+			System.out.println("l");
+			csh.pressLeft();
+		break;
+		case KeyEvent.VK_RIGHT:
+			System.out.println("r");
+			csh.pressRight();
+		break;
+		}
+	}
+
+	private void viewType(KeyEvent e) {
+		switch (e.getKeyChar()) {
+
+		}
+	}
+
+	private void viewPress(KeyEvent e) {
+		switch (e.getKeyCode()) {
+
+		}
 	}
 
 	private void movePress(final KeyEvent e) {

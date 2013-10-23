@@ -191,7 +191,6 @@ public class Mob implements Locatable {
 	}
 
 	protected float attackMob(final Point dp, final Game g) {
-
 		final Mob defender = g.getMap().getTile(dp.x, dp.y).getMob();
 		if (defender != g.getHero() && this != g.getHero()) { return 0; }
 		float damage = Battle.computeDamage(getAttack(), defender.getArmor());
@@ -208,40 +207,66 @@ public class Mob implements Locatable {
 		return damage;
 	}
 
-	protected void receiveDamage(final float dmg, final Game g) {
+	/**
+	 * Decreases damage and checks if this {@link Mob} died
+	 * 
+	 * @param dmg caused damage
+	 * @param m game where it happened
+	 */
+	private void receiveDamage(final float dmg, final Game g) {
 		HP -= dmg;
 		if (HP <= 0) {
-			g.getMap().removeCharacter(X, Y);
+			onDeath(g);
 		}
 	}
 
+	/**
+	 * Called once while mob`s hp goes below zero
+	 * @param g
+	 */
+	protected void onDeath(final Game g) {
+		g.getMap().removeCharacter(X, Y);		
+	}
+
+	/**
+	 * @return native and given by effects {@link Armor}
+	 */
 	public Armor getArmor() {
 		return baseArmor;
 	}
 
+	/**
+	 * @param i
+	 * @return specified type of {@link Armor}
+	 */
 	public float getArmor(final int i) {
 		return getArmor().getArmor(i);
 	}
 
+	/**
+	 * @return @return native and given by effects {@link Attack}
+	 */
 	public Attack getAttack() {
 		return baseAttack;
 	}
 
+	/**
+	 * @param i
+	 * @return specified type of {@link Attack}
+	 */
 	public float getAttack(final int i) {
 		return getAttack().getDamageOfType(i);
 	}
 
 	/**
-	 * For status-bars
+	 * @return Maximum value of {@link #HP} that this {@link Hero} may have
 	 */
 	public float getMaxHp() {
 		return maxHP;
 	}
 
 	/**
-	 * For status-bars
-	 * 
-	 * @return
+	 * @return Maximum value of {@link #MP} that this {@link Hero} may have
 	 */
 	public float getMaxMp() {
 		return maxMP;
@@ -262,6 +287,8 @@ public class Mob implements Locatable {
 			}
 		}
 	}
+
+	/* Implementation of Locatable interface */
 
 	private int	X;
 	private int	Y;

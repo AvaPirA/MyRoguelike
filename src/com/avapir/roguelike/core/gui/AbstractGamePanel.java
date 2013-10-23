@@ -30,12 +30,12 @@ public abstract class AbstractGamePanel extends JPanel {
 	private static final Toolkit	tKit				= Toolkit.getDefaultToolkit();
 	protected static final int		SCREEN_WIDTH;
 	protected static final int		SCREEN_HEIGHT;
-	
-	//load non-default font on start
-	protected static Font	logFont	= new Font("Times New Roman", Font.PLAIN, 15);
 
+	// load non-default font on start
+	protected static Font			logFont				= new Font("Times New Roman", Font.PLAIN,
+																15);
 
-	private static final Color[]	COLOR_SET	= { Color.BLACK, Color.WHITE, Color.RED,
+	private static final Color[]	COLOR_SET			= { Color.BLACK, Color.WHITE, Color.RED,
 			Color.GREEN, Color.BLUE, Color.CYAN, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.PINK };
 
 	protected static Color getDefaultStringColor(int index) {
@@ -44,7 +44,7 @@ public abstract class AbstractGamePanel extends JPanel {
 					+ "while have only " + COLOR_SET.length + " color");
 		return COLOR_SET[index];
 	}
-	
+
 	static {
 		final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		SCREEN_HEIGHT = (int) dim.getHeight();
@@ -66,7 +66,7 @@ public abstract class AbstractGamePanel extends JPanel {
 	public static int getScreenHeight() {
 		return SCREEN_HEIGHT;
 	}
-	
+
 	@Override
 	public void paintComponent(final Graphics g) {
 		super.paintComponent(g);
@@ -88,7 +88,7 @@ public abstract class AbstractGamePanel extends JPanel {
 	}
 
 	protected final void paintBackground(final Graphics2D g2) {
-		final BufferedImage bgTex = toBufferedImage(getImage("background.png"));
+		final BufferedImage bgTex = toBufferedImage(getImage("background"));
 		final Rectangle2D canvas = new Rectangle2D.Double(0, 0, getWidth(), getHeight());
 		final Rectangle2D tr = new Rectangle2D.Double(0, 0, bgTex.getWidth(), bgTex.getHeight());
 
@@ -96,15 +96,13 @@ public abstract class AbstractGamePanel extends JPanel {
 		final TexturePaint tp = new TexturePaint(bgTex, tr);
 		g2.setPaint(tp);
 		g2.fill(canvas);
-		//TODO draw borders of viewable area of map
+		// TODO draw borders of viewable area of map
 	}
 
 	protected abstract void paintGUI(final Graphics2D g2);
 
 	public static BufferedImage toBufferedImage(Image image) {
-		if (image instanceof BufferedImage) {
-		return (BufferedImage) image;
-		}
+		if (image instanceof BufferedImage) { return (BufferedImage) image; }
 		// This code ensures that all the pixels in the image are loaded
 		image = new ImageIcon(image).getImage();
 		// Determine if the image has transparent pixels; for this method's
@@ -126,8 +124,8 @@ public abstract class AbstractGamePanel extends JPanel {
 			// Create the buffered image
 			GraphicsDevice gs = ge.getDefaultScreenDevice();
 			GraphicsConfiguration gc = gs.getDefaultConfiguration();
-			bimage = gc.createCompatibleImage(
-			image.getWidth(null), image.getHeight(null), transparency);
+			bimage = gc.createCompatibleImage(image.getWidth(null), image.getHeight(null),
+					transparency);
 		} catch (HeadlessException e) {
 			// The system does not have a screen
 		}
@@ -153,7 +151,9 @@ public abstract class AbstractGamePanel extends JPanel {
 	}
 
 	protected Image getImage(final String filename) {
-		return tKit.getImage(path.concat(filename));
+
+		return tKit.getImage(path.concat(filename.endsWith(".png") ? filename : filename
+				.concat(".png")));
 	}
 
 	private static final String	path	= "res/sprite/";
