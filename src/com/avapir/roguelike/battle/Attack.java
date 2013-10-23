@@ -20,15 +20,14 @@ public class Attack {
 	private final List<Effect>	effects			= new ArrayList<Effect>();
 
 	public Attack(final float... input) {
-		if (input.length > TOTAL_DMG_TYPES) { throw new IllegalArgumentException("Unknown damage type"); }
+		if (input.length > TOTAL_DMG_TYPES) { throw new IllegalArgumentException(); }
 		for (int i = 0; i < input.length; i++) {
 			damage[i] = input[i];
 		}
 	}
 
 	public Attack addDamage(final int[] damages) {
-		if (damages.length > TOTAL_DMG_TYPES) { throw new IllegalArgumentException(
-				"Unknow damage type"); }
+		if (damages.length > TOTAL_DMG_TYPES) { throw new IllegalArgumentException(); }
 
 		for (int i = 0; i < damages.length; i++) {
 			damage[i] += damages[i];

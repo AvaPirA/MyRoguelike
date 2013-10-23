@@ -12,15 +12,15 @@ import com.avapir.roguelike.locatable.Mob;
 
 public class Map implements ILosMap {
 
-	private static final Random			random		= new Random();
+	private static final Random			random			= new Random();
 
-	private static final int			DFT_HEIGHT	= 100;
-	private static final int			DFT_WIDTH	= 100;
-	private static final int			DFT_DELTA	= 20;					// percents
+	private static final int			DFT_HEIGHT		= 100;
+	private static final int			DFT_WIDTH		= 100;
+	private static final int			DFT_DELTA		= 20;					// percents
 
 	private final Game					game;
-	private IFovAlgorithm			permissiveFov	= new PermissiveFOV();
-	private static final MapGenerator	generator	= new MapGenerator();
+	private IFovAlgorithm				permissiveFov	= new PermissiveFOV();
+	private static final MapGenerator	generator		= new MapGenerator();
 
 	private final int					HEIGHT_MAP;
 	private final int					WIDTH_MAP;
@@ -170,53 +170,54 @@ public class Map implements ILosMap {
 	 * @param y
 	 * @return
 	 */
+	@Override
 	public boolean hasTile(final int x, final int y) {
 		return x >= 0 && x < WIDTH_MAP && y >= 0 && y < HEIGHT_MAP;
 	}
 
-//	/**
-//	 * Спижжено
-//	 * 
-//	 * @param x1
-//	 * @param y1
-//	 * @param x2
-//	 * @param y2
-//	 */
-//	private void drawFOVLine(int x1, int y1, final int x2, final int y2) {
-//		final int deltaX = Math.abs(x2 - x1);
-//		final int deltaY = Math.abs(y2 - y1);
-//		final int signX = x1 < x2 ? 1 : -1;
-//		final int signY = y1 < y2 ? 1 : -1;
-//		int error = deltaX - deltaY;
-//
-//		for (;;) {
-//			if (hasTile(x1, y1)) {
-//				field[y1][x1].setVisible(true);
-//				// field[x1][y1].lastseenID = field[x1][y1].getID();
-//			} else {
-//				break;
-//			}
-//			if (!field[y1][x1].isTransparent()) {
-//				break;
-//			}
-//
-//			if (x1 == x2 && y1 == y2) {
-//				break;
-//			}
-//
-//			final int error2 = error * 2;
-//
-//			if (error2 > -deltaY) {
-//				error -= deltaY;
-//				x1 += signX;
-//			}
-//
-//			if (error2 < deltaX) {
-//				error += deltaX;
-//				y1 += signY;
-//			}
-//		}
-//	}
+	// /**
+	// * Спижжено
+	// *
+	// * @param x1
+	// * @param y1
+	// * @param x2
+	// * @param y2
+	// */
+	// private void drawFOVLine(int x1, int y1, final int x2, final int y2) {
+	// final int deltaX = Math.abs(x2 - x1);
+	// final int deltaY = Math.abs(y2 - y1);
+	// final int signX = x1 < x2 ? 1 : -1;
+	// final int signY = y1 < y2 ? 1 : -1;
+	// int error = deltaX - deltaY;
+	//
+	// for (;;) {
+	// if (hasTile(x1, y1)) {
+	// field[y1][x1].setVisible(true);
+	// // field[x1][y1].lastseenID = field[x1][y1].getID();
+	// } else {
+	// break;
+	// }
+	// if (!field[y1][x1].isTransparent()) {
+	// break;
+	// }
+	//
+	// if (x1 == x2 && y1 == y2) {
+	// break;
+	// }
+	//
+	// final int error2 = error * 2;
+	//
+	// if (error2 > -deltaY) {
+	// error -= deltaY;
+	// x1 += signX;
+	// }
+	//
+	// if (error2 < deltaX) {
+	// error += deltaX;
+	// y1 += signY;
+	// }
+	// }
+	// }
 
 	/**
 	 * Спижженый алгоритм для рассчета Field Of View персонажа. Без понятия, что
@@ -239,36 +240,36 @@ public class Map implements ILosMap {
 			}
 		}
 		permissiveFov.visitFieldOfView(this, x0, y0, radius);
-//		int x = 0;
-//		int y = radius;
-//		int delta = 2 - 2 * radius;
-//		int error = 0;
-//		while (y >= 0) {
-//			drawFOVLine(x0, y0, x0 + x, y0 + y);
-//			drawFOVLine(x0, y0, x0 + x, y0 - y);
-//			drawFOVLine(x0, y0, x0 - x, y0 + y);
-//			drawFOVLine(x0, y0, x0 - x, y0 - y);
-//			drawFOVLine(x0, y0, x0 + x - 1, y0 + y);
-//			drawFOVLine(x0, y0, x0 + x - 1, y0 - y);
-//			drawFOVLine(x0, y0, x0 - x, y0 + y - 1);
-//			drawFOVLine(x0, y0, x0 - x, y0 - y - 1);
-//
-//			error = 2 * (delta + y) - 1;
-//			if (delta < 0 && error <= 0) {
-//				++x;
-//				delta += 2 * x + 1;
-//				continue;
-//			}
-//			error = 2 * (delta - x) - 1;
-//			if (delta > 0 && error > 0) {
-//				--y;
-//				delta += 1 - 2 * y;
-//				continue;
-//			}
-//			++x;
-//			delta += 2 * (x - y);
-//			--y;
-//		}
+		// int x = 0;
+		// int y = radius;
+		// int delta = 2 - 2 * radius;
+		// int error = 0;
+		// while (y >= 0) {
+		// drawFOVLine(x0, y0, x0 + x, y0 + y);
+		// drawFOVLine(x0, y0, x0 + x, y0 - y);
+		// drawFOVLine(x0, y0, x0 - x, y0 + y);
+		// drawFOVLine(x0, y0, x0 - x, y0 - y);
+		// drawFOVLine(x0, y0, x0 + x - 1, y0 + y);
+		// drawFOVLine(x0, y0, x0 + x - 1, y0 - y);
+		// drawFOVLine(x0, y0, x0 - x, y0 + y - 1);
+		// drawFOVLine(x0, y0, x0 - x, y0 - y - 1);
+		//
+		// error = 2 * (delta + y) - 1;
+		// if (delta < 0 && error <= 0) {
+		// ++x;
+		// delta += 2 * x + 1;
+		// continue;
+		// }
+		// error = 2 * (delta - x) - 1;
+		// if (delta > 0 && error > 0) {
+		// --y;
+		// delta += 1 - 2 * y;
+		// continue;
+		// }
+		// ++x;
+		// delta += 2 * (x - y);
+		// --y;
+		// }
 	}
 
 	public static float distance(final Point2D.Float p1, final Point2D.Float p2) {

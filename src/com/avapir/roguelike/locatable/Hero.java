@@ -57,7 +57,7 @@ public class Hero extends Mob implements Locatable {
 			final float INT = h.stats.getInt();
 			final float phy = 1.6f + STR + DEX * 0.4f + INT * 0.2f;
 			final float mag = 1.2f + INT + DEX * 0.4f;
-			System.out.println(STR+" "+DEX+" "+INT+" "+phy);
+			System.out.println(STR + " " + DEX + " " + INT + " " + phy);
 			return new Attack(phy, mag);
 		}
 

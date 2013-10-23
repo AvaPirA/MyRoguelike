@@ -75,6 +75,7 @@ public class PermissiveFOV implements IFovAlgorithm {
 
 		bumpT	parent	= null;
 
+		@Override
 		public String toString() {
 			return location.toString() + " p( " + parent + " ) ";
 		}
@@ -100,6 +101,7 @@ public class PermissiveFOV implements IFovAlgorithm {
 
 		bumpT	shallowBump;
 
+		@Override
 		public String toString() {
 			return "[ steep " + steep + ",  shallow " + shallow + "]";
 		}
@@ -354,6 +356,7 @@ public class PermissiveFOV implements IFovAlgorithm {
 			return 0;
 	}
 
+	@Override
 	public void visitFieldOfView(ILosMap b, int x, int y, int distance) {
 		permissiveMaskT mask = new permissiveMaskT();
 		mask.east = mask.north = mask.south = mask.west = distance;

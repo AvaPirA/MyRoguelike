@@ -80,8 +80,8 @@ public class Tile {
 		public static final int	EMPTY_FLAG		= 0b00000000000000000000000000000000;
 
 		/* 0-8 FOV */
-//		public static final int	VISIBLE			= 1 << 0;
-//		public static final int	SEEN			= 1 << 1;
+		// public static final int VISIBLE = 1 << 0;
+		// public static final int SEEN = 1 << 1;
 		public static final int	LIGHT_ON		= 1 << 2;
 		public static final int	TRANSPARENT		= 1 << 3;
 		public static final int	F4				= 1 << 4;
@@ -122,25 +122,25 @@ public class Tile {
 		return flag == (flags & flag);
 	}
 
-//	private void addFlags(final int newFlag) {
-//		flags = flags | newFlag;
-//	}
-//
-//	private void removeFlags(final int newFlag) {
-//		flags = flags & invertFlag(newFlag);
-//	}
+	// private void addFlags(final int newFlag) {
+	// flags = flags | newFlag;
+	// }
+	//
+	// private void removeFlags(final int newFlag) {
+	// flags = flags & invertFlag(newFlag);
+	// }
 
-//	private int invertFlag(final int flag) {
-//		return Flag.FULL_FLAG ^ flag;
-//	}
+	// private int invertFlag(final int flag) {
+	// return Flag.FULL_FLAG ^ flag;
+	// }
 
-//	private void setFlag(final boolean b, final int flag) {
-//		if (b) {
-//			addFlags(flag);
-//		} else {
-//			removeFlags(flag);
-//		}
-//	}
+	// private void setFlag(final boolean b, final int flag) {
+	// if (b) {
+	// addFlags(flag);
+	// } else {
+	// removeFlags(flag);
+	// }
+	// }
 
 	private boolean	visible;
 	private boolean	seen;

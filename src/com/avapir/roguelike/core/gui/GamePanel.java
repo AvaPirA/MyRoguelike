@@ -142,13 +142,21 @@ public class GamePanel extends AbstractGamePanel {
 
 			// HP
 			g2.setColor(Color.green);
-			drawString(g2, offset.x, offset.y + 50,
-					String.format("%s/%s", roundOneDigit(hero.getHP()), Hero.StatsFormulas.getMaxHP(hero)));
+			drawString(
+					g2,
+					offset.x,
+					offset.y + 50,
+					String.format("%s/%s", roundOneDigit(hero.getHP()),
+							Hero.StatsFormulas.getMaxHP(hero)));
 
 			// MP
 			g2.setColor(Color.blue);
-			drawString(g2, offset.x, offset.y + 65,
-					String.format("%s/%s", roundOneDigit(hero.getMP()), Hero.StatsFormulas.getMaxMP(hero)));
+			drawString(
+					g2,
+					offset.x,
+					offset.y + 65,
+					String.format("%s/%s", roundOneDigit(hero.getMP()),
+							Hero.StatsFormulas.getMaxMP(hero)));
 		}
 
 		private void heroAttack(final Graphics2D g2, final Hero hero) {

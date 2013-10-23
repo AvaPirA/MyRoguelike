@@ -210,8 +210,10 @@ public class Mob implements Locatable {
 	/**
 	 * Decreases damage and checks if this {@link Mob} died
 	 * 
-	 * @param dmg caused damage
-	 * @param m game where it happened
+	 * @param dmg
+	 *            caused damage
+	 * @param m
+	 *            game where it happened
 	 */
 	private void receiveDamage(final float dmg, final Game g) {
 		HP -= dmg;
@@ -222,10 +224,11 @@ public class Mob implements Locatable {
 
 	/**
 	 * Called once while mob`s hp goes below zero
+	 * 
 	 * @param g
 	 */
 	protected void onDeath(final Game g) {
-		g.getMap().removeCharacter(X, Y);		
+		g.getMap().removeCharacter(X, Y);
 	}
 
 	/**

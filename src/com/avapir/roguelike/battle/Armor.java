@@ -15,7 +15,8 @@ public class Armor {
 	private final float[]	armor			= new float[TOTAL_DEF_TYPES];
 
 	public Armor(final float... input) {
-		if (input.length > TOTAL_DEF_TYPES) { throw new IllegalArgumentException("Unknown armor type"); }
+		if (input.length > TOTAL_DEF_TYPES) { throw new IllegalArgumentException(
+				"Unknown armor type"); }
 		for (int i = 0; i < input.length; i++) {
 			armor[i] = input[i];
 		}
@@ -25,9 +26,9 @@ public class Armor {
 		return armor[index];
 	}
 
-	public Armor addArmor(final int[] def) {//@formatter:off
-		if (def == null) {return this;}
-		if (def.length != TOTAL_DEF_TYPES) {throw new IllegalArgumentException("Unknown armor type");}//@formatter:on
+	public Armor addArmor(final int[] def) {
+		if (def == null) { return this; }
+		if (def.length != TOTAL_DEF_TYPES) { throw new IllegalArgumentException(); }
 
 		for (int i = 0; i < TOTAL_DEF_TYPES; i++) {
 			armor[i] += def[i];
@@ -35,8 +36,8 @@ public class Armor {
 		return this;
 	}
 
-	public Armor addArmor(final Armor def) {//@formatter:off
-		if (def == null) {return this;}//@formatter:on
+	public Armor addArmor(final Armor def) {
+		if (def == null) { return this; }
 		for (int i = 0; i < TOTAL_DEF_TYPES; i++) {
 			armor[i] = def.armor[i];
 		}
