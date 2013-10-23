@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Random;
 
 import com.avapir.roguelike.core.Game;
-import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Item;
 import com.avapir.roguelike.locatable.Mob;
 
@@ -175,49 +174,49 @@ public class Map implements ILosMap {
 		return x >= 0 && x < WIDTH_MAP && y >= 0 && y < HEIGHT_MAP;
 	}
 
-	/**
-	 * Спижжено
-	 * 
-	 * @param x1
-	 * @param y1
-	 * @param x2
-	 * @param y2
-	 */
-	private void drawFOVLine(int x1, int y1, final int x2, final int y2) {
-		final int deltaX = Math.abs(x2 - x1);
-		final int deltaY = Math.abs(y2 - y1);
-		final int signX = x1 < x2 ? 1 : -1;
-		final int signY = y1 < y2 ? 1 : -1;
-		int error = deltaX - deltaY;
-
-		for (;;) {
-			if (hasTile(x1, y1)) {
-				field[y1][x1].setVisible(true);
-				// field[x1][y1].lastseenID = field[x1][y1].getID();
-			} else {
-				break;
-			}
-			if (!field[y1][x1].isTransparent()) {
-				break;
-			}
-
-			if (x1 == x2 && y1 == y2) {
-				break;
-			}
-
-			final int error2 = error * 2;
-
-			if (error2 > -deltaY) {
-				error -= deltaY;
-				x1 += signX;
-			}
-
-			if (error2 < deltaX) {
-				error += deltaX;
-				y1 += signY;
-			}
-		}
-	}
+//	/**
+//	 * Спижжено
+//	 * 
+//	 * @param x1
+//	 * @param y1
+//	 * @param x2
+//	 * @param y2
+//	 */
+//	private void drawFOVLine(int x1, int y1, final int x2, final int y2) {
+//		final int deltaX = Math.abs(x2 - x1);
+//		final int deltaY = Math.abs(y2 - y1);
+//		final int signX = x1 < x2 ? 1 : -1;
+//		final int signY = y1 < y2 ? 1 : -1;
+//		int error = deltaX - deltaY;
+//
+//		for (;;) {
+//			if (hasTile(x1, y1)) {
+//				field[y1][x1].setVisible(true);
+//				// field[x1][y1].lastseenID = field[x1][y1].getID();
+//			} else {
+//				break;
+//			}
+//			if (!field[y1][x1].isTransparent()) {
+//				break;
+//			}
+//
+//			if (x1 == x2 && y1 == y2) {
+//				break;
+//			}
+//
+//			final int error2 = error * 2;
+//
+//			if (error2 > -deltaY) {
+//				error -= deltaY;
+//				x1 += signX;
+//			}
+//
+//			if (error2 < deltaX) {
+//				error += deltaX;
+//				y1 += signY;
+//			}
+//		}
+//	}
 
 	/**
 	 * Спижженый алгоритм для рассчета Field Of View персонажа. Без понятия, что

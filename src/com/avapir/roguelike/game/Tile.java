@@ -122,25 +122,25 @@ public class Tile {
 		return flag == (flags & flag);
 	}
 
-	private void addFlags(final int newFlag) {
-		flags = flags | newFlag;
-	}
+//	private void addFlags(final int newFlag) {
+//		flags = flags | newFlag;
+//	}
+//
+//	private void removeFlags(final int newFlag) {
+//		flags = flags & invertFlag(newFlag);
+//	}
 
-	private void removeFlags(final int newFlag) {
-		flags = flags & invertFlag(newFlag);
-	}
+//	private int invertFlag(final int flag) {
+//		return Flag.FULL_FLAG ^ flag;
+//	}
 
-	private int invertFlag(final int flag) {
-		return Flag.FULL_FLAG ^ flag;
-	}
-
-	private void setFlag(final boolean b, final int flag) {
-		if (b) {
-			addFlags(flag);
-		} else {
-			removeFlags(flag);
-		}
-	}
+//	private void setFlag(final boolean b, final int flag) {
+//		if (b) {
+//			addFlags(flag);
+//		} else {
+//			removeFlags(flag);
+//		}
+//	}
 
 	private boolean	visible;
 	private boolean	seen;

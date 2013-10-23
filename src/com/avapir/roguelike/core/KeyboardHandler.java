@@ -103,7 +103,6 @@ public class KeyboardHandler implements KeyListener {
 
 	private void movePress(final KeyEvent e) {
 		Point p;
-		boolean madeTurn = true;
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_NUMPAD1:
 			p = new Point(-1, 1);

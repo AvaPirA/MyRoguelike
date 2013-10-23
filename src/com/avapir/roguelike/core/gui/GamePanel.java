@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.util.StringTokenizer;
@@ -26,21 +27,23 @@ public class GamePanel extends AbstractGamePanel {
 	 */
 	private static final long	serialVersionUID	= 1L;
 	private final Game			game;
-	private final int					WIDTH_IN_TILES;
-	private final int					HEIGHT_IN_TILES;
+	private final int			WIDTH_IN_TILES;
+	private final int			HEIGHT_IN_TILES;
+
+	private final GuiPainter	guiPainter;
 
 	public GamePanel(final Game g) {
 		super();
-		
+
 		game = g;
 		WIDTH_IN_TILES = getWidthInTiles();
 		HEIGHT_IN_TILES = getHeightInTiles();
+		System.out.println(WIDTH_IN_TILES);
+		System.out.println(HEIGHT_IN_TILES);
+		guiPainter = new GuiPainter();
 		addKeyListener(new KeyboardHandler(game));
 		setFocusable(true);
 	}
-
-	private static final Color[]	COLOR_SET	= { Color.BLACK, Color.WHITE, Color.RED,
-		Color.GREEN, Color.BLUE, Color.CYAN, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.PINK };
 
 	void drawColorString(final Graphics g, final String str, int lastX, final int lastY) {
 		final Graphics2D g2 = (Graphics2D) g;
@@ -56,8 +59,7 @@ public class GamePanel extends AbstractGamePanel {
 				g2.setColor(Color.WHITE);
 				continue;
 			} else if (token.length() <= 2) {
-				final int col = Integer.parseInt(token);
-				g2.setColor(COLOR_SET[col]);
+				g2.setColor(getDefaultStringColor(Integer.parseInt(token)));
 				continue;
 			}
 			drawString(g2, lastX, lastY, token);
@@ -88,66 +90,117 @@ public class GamePanel extends AbstractGamePanel {
 	@Override
 	protected void paintGUI(final Graphics2D g2) {
 		switch (game.getState()) {
+		case DISTANCE_ATTACK:
+		case GAME_OVER:
+		case INVENTORY:
+		case VIEW:
 		case MOVE:
-			guiGame(g2);
+		case CHANGE_STATS:
+			guiPainter.paint(g2);
 		}
 	}
 
-	private void guiGame(final Graphics2D g2) {
-		g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
-		final int guiOffH = HEIGHT_IN_TILES * Tile.SIZE_px / 2;
-		final int guiOffW = WIDTH_IN_TILES * Tile.SIZE_px + 15;
-		g2.setColor(Color.white);
-		final Hero h = game.getHero();
+	private class GuiPainter {
 
-		g2.setColor(Color.yellow);
-		drawString(g2, guiOffW, guiOffH - 30, "X: " + h.getX());
-		drawString(g2, guiOffW, guiOffH - 15, "Y: " + h.getY());
-		drawString(g2, guiOffW, guiOffH, h.getName());
-		drawString(g2, guiOffW + 50, guiOffH,
-				String.format("Level [%s] (%s/%s)", h.getLevel(), h.getXP(), h.getAdvanceXP()));
+		private final Point	attackOffset	= new Point(0, 90);
+		private final Point	armorOffset		= new Point(150, 0);
+		private final Point	statsOffset		= new Point(-150, 110);
+		private final Point	offset			= new Point(WIDTH_IN_TILES * Tile.SIZE_px + 15,
+													HEIGHT_IN_TILES * Tile.SIZE_px / 2);
+		private final Point	offsetDFT		= new Point(offset.x, offset.y);
 
-		g2.setColor(Color.green);
-		drawString(g2, guiOffW, guiOffH + 20,
-				String.format("%s/%s", h.getHP(), Hero.StatsFormulas.getMaxHP(h)));
-
-		g2.setColor(Color.blue);
-		drawString(g2, guiOffW, guiOffH + 35,
-				String.format("%s/%s", h.getMP(), Hero.StatsFormulas.getMaxMP(h)));
-
-		g2.setColor(Color.red);
-		for (int i = 0; i < Attack.TOTAL_DMG_TYPES; i++) {
-			final float heroDmg = roundOneDigit(h.getAttack(i));
-			final float pureDmg = roundOneDigit(((Mob) h).getAttack(i));
-			final float itemDmg = heroDmg - pureDmg;
-			drawString(g2, guiOffW, guiOffH + 60 + i * 15,
-					String.format("%s + %s = %s", pureDmg, itemDmg, heroDmg));
+		public void paint(final Graphics2D g2) {
+			final Hero h = game.getHero();
+			offset.move(offsetDFT.x, offsetDFT.y);
+			heroInventory(g2, h);
+			heroMainStats(g2, h);
+			heroAttack(g2, h);
+			heroArmor(g2, h);
+			heroStats(g2, h);
 		}
 
-		g2.setColor(Color.orange);
-		for (int i = 0; i < Armor.TOTAL_DEF_TYPES; i++) {
-			final float heroDef = roundOneDigit(h.getArmor(i));
-			final float pureDef = roundOneDigit(((Mob) h).getArmor(i));
-			final float itemDef = heroDef - pureDef;
-			drawString(g2, guiOffW + 150, guiOffH + 60 + i * 15,
-					String.format("%s + %s = %s", pureDef, itemDef, heroDef));
+		private void heroInventory(Graphics2D g2, Hero h) {
+			// TODO Auto-generated method stub
+
 		}
-		g2.setColor(Color.yellow);
-		final String[] stat = { "STR", "AGI", "VIT", "INT", "DEX", "LUK" };
-		for (int i = 0; i < 6; i++) {
-			drawString(g2, guiOffW, guiOffH + 170 + i * 15, stat[i] + "  " + h.getStats().values(i));
+
+		private void heroMainStats(final Graphics2D g2, final Hero hero) {
+			g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
+			g2.setColor(Color.yellow);
+			// location
+			System.out.println(offset.x + " " + offset.y);
+			drawString(g2, offset.x, offset.y, "X: " + hero.getX());
+			drawString(g2, offset.x, offset.y + 15, "Y: " + hero.getY());
+
+			// name
+			drawString(g2, offset.x, offset.y + 30, hero.getName());
+
+			// level xp/XP
+			drawString(
+					g2,
+					offset.x + 80,
+					offset.y,
+					String.format("Level [%s] (%s/%s)", hero.getLevel(), hero.getXP(),
+							hero.getAdvanceXP()));
+
+			// HP
+			g2.setColor(Color.green);
+			drawString(g2, offset.x, offset.y + 50,
+					String.format("%s/%s", hero.getHP(), Hero.StatsFormulas.getMaxHP(hero)));
+
+			// MP
+			g2.setColor(Color.blue);
+			drawString(g2, offset.x, offset.y + 65,
+					String.format("%s/%s", hero.getMP(), Hero.StatsFormulas.getMaxMP(hero)));
 		}
+
+		private void heroAttack(final Graphics2D g2, final Hero hero) {
+			g2.setColor(Color.red);
+
+			offset.translate(attackOffset.x, attackOffset.y);
+
+			for (int i = 0; i < Attack.TOTAL_DMG_TYPES; i++) {
+				final float heroDmg = roundOneDigit(hero.getAttack(i));
+				final float pureDmg = roundOneDigit(((Mob) hero).getAttack(i));
+				final float itemDmg = heroDmg - pureDmg;
+				drawString(g2, offset.x, offset.y + i * 15,
+						String.format("%s + %s = %s", pureDmg, itemDmg, heroDmg));
+			}
+		}
+
+		private void heroArmor(final Graphics2D g2, final Hero hero) {
+			g2.setColor(Color.orange);
+			offset.translate(armorOffset.x, armorOffset.y);
+
+			for (int i = 0; i < Armor.TOTAL_DEF_TYPES; i++) {
+				final float heroDef = roundOneDigit(hero.getArmor(i));
+				final float pureDef = roundOneDigit(((Mob) hero).getArmor(i));
+				final float itemDef = heroDef - pureDef;
+				drawString(g2, offset.x, offset.y + i * 15,
+						String.format("%s + %s = %s", pureDef, itemDef, heroDef));
+			}
+		}
+
+		private void heroStats(final Graphics2D g2, final Hero hero) {
+			g2.setColor(Color.yellow);
+
+			offset.translate(statsOffset.x, statsOffset.y);
+
+			final String[] stat = { "STR", "AGI", "VIT", "INT", "DEX", "LUK" };
+			for (int i = 0; i < stat.length; i++) {
+				drawString(g2, offset.x, offset.y + i * 15, stat[i] + "  "
+						+ hero.getStats().values(i));
+			}
+		}
+
 	}
-
-	private static Font	f	= new Font("Times New Roman", Font.PLAIN, 15);
 
 	private void paintLog(final Graphics2D g2) {
-		final int off = 15;
-		g2.setFont(f);
+		final Point offset = new Point(15, 15);
+		g2.setFont(logFont);
 		for (int i = 0; i < game.getLog().size(); i++) {
 			g2.setColor(Color.white);
-			drawString(g2, off + WIDTH_IN_TILES * Tile.SIZE_px, off + i * f.getSize() + 3, game
-					.getLog().get(i));
+			drawString(g2, offset.x, offset.y + i * logFont.getSize() + 3, game.getLog().get(i));
 		}
 	}
 
@@ -188,13 +241,13 @@ public class GamePanel extends AbstractGamePanel {
 		switch (tile.getType()) {
 		case GRASS:
 			drawImage(g2, getImage("grass.png"), xx, yy);
-			break;
+		break;
 		case TREE:
 			drawImage(g2, getImage("tree.png"), xx, yy);
-			break;
+		break;
 		default:
 			drawImage(g2, getImage("empty.png"), xx, yy);
-			break;
+		break;
 		}
 		if (tile.isVisible() && tile.getMob() != null) {
 			paintMob(tile.getMob(), g2, xx, yy);
@@ -220,9 +273,9 @@ public class GamePanel extends AbstractGamePanel {
 		g2.fillRect(xx, yy + 3, (int) (Tile.SIZE_px * mob.getMP() / mob.getMaxMp()), 2);
 	}
 
-	private boolean hasTileOnScreen(final int y, final int x) {
-		return y >= game.Y() && y < HEIGHT_IN_TILES + game.Y() && x >= game.X()
-				&& x < WIDTH_IN_TILES + game.X();
-	}
+//	private boolean hasTileOnScreen(final int y, final int x) {
+//		return y >= game.Y() && y < HEIGHT_IN_TILES + game.Y() && x >= game.X()
+//				&& x < WIDTH_IN_TILES + game.X();
+//	}
 
 }

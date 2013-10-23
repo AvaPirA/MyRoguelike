@@ -1,6 +1,8 @@
 package com.avapir.roguelike.core.gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -28,7 +30,21 @@ public abstract class AbstractGamePanel extends JPanel {
 	private static final Toolkit	tKit				= Toolkit.getDefaultToolkit();
 	protected static final int		SCREEN_WIDTH;
 	protected static final int		SCREEN_HEIGHT;
+	
+	//load non-default font on start
+	protected static Font	logFont	= new Font("Times New Roman", Font.PLAIN, 15);
 
+
+	private static final Color[]	COLOR_SET	= { Color.BLACK, Color.WHITE, Color.RED,
+			Color.GREEN, Color.BLUE, Color.CYAN, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.PINK };
+
+	protected static Color getDefaultStringColor(int index) {
+		if (index < 0 || index > 9)
+			throw new IllegalArgumentException("Wrong default string color index: " + index
+					+ "while have only " + COLOR_SET.length + " color");
+		return COLOR_SET[index];
+	}
+	
 	static {
 		final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		SCREEN_HEIGHT = (int) dim.getHeight();
@@ -50,7 +66,7 @@ public abstract class AbstractGamePanel extends JPanel {
 	public static int getScreenHeight() {
 		return SCREEN_HEIGHT;
 	}
-
+	
 	@Override
 	public void paintComponent(final Graphics g) {
 		super.paintComponent(g);
@@ -80,6 +96,7 @@ public abstract class AbstractGamePanel extends JPanel {
 		final TexturePaint tp = new TexturePaint(bgTex, tr);
 		g2.setPaint(tp);
 		g2.fill(canvas);
+		//TODO draw borders of viewable area of map
 	}
 
 	protected abstract void paintGUI(final Graphics2D g2);

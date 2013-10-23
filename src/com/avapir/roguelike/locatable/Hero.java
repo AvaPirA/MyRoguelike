@@ -193,7 +193,7 @@ public class Hero extends Mob implements Locatable {
 
 	private int					level		= 0;
 	private int					XP			= 0;
-	private int					freeStats	= 0;
+//	private int					freeStats	= 0;
 
 	public Hero(final int x, final int y, final String n, final Map m) {
 		super(x, y, null, n, m);
@@ -271,7 +271,7 @@ public class Hero extends Mob implements Locatable {
 	private void gainLvl(final Game g) {
 		XP = 0;
 		level++;
-		freeStats += 5;
+//		freeStats += 5;
 		restore();
 		g.log(String.format("%s достиг %s уровня!", name, level));
 		g.getWindowsManager();
