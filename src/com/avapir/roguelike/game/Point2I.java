@@ -24,6 +24,11 @@ public class Point2I extends Point implements Serializable {
 		this.y = y;
 	}
 
+	public Point2I(Point p) {
+		this.x = p.x;
+		this.y = p.y;
+	}
+
 	/**
 	 * Uses x+y as hash
 	 */

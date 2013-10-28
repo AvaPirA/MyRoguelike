@@ -1,6 +1,7 @@
 package com.avapir.roguelike.core;
 
 import com.avapir.roguelike.locatable.Hero;
+import com.avapir.roguelike.locatable.Hero.PrimaryStats;
 
 public class ChangingStatsHandler {
 
@@ -19,6 +20,10 @@ public class ChangingStatsHandler {
 		cursor = cursor > length ? length : cursor < 0 ? 0 : cursor;
 	}
 
+	public int[] getBuild(){
+		return build;
+	}
+	
 	public void pressDown() {
 		cursor++;
 		check();
@@ -35,6 +40,9 @@ public class ChangingStatsHandler {
 		if (game.getHero().getStats().values(cursor) > build[cursor]) {
 			game.getHero().getStats().decrease(cursor);
 			game.getHero().recomputeStats();
+			game.getLog()
+					.add(game.getHero().getName() + " уменьшает " + PrimaryStats.STATS_STRINGS[cursor]
+							+ " на 1");
 			game.repaint();
 		}
 	}
@@ -43,6 +51,9 @@ public class ChangingStatsHandler {
 		if (!game.getHero().getStats().isMaxed(cursor) && game.getHero().getStats().hasFreeStats()) {
 			game.getHero().getStats().increase(cursor);
 			game.getHero().recomputeStats();
+			game.getLog()
+			.add(game.getHero().getName() + " увеличивает " + PrimaryStats.STATS_STRINGS[cursor]
+					+ " на 1");
 			game.repaint();
 		}
 	}

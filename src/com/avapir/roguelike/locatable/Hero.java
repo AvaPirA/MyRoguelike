@@ -15,7 +15,7 @@ public class Hero extends Mob implements Locatable {
 
 	private static final class DefaultStats {//@formatter:off
 		/* 	STR 	AGI 	VIT 	INT 	DEX 	LUK */
-		static final int[]	PLAYER	= { 1, 		0, 		0, 		0, 		0, 		0 };	// 16
+		static final int[]	PLAYER	= { 3, 		3, 		3,	 	3, 		2, 		1 };	// 16
 //		static final int[]	PLAYER	= { 280, 	170,	230,	90,		70,		47 };	// 887
 		static final int[]	NPC		= { 50, 	100, 	100, 	50, 	50, 	10 };	// 360
 		static final int[]	ELDER	= { 290, 	120,	390, 	700,	400, 	100 }; 	// 2000
@@ -95,7 +95,7 @@ public class Hero extends Mob implements Locatable {
 		public static final int			MAX_STAT_VALUE			= 300;
 
 		private final int[]				values					= new int[PRIMARY_STATS_AMOUNT];
-		private int						freeStats				= 15;
+		private int						freeStats				= 0;
 
 		//@formatter:off
 		public PrimaryStats(final String name) {

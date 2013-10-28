@@ -242,7 +242,7 @@ public class Map implements ILosMap {
 	 * @param radius
 	 *            радиус видимости?
 	 */
-	public void computeFOV(final int x0, final int y0, final int radius) {
+	public void computeFOV(final Point p, final int radius) {
 		for (int i = 0; i < HEIGHT_MAP; i++) {
 			for (int j = 0; j < WIDTH_MAP; j++) {
 				if (field[i][j].isVisible()) {
@@ -251,7 +251,7 @@ public class Map implements ILosMap {
 				}
 			}
 		}
-		permissiveFov.visitFieldOfView(this, x0, y0, radius);
+		permissiveFov.visitFieldOfView(this, p, radius);
 		// int x = 0;
 		// int y = radius;
 		// int delta = 2 - 2 * radius;

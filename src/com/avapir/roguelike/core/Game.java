@@ -15,6 +15,7 @@ import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.core.gui.GameWindow;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.locatable.Hero;
+import com.avapir.roguelike.locatable.Hero.PrimaryStats;
 import com.avapir.roguelike.locatable.Mob;
 
 public class Game {
@@ -136,7 +137,7 @@ public class Game {
 
 	public void move(final Point p) {
 		if (checkStep(p)) {
-			log("Перешел в [" + hero.getX() + ", " + hero.getY() + "]");
+			log("Перешел в [" + hero.getLoc().x + ", " + hero.getLoc().y + "]");
 		}
 		currentX += p.x;
 		currentY += p.y;
@@ -195,7 +196,7 @@ public class Game {
 	void EOT(final Point mapMove) {
 		move(mapMove);
 		// TODO SET GAME.BISY
-		currentMap.computeFOV(hero.getX(), hero.getY(), Hero.StatsFormulas.getFOVR(hero));
+		currentMap.computeFOV(hero.getLoc(), Hero.StatsFormulas.getFOVR(hero));
 		doAIforAll();
 		doTurnEffects();
 
@@ -277,10 +278,22 @@ public class Game {
 	}
 
 	public void createStatsHandler() {
+		log("_____________________");
+		log("Изменение характеристик:");
+		log("Свободных хар-к: " + hero.getStats().getFreeAmount());
 		chs = new ChangingStatsHandler(this);
 	}
 
 	public void removeStatsHandler() {
+		log("Характеристики увеличились на:");
+		String[] ss = PrimaryStats.STATS_STRINGS;
+		log(ss[0] + ":" + (hero.getStats().values(0) - chs.getBuild()[0]) + ";              "
+				+ ss[1] + ":" + (hero.getStats().values(1) - chs.getBuild()[1]));
+		log(ss[2] + ":" + (hero.getStats().values(2) - chs.getBuild()[2]) + ";              "
+				+ ss[3] + ":" + (hero.getStats().values(3) - chs.getBuild()[3]));
+		log(ss[4] + ":" + (hero.getStats().values(4) - chs.getBuild()[4]) + ";             "
+				+ ss[5] + ":" + (hero.getStats().values(5) - chs.getBuild()[5]));
+		log("__________________________");
 		chs = null;
 	}
 }

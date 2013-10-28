@@ -1,5 +1,7 @@
 package com.avapir.roguelike.game;
 
+import java.awt.Point;
+
 /**
  * An interface for FOV algorithms.
  * 
@@ -29,6 +31,6 @@ public interface IFovAlgorithm {
 	 * @param distance
 	 *            How far can this Field of View go
 	 */
-	public void visitFieldOfView(ILosMap b, int x, int y, int distance);
+	public void visitFieldOfView(ILosMap b, Point p, int distance);
 
 }

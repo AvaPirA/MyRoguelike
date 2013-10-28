@@ -1,5 +1,6 @@
 package com.avapir.roguelike.game;
 
+import java.awt.Point;
 import java.util.LinkedList;
 
 /**
@@ -324,9 +325,9 @@ public class PermissiveFOV implements IFovAlgorithm {
 		return state.board.isObstacle(adjustedPos.x, adjustedPos.y);
 	}
 
-	private void permissiveFov(int sourceX, int sourceY, permissiveMaskT mask) {
+	private void permissiveFov(Point p, permissiveMaskT mask) {
 		fovStateT state = new fovStateT();
-		state.source = new Point2I(sourceX, sourceY);
+		state.source = new Point2I(p);
 		state.mask = mask;
 		state.board = mask.board;
 		// state.isBlocked = isBlocked;
@@ -357,12 +358,12 @@ public class PermissiveFOV implements IFovAlgorithm {
 	}
 
 	@Override
-	public void visitFieldOfView(ILosMap b, int x, int y, int distance) {
+	public void visitFieldOfView(ILosMap b, Point p, int distance) {
 		permissiveMaskT mask = new permissiveMaskT();
 		mask.east = mask.north = mask.south = mask.west = distance;
 		mask.distPlusOneSq = (distance + 1) * (distance + 1);
 		mask.board = b;
-		permissiveFov(x, y, mask);
+		permissiveFov(p, mask);
 	}
 
 }
