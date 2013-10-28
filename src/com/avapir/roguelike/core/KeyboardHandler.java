@@ -67,8 +67,7 @@ public class KeyboardHandler implements KeyListener {
 			inventoryPress(e);
 		break;
 		default:
-			System.out.println(game.getState());
-			throw new IllegalStateException("Wrong game state");
+			throw new IllegalStateException("Wrong game state: "+game.getState());
 		}
 	}
 
@@ -126,19 +125,15 @@ public class KeyboardHandler implements KeyListener {
 		ChangingStatsHandler csh = game.getStatsHandler();
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_UP:
-			System.out.println("u");
 			csh.pressUp();
 		break;
 		case KeyEvent.VK_DOWN:
-			System.out.println("d");
 			csh.pressDown();
 		break;
 		case KeyEvent.VK_LEFT:
-			System.out.println("l");
 			csh.pressLeft();
 		break;
 		case KeyEvent.VK_RIGHT:
-			System.out.println("r");
 			csh.pressRight();
 		break;
 		}

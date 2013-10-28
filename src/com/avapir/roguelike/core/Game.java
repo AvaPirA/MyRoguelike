@@ -167,7 +167,7 @@ public class Game {
 		final Random r = new Random();
 		for (int x = 0; x < currentMap.getWidth(); x++) {
 			for (int y = 0; y < currentMap.getHeight(); y++) {
-				if (currentMap.hasTile(x, y) && r.nextInt(70) == 1) {
+				if (currentMap.hasTile(x, y) && r.nextInt(20) == 1) {
 					mobs.add(Mob.MobSet.getSlime());
 					currentMap.putCharacter(mobs.get(mobs.size() - 1), x, y);
 				}
@@ -268,7 +268,6 @@ public class Game {
 		} else {
 			this.state = state;
 		}
-		System.out.println("New state: " + state);
 	}
 
 	private ChangingStatsHandler	chs;

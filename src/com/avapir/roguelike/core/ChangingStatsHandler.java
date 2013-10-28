@@ -17,7 +17,6 @@ public class ChangingStatsHandler {
 
 	private void check() {
 		cursor = cursor > length ? length : cursor < 0 ? 0 : cursor;
-		System.out.println(cursor);
 	}
 
 	public void pressDown() {

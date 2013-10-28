@@ -14,7 +14,9 @@ import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
-import com.avapir.roguelike.game.ai.AI;
+import com.avapir.roguelike.game.ai.AbstractAI;
+import com.avapir.roguelike.game.ai.EasyAI;
+import com.avapir.roguelike.game.ai.IdleAI;
 import com.avapir.roguelike.game.ai.SlimeAI;
 
 public class Mob implements Locatable {
@@ -31,7 +33,11 @@ public class Mob implements Locatable {
 
 	}
 
-	private static final class Borg implements AI {
+	private static final class Borg extends EasyAI {
+		
+		static {
+			instance = new Borg();
+		}
 
 		@Override
 		public void computeAI(final Mob m, final Game g) {
@@ -49,6 +55,12 @@ public class Mob implements Locatable {
 			}
 		}
 
+		@Override
+		public void onDeath(Mob mob, Game g) {
+			// TODO Auto-generated method stub
+
+		}
+
 	}
 
 	// {
@@ -58,7 +70,7 @@ public class Mob implements Locatable {
 	// private static int mobs = 0;
 
 	private final String			name;
-	private final AI				intel;
+	private final AbstractAI		intel;
 
 	protected final List<Effect>	effects		= new ArrayList<>();
 	protected final Attack			baseAttack	= new Attack();
@@ -82,7 +94,7 @@ public class Mob implements Locatable {
 	 * @param nm
 	 */
 	private Mob(final int x, final int y, final int hp, final int mp, final Attack bAtk,
-			final Armor bDef, final AI ai, final String nm) {
+			final Armor bDef, final AbstractAI ai, final String nm) {
 		name = nm;
 		intel = ai;
 
@@ -94,8 +106,7 @@ public class Mob implements Locatable {
 		maxHP = HP;
 		maxMP = MP;
 
-		X = x;
-		Y = y;
+		location = new Point(x, y);
 	}
 
 	/**
@@ -107,11 +118,8 @@ public class Mob implements Locatable {
 	 * @param n
 	 * @param m
 	 */
-	public Mob(final int x, final int y, final AI ai, final String n, final Map m) {
-		intel = BORG ? new Borg() : ai != null ? ai : new AI() {
-			@Override
-			public void computeAI(final Mob m, final Game g) {}
-		};
+	public Mob(final int x, final int y, final AbstractAI ai, final String n, final Map m) {
+		intel = BORG ? new Borg() : ai != null ? ai : IdleAI.getNewInstance();
 
 		name = n;
 
@@ -126,8 +134,7 @@ public class Mob implements Locatable {
 	 * @param m
 	 */
 	private Mob(final Mob m) {
-		X = m.X;
-		Y = m.Y;
+		location.setLocation(location);
 		baseArmor.addArmor(baseArmor);
 		baseAttack.addAttack(m.baseAttack);
 		effects.addAll(m.effects);
@@ -228,7 +235,7 @@ public class Mob implements Locatable {
 	 * @param g
 	 */
 	protected void onDeath(final Game g) {
-		g.getMap().removeCharacter(X, Y);
+		intel.onDeath(this, g);
 	}
 
 	/**
@@ -293,23 +300,33 @@ public class Mob implements Locatable {
 
 	/* Implementation of Locatable interface */
 
-	private int	X;
-	private int	Y;
+	private Point	location	= new Point(-1, -1);
 
+	@Deprecated
 	@Override
 	public int getX() {
-		return X;
+		return location.x;
 	}
 
+	@Deprecated
 	@Override
 	public int getY() {
-		return Y;
+		return location.y;
 	}
 
 	@Override
 	public void setLocation(final int x, final int y) {
-		X = x;
-		Y = y;
+		location.setLocation(x, y);
+	}
+
+	@Override
+	public void setLocation(final Point p) {
+		location.setLocation(p);
+	}
+
+	@Override
+	public Point getLoc() {
+		return location;
 	}
 
 }

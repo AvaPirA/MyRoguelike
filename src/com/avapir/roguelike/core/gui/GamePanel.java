@@ -19,6 +19,7 @@ import com.avapir.roguelike.core.KeyboardHandler;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.locatable.Hero;
+import com.avapir.roguelike.locatable.Hero.PrimaryStats;
 import com.avapir.roguelike.locatable.Mob;
 
 public class GamePanel extends AbstractGamePanel {
@@ -39,8 +40,6 @@ public class GamePanel extends AbstractGamePanel {
 		game = g;
 		WIDTH_IN_TILES = getWidthInTiles();
 		HEIGHT_IN_TILES = getHeightInTiles();
-		System.out.println(WIDTH_IN_TILES);
-		System.out.println(HEIGHT_IN_TILES);
 		guiPainter = new GuiPainter();
 		addKeyListener(new KeyboardHandler(game));
 		setFocusable(true);
@@ -125,7 +124,6 @@ public class GamePanel extends AbstractGamePanel {
 		private void heroMainStats(final Graphics2D g2, final Hero hero) {
 			g2.setColor(Color.yellow);
 			// location
-			System.out.println(offset.x + " " + offset.y);
 			drawString(g2, offset.x, offset.y, "X: " + hero.getX());
 			drawString(g2, offset.x, offset.y + 15, "Y: " + hero.getY());
 
@@ -254,13 +252,12 @@ public class GamePanel extends AbstractGamePanel {
 
 			offset.translate(statsOffset.x, statsOffset.y);
 
-			final String[] stat = { "STR", "AGI", "VIT", "INT", "DEX", "LUK" };
 			final int offsetY = offset.y - defaultFontSize * 3 / 4;
 
-			for (int i = 0; i < stat.length; i++) {
+			for (int i = 0; i < PrimaryStats.STATS_STRINGS.length; i++) {
 				FontRenderContext frc = g2.getFontRenderContext();
-				TextLayout text = new TextLayout(stat[i] + "  " + hero.getStats().values(i),
-						defaultFont, frc);
+				TextLayout text = new TextLayout(PrimaryStats.STATS_STRINGS[i] + "  "
+						+ hero.getStats().values(i), defaultFont, frc);
 				g2.setColor(getStatColor(getStatByIdx(i)));
 				g2.fillRect(offset.x, offsetY + i * 15, 75, defaultFontSize);
 				g2.fillRect(offset.x, offsetY + i * 15, 75 + 75 * getStatByIdx(i) / maxStat(),
@@ -294,6 +291,31 @@ public class GamePanel extends AbstractGamePanel {
 		for (int i = 0; i < game.getLog().size(); i++) {
 			g2.setColor(Color.white);
 			drawString(g2, offset.x, offset.y + i * logFont.getSize() + 3, game.getLog().get(i));
+		}
+	}
+
+	private void debugShowMinimap(final Graphics2D g2, final Map map) {
+		final int ox = 300;
+		final int oy = 100;
+		final int z = 15;
+		
+		for (int i = 0; i < map.getHeight(); i++) {
+			for (int j = 0; j < map.getWidth(); j++) {
+				Color c = Color.black;
+				if (map.getTile(i, j).isPassable()) {
+					c = Color.yellow;
+					if (map.getTile(i, j).getMob() != null) {
+						String name = map.getTile(i, j).getMob().getName();
+						if (name.equals("Slime")) {
+							c = Color.green;
+						} else if (name.equals("Hero")) {
+							c = Color.red;
+						}
+					}
+				}
+				g2.setColor(c);
+				g2.fillRect(ox + z*i, oy + z*j, z,z);
+			}
 		}
 	}
 

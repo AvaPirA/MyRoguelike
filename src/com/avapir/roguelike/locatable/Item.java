@@ -1,5 +1,7 @@
 package com.avapir.roguelike.locatable;
 
+import java.awt.Point;
+
 import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 
@@ -44,22 +46,31 @@ public class Item implements Locatable {
 		return weight;
 	}
 
-	private int	X;
-	private int	Y;
+	private Point location;	
 
+	@Deprecated
 	@Override
 	public int getX() {
-		return X;
+		return location.x;
 	}
 
 	@Override
 	public int getY() {
-		return Y;
+		return location.y;
 	}
 
 	@Override
 	public void setLocation(final int x, final int y) {
-		X = x;
-		Y = y;
+		location.setLocation(x,y);
+	}
+	
+	@Override
+	public Point getLoc() {
+		return location;
+	}
+
+	@Override
+	public void setLocation(Point p) {
+		location.setLocation(p);
 	}
 }

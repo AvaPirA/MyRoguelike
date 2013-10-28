@@ -57,7 +57,7 @@ public class Map implements ILosMap {
 	public boolean putCharacter(final Mob chr, final int x, final int y) {
 		if (hasTile(x, y)) {
 			try {
-				field[chr.getY()][chr.getX()].removeCharacter();
+				field[chr.getLoc().y][chr.getLoc().x].removeCharacter();
 			} catch (final ArrayIndexOutOfBoundsException e) {
 				// placing "from memory"
 				// we will never get here since using if(hasTile(x, y))
@@ -98,8 +98,8 @@ public class Map implements ILosMap {
 	 * @param y
 	 * @return кто стоял
 	 */
-	public Mob removeCharacter(final int x, final int y) {
-		return game.removeMob(field[y][x].removeCharacter());
+	public Mob removeCharacter(final Point p) {
+		return game.removeMob(field[p.y][p.x].removeCharacter());
 	}
 
 	/**
@@ -109,8 +109,12 @@ public class Map implements ILosMap {
 	 * @param x
 	 * @param y
 	 */
-	public void dropItem(final Item item, final int x, final int y) {
-		field[y][x].dropItem(item);
+	public void dropItem(final Item item, final Point p) {
+		field[p.y][p.x].dropItem(item);
+	}
+
+	public void dropItems(final List<Item> items, final Point p) {
+		field[p.y][p.x].dropItems(items);
 	}
 
 	@Deprecated
@@ -120,7 +124,7 @@ public class Map implements ILosMap {
 		WIDTH_MAP = width;
 		field = new Tile[height][width];
 		title = "untitled";
-		generator.generate(this);
+		generator.generateEmpty(this);
 	}
 
 	public Map(final Game g) {
@@ -144,6 +148,14 @@ public class Map implements ILosMap {
 		 * повторяться!
 		 */
 		final List<Long>	usedSeeds	= new ArrayList<>();
+
+		void generateEmpty(final Map map) {
+			for (int i = 0; i < map.WIDTH_MAP; i++) {
+				for (int j = 0; j < map.HEIGHT_MAP; j++) {
+					map.field[j][i] = new Tile(Tile.Type.GRASS);
+				}
+			}
+		}
 
 		void generate(final Map map) {
 			long seed = random.nextLong();

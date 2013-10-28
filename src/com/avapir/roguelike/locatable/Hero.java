@@ -16,11 +16,12 @@ public class Hero extends Mob implements Locatable {
 	private static final class DefaultStats {//@formatter:off
 		/* 	STR 	AGI 	VIT 	INT 	DEX 	LUK */
 		static final int[]	PLAYER	= { 3, 		3, 		3, 		3, 		2, 		1 };	// 16
-//		static final int[]	PLAYER	= { 280, 		170,		230, 		90, 		70, 		47 };	// 16
+//		static final int[]	PLAYER	= { 280, 	170,	230,	90,		70,		47 };	// 887
 		static final int[]	NPC		= { 50, 	100, 	100, 	50, 	50, 	10 };	// 360
 		static final int[]	ELDER	= { 290, 	120,	390, 	700,	400, 	100 }; 	// 2000
 		static final int[]	UNDEAD	= { 120, 	40, 	120, 	0, 		40, 	0 };	// 320
-	}//@formatter:on
+	}
+//@formatter:on
 
 	public static final class StatsFormulas {
 
@@ -43,6 +44,8 @@ public class Hero extends Mob implements Locatable {
 
 		public static int getFOVR(final Hero h) {
 			final int baseFOVR = 5;
+			System.out.println(baseFOVR + h.stats.getDex() / 50 + h.stats.getInt() / 100);
+			// return baseFOVR + h.stats.getDex() / 50 + h.stats.getInt() / 100;
 			return baseFOVR + h.stats.getInt() / 50;
 		}
 
@@ -77,6 +80,8 @@ public class Hero extends Mob implements Locatable {
 			System.arraycopy(a, 0, values, 0, PRIMARY_STATS_AMOUNT);
 		}
 
+		public static final String[]	STATS_STRINGS			= { "STR", "AGI", "VIT", "INT",
+																		"DEX", "LUK" };
 		/**
 		 * STRength <br>
 		 * AGIlity <br>
@@ -85,12 +90,12 @@ public class Hero extends Mob implements Locatable {
 		 * DEXterity <br>
 		 * LUcK
 		 */
-		public static final int	PRIMARY_STATS_AMOUNT	= 6;
-		public static final int	DEFAULT_STAT_INCREASE	= 5;
-		public static final int	MAX_STAT_VALUE			= 300;
+		public static final int			PRIMARY_STATS_AMOUNT	= STATS_STRINGS.length;
+		public static final int			DEFAULT_STAT_INCREASE	= 5;
+		public static final int			MAX_STAT_VALUE			= 300;
 
-		private final int[]		values					= new int[PRIMARY_STATS_AMOUNT];
-		private int				freeStats				= 0;
+		private final int[]				values					= new int[PRIMARY_STATS_AMOUNT];
+		private int						freeStats				= 0;
 
 		//@formatter:off
 		public PrimaryStats(final String name) {
@@ -115,14 +120,36 @@ public class Hero extends Mob implements Locatable {
 			return values[i] >= MAX_STAT_VALUE;
 		}
 
+		/**
+		 * Used by default stats distribution by user
+		 * 
+		 * @param cursor
+		 *            stat index
+		 */
 		public void decrease(int cursor) {
-			values[cursor]--;
+			decreaseBy(cursor, 1);
 			freeStats++;
 		}
 
+		public void decreaseBy(int cursor, int value) {
+			values[cursor] -= value;
+		}
+
+		/**
+		 * Used by default stats distribution by user when he has free
+		 * 
+		 * @param cursor
+		 *            stat index
+		 */
 		public void increase(int cursor) {
-			values[cursor]++;
-			freeStats--;
+			if (freeStats > 0) {
+				increaseBy(cursor, 1);
+				freeStats--;
+			}
+		}
+
+		private void increaseBy(int cursor, int value) {
+			values[cursor] += value;
 		}
 
 		public boolean hasFreeStats() {
@@ -134,27 +161,14 @@ public class Hero extends Mob implements Locatable {
 		}
 	}
 
-	protected static final class HiddenStats {
-
-		private final int[]	values;
-
-		public HiddenStats() {
-			values = new int[2];
-			setToDefault();
-			// TODO Auto-generated constructor stub
-		}
-
-		protected void setToDefault() {
-			values[0] = 5;
-			values[1] = 1;
-		}
+	protected final class HiddenStats {
 
 		public int getFOVR() {
-			return values[0];
+			return StatsFormulas.getFOVR(Hero.this);
 		}
 
 		public int getATKR() {
-			return values[1];
+			return StatsFormulas.getATKR(Hero.this);
 		}
 	}
 

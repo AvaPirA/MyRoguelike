@@ -199,6 +199,10 @@ public class Tile {
 		itemsHere.add(item);
 	}
 
+	public void dropItems(final List<Item> items){
+		itemsHere.addAll(items);
+	}
+	
 	// get-methods
 
 	public Mob getMob() {
