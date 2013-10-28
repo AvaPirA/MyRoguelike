@@ -298,7 +298,7 @@ public class GamePanel extends AbstractGamePanel {
 		final int ox = 300;
 		final int oy = 100;
 		final int z = 15;
-		
+
 		for (int i = 0; i < map.getHeight(); i++) {
 			for (int j = 0; j < map.getWidth(); j++) {
 				Color c = Color.black;
@@ -314,7 +314,7 @@ public class GamePanel extends AbstractGamePanel {
 					}
 				}
 				g2.setColor(c);
-				g2.fillRect(ox + z*i, oy + z*j, z,z);
+				g2.fillRect(ox + z * i, oy + z * j, z, z);
 			}
 		}
 	}
@@ -376,17 +376,26 @@ public class GamePanel extends AbstractGamePanel {
 		} else {
 			drawImage(g2, getImage(mob.getName().toLowerCase()), xx, yy);
 		}
+
 		if (mob == game.getHero()) {
 			g2.setColor(new Color(0, 255, 0, 128));
 		} else {
 			g2.setColor(new Color(255, 0, 0, 128));
 		}
-		g2.fillRect(xx, yy, Tile.SIZE_px, 3);
-		g2.fillRect(xx, yy, (int) (Tile.SIZE_px * mob.getHP() / mob.getMaxHp()), 3);
+		paintColorBar(g2, xx, yy, Tile.SIZE_px, 3, mob.getHP() / mob.getMaxHp(),
+				mob == game.getHero() ? new Color(0, 255, 0, 128) : new Color(255, 0, 0, 128));
 
-		g2.setColor(new Color(0, 128, 255, 128));
-		g2.fillRect(xx, yy + 3, Tile.SIZE_px, 2);
-		g2.fillRect(xx, yy + 3, (int) (Tile.SIZE_px * mob.getMP() / mob.getMaxMp()), 2);
+		paintColorBar(g2, xx, yy + 3, Tile.SIZE_px, 2, mob.getMP() / mob.getMaxMp(), new Color(0,
+				128, 255, 128));
+	}
+
+	public void paintColorBar(Graphics2D g2, int x, int y, int width, int height, float value,
+			Color transparentColor) {
+		if (value > 1 || value < 0) { throw new IllegalArgumentException(); }
+		g2.setColor(transparentColor);
+
+		g2.fillRect(x, y, width, height);
+		g2.fillRect(x, y, (int) (value * width), height);
 	}
 
 	// private boolean hasTileOnScreen(final int y, final int x) {
