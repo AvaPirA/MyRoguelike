@@ -294,13 +294,13 @@ public class GamePanel extends AbstractGamePanel {
 			if (stat < 0) {
 				return getStatDelimeter(-stat).substring(1);// one space less cos we have '-'
 			} else if (stat < 10) {
-				return "    ";
+				return "    ";// 4
 			} else if (stat < 100) {
-				return "   ";
+				return "   ";// 3
 			} else if (stat < 1000) {
-				return "  ";
+				return "  ";// 2
 			} else
-				return " ";
+				return " ";// 1
 		}
 	}
 
