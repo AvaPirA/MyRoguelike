@@ -189,6 +189,8 @@ public class GamePanel extends AbstractGamePanel {
 		 * @return
 		 */
 		private Color getStatColor(int stat) {
+			if (stat < 0) { return Color.black; }
+
 			int r = 0, g = 0, b = 0;
 			int factor = Hero.PrimaryStats.MAX_STAT_VALUE / 4;
 			switch (stat / factor) {
@@ -209,6 +211,10 @@ public class GamePanel extends AbstractGamePanel {
 				b = 255;
 			break;
 			case 4:
+				b = 255;
+			break;
+			default: // stat > 300
+				r = 255;
 				b = 255;
 			}
 			return new Color(r, g, b, 64);
@@ -256,8 +262,9 @@ public class GamePanel extends AbstractGamePanel {
 
 			for (int i = 0; i < PrimaryStats.STATS_STRINGS.length; i++) {
 				FontRenderContext frc = g2.getFontRenderContext();
-				TextLayout text = new TextLayout(PrimaryStats.STATS_STRINGS[i] + "  "
-						+ hero.getStats().values(i), defaultFont, frc);
+				TextLayout text = new TextLayout(PrimaryStats.STATS_STRINGS[i]
+						+ getStatDelimeter(hero.getStats().values(i)) + hero.getStats().values(i),
+						defaultFont, frc);
 				g2.setColor(getStatColor(getStatByIdx(i)));
 				g2.fillRect(offset.x, offsetY + i * 15, 75, defaultFontSize);
 				g2.fillRect(offset.x, offsetY + i * 15, 75 + 75 * getStatByIdx(i) / maxStat(),
@@ -283,6 +290,18 @@ public class GamePanel extends AbstractGamePanel {
 			}
 		}
 
+		private String getStatDelimeter(int stat) {
+			if (stat < 0) {
+				return getStatDelimeter(-stat).substring(1);// one space less cos we have '-'
+			} else if (stat < 10) {
+				return "    ";
+			} else if (stat < 100) {
+				return "   ";
+			} else if (stat < 1000) {
+				return "  ";
+			} else
+				return " ";
+		}
 	}
 
 	private void paintLog(final Graphics2D g2) {
