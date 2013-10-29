@@ -216,6 +216,7 @@ public class Game {
 		private final GameWindow	gameWindow;
 
 		// private final NewLevelWindow newLevelWindow;
+
 		// private final InventoryWindow inventoryWindow;
 
 		public WindowsManager(String title, Game game) {
@@ -272,9 +273,14 @@ public class Game {
 	}
 
 	private ChangingStatsHandler	chs;
+	private InventoryHandler		ih;
 
-	public StateHandler getStatsHandler() {
+	public ChangingStatsHandler getStatsHandler() {
 		return chs;
+	}
+
+	public InventoryHandler getInventoryHandler() {
+		return ih;
 	}
 
 	public void createStatsHandler() {
@@ -285,32 +291,27 @@ public class Game {
 	}
 
 	public void removeStatsHandler() {
+		chs.flush();
 		log("Характеристики увеличились на:");
 		String[] ss = PrimaryStats.STATS_STRINGS;
-		log(ss[0] + ":" + (hero.getStats().values(0) - chs.getBuild()[0]) + ";              "
-				+ ss[1] + ":" + (hero.getStats().values(1) - chs.getBuild()[1]));
-		log(ss[2] + ":" + (hero.getStats().values(2) - chs.getBuild()[2]) + ";              "
-				+ ss[3] + ":" + (hero.getStats().values(3) - chs.getBuild()[3]));
-		log(ss[4] + ":" + (hero.getStats().values(4) - chs.getBuild()[4]) + ";             "
-				+ ss[5] + ":" + (hero.getStats().values(5) - chs.getBuild()[5]));
+		log(ss[0] + ":" + (hero.getStats().values(0) - chs.getDiff()[0]) + ";              "
+				+ ss[1] + ":" + (hero.getStats().values(1) - chs.getDiff()[1]));
+		log(ss[2] + ":" + (hero.getStats().values(2) - chs.getDiff()[2]) + ";              "
+				+ ss[3] + ":" + (hero.getStats().values(3) - chs.getDiff()[3]));
+		log(ss[4] + ":" + (hero.getStats().values(4) - chs.getDiff()[4]) + ";             "
+				+ ss[5] + ":" + (hero.getStats().values(5) - chs.getDiff()[5]));
 		log("__________________________");
 		chs = null;
 	}
 
-	private InventoryHandler ih;
-	
-	public InventoryHandler getInventoryHandler() {
-		return ih;
-	}
-	
-	public void createInventoryHandler(){
-		//TODO log
+	public void createInventoryHandler() {
+		// TODO log
 		ih = new InventoryHandler(this);
 	}
-	
-	public void removeInventoryHandler(){
-		//TODO log
+
+	public void removeInventoryHandler() {
+		// TODO log
 		ih = null;
 	}
-	
+
 }

@@ -95,7 +95,7 @@ public class Hero extends Mob implements Locatable {
 		public static final int			MAX_STAT_VALUE			= 300;
 
 		private final int[]				values					= new int[PRIMARY_STATS_AMOUNT];
-		private int						freeStats				= 0;
+		private int						freeStats				= 15;
 
 		//@formatter:off
 		public PrimaryStats(final String name) {
@@ -148,7 +148,7 @@ public class Hero extends Mob implements Locatable {
 			}
 		}
 
-		private void increaseBy(int cursor, int value) {
+		public void increaseBy(int cursor, int value) {
 			values[cursor] += value;
 		}
 

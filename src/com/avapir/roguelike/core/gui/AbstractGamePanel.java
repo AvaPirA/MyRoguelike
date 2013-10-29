@@ -73,7 +73,6 @@ public abstract class AbstractGamePanel extends JPanel {
 		
 		final Graphics2D g2 = (Graphics2D) g;
 		paintBackground(g2);
-		System.out.println("222");
 		paintGUI(g2);
 	}
 
