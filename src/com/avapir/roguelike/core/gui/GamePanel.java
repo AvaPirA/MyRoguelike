@@ -73,15 +73,14 @@ public class GamePanel extends AbstractGamePanel {
 		super.paintComponent(g);
 		// if (!BORG) {
 		final Graphics2D g2 = (Graphics2D) g;
-		paintBackground(g2);
-		paintMap(g2, game.getMap());
-		paintGUI(g2);
-		paintLog(g2);
+		// paintMap(g2, game.getMap());
+		// paintLog(g2);
 		if (game.getState() == GameState.GAME_OVER) {
 			final Image img = getImage("gameover");
 			drawImage(g, img, (WIDTH_IN_TILES * Tile.SIZE_px - img.getWidth(null)) / 2,
 					(HEIGHT_IN_TILES * Tile.SIZE_px - img.getHeight(null)) / 2);
 		}
+
 		// } else {
 		// TODO BORG RUN PAINTING
 		// }
@@ -117,15 +116,28 @@ public class GamePanel extends AbstractGamePanel {
 		}
 
 		private void heroInventory(Graphics2D g2, Hero h) {
-			// TODO Auto-generated method stub
-
+			Point oI = new Point(offset.x + 100, 100);// offset Inventory
+			Image itemBg = getImage("inventory_border");
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 4; j++) {
+					drawImage(g2, itemBg, oI.x + i * (itemBg.getWidth(null) + 1), oI.y + j
+							* (itemBg.getHeight(null) + 1));
+				}
+			}
+			if (game.getState() == GameState.INVENTORY) {
+				g2.setColor(Color.yellow);
+				Point cursor = game.getInventoryHandler().getCursor();
+				g2.drawRect(oI.x + cursor.x * (itemBg.getWidth(null) + 1), oI.y + cursor.y
+						* (itemBg.getHeight(null) + 1), itemBg.getWidth(null),
+						itemBg.getHeight(null));
+			}
 		}
 
 		private void heroMainStats(final Graphics2D g2, final Hero hero) {
 			g2.setColor(Color.yellow);
 			// location
-			drawString(g2, offset.x, offset.y, "X: " + hero.getX());
-			drawString(g2, offset.x, offset.y + 15, "Y: " + hero.getY());
+			drawString(g2, offset.x, offset.y, "X: " + hero.getLoc().x);
+			drawString(g2, offset.x, offset.y + 15, "Y: " + hero.getLoc().y);
 
 			// name
 			drawString(g2, offset.x, offset.y + 30, hero.getName());
@@ -284,7 +296,7 @@ public class GamePanel extends AbstractGamePanel {
 			}
 
 			if (game.getState() == GameState.CHANGE_STATS) {
-				int cursor = game.getStatsHandler().getCursor();
+				int cursor = game.getStatsHandler().getCursor().x;
 				g2.drawRect(offset.x, offsetY + cursor * 15, 75 + 75 * getStatByIdx(cursor)
 						/ maxStat(), defaultFontSize);
 			}

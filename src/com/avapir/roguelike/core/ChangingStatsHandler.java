@@ -1,9 +1,11 @@
 package com.avapir.roguelike.core;
 
+import java.awt.Point;
+
 import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Hero.PrimaryStats;
 
-public class ChangingStatsHandler {
+public class ChangingStatsHandler implements StateHandler {
 
 	private final Game	game;
 
@@ -20,46 +22,76 @@ public class ChangingStatsHandler {
 		cursor = cursor > length ? length : cursor < 0 ? 0 : cursor;
 	}
 
-	public int[] getBuild(){
+	public int[] getBuild() {
 		return build;
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.avapir.roguelike.core.StateHandler#pressDown()
+	 */
+	@Override
 	public void pressDown() {
 		cursor++;
 		check();
 		game.repaint();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.avapir.roguelike.core.StateHandler#pressUp()
+	 */
+	@Override
 	public void pressUp() {
 		cursor--;
 		check();
 		game.repaint();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.avapir.roguelike.core.StateHandler#pressLeft()
+	 */
+	@Override
 	public void pressLeft() {
 		if (game.getHero().getStats().values(cursor) > build[cursor]) {
 			game.getHero().getStats().decrease(cursor);
 			game.getHero().recomputeStats();
-			game.getLog()
-					.add(game.getHero().getName() + " уменьшает " + PrimaryStats.STATS_STRINGS[cursor]
+			game.getLog().add(
+					game.getHero().getName() + " уменьшает " + PrimaryStats.STATS_STRINGS[cursor]
 							+ " на 1");
 			game.repaint();
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.avapir.roguelike.core.StateHandler#pressRight()
+	 */
+	@Override
 	public void pressRight() {
 		if (!game.getHero().getStats().isMaxed(cursor) && game.getHero().getStats().hasFreeStats()) {
 			game.getHero().getStats().increase(cursor);
 			game.getHero().recomputeStats();
-			game.getLog()
-			.add(game.getHero().getName() + " увеличивает " + PrimaryStats.STATS_STRINGS[cursor]
-					+ " на 1");
+			game.getLog().add(
+					game.getHero().getName() + " увеличивает " + PrimaryStats.STATS_STRINGS[cursor]
+							+ " на 1");
 			game.repaint();
 		}
 	}
 
-	public int getCursor() {
-		return cursor;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.avapir.roguelike.core.StateHandler#getCursor()
+	 */
+	@Override
+	public Point getCursor() {
+		return new Point(cursor, 0);
 	}
 
 }

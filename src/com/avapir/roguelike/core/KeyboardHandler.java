@@ -67,7 +67,7 @@ public class KeyboardHandler implements KeyListener {
 			inventoryPress(e);
 		break;
 		default:
-			throw new IllegalStateException("Wrong game state: "+game.getState());
+			throw new IllegalStateException("Wrong game state: " + game.getState());
 		}
 	}
 
@@ -75,6 +75,7 @@ public class KeyboardHandler implements KeyListener {
 		switch (e.getKeyChar()) {
 		case 'i':
 			game.setGameState(GameState.INVENTORY);
+			game.createInventoryHandler();
 		break;
 		case 'd':
 			game.setGameState(GameState.DISTANCE_ATTACK);
@@ -91,14 +92,14 @@ public class KeyboardHandler implements KeyListener {
 
 	private void inventoryType(KeyEvent e) {
 		switch (e.getKeyChar()) {
-
+		case 'i':
+			game.removeInventoryHandler();
+			game.setGameState(GameState.MOVE);
 		}
 	}
 
 	private void inventoryPress(KeyEvent e) {
-		switch (e.getKeyCode()) {
-
-		}
+		stateArrowsHandler(e.getKeyCode(), game.getInventoryHandler());
 	}
 
 	private void distanceAttackType(KeyEvent e) {
@@ -122,21 +123,7 @@ public class KeyboardHandler implements KeyListener {
 	}
 
 	private void changeStatsPress(KeyEvent e) {
-		ChangingStatsHandler csh = game.getStatsHandler();
-		switch (e.getKeyCode()) {
-		case KeyEvent.VK_UP:
-			csh.pressUp();
-		break;
-		case KeyEvent.VK_DOWN:
-			csh.pressDown();
-		break;
-		case KeyEvent.VK_LEFT:
-			csh.pressLeft();
-		break;
-		case KeyEvent.VK_RIGHT:
-			csh.pressRight();
-		break;
-		}
+		stateArrowsHandler(e.getKeyCode(), game.getStatsHandler());
 	}
 
 	private void viewType(KeyEvent e) {
@@ -200,7 +187,23 @@ public class KeyboardHandler implements KeyListener {
 	@Override
 	public void keyReleased(final KeyEvent e) {
 		// TODO Auto-generated method stub
+	}
 
+	private void stateArrowsHandler(int keyCode, StateHandler sh) {
+		switch (keyCode) {
+		case KeyEvent.VK_UP:
+			sh.pressUp();
+		break;
+		case KeyEvent.VK_DOWN:
+			sh.pressDown();
+		break;
+		case KeyEvent.VK_LEFT:
+			sh.pressLeft();
+		break;
+		case KeyEvent.VK_RIGHT:
+			sh.pressRight();
+		break;
+		}
 	}
 
 }

@@ -273,7 +273,7 @@ public class Game {
 
 	private ChangingStatsHandler	chs;
 
-	public ChangingStatsHandler getStatsHandler() {
+	public StateHandler getStatsHandler() {
 		return chs;
 	}
 
@@ -296,4 +296,21 @@ public class Game {
 		log("__________________________");
 		chs = null;
 	}
+
+	private InventoryHandler ih;
+	
+	public InventoryHandler getInventoryHandler() {
+		return ih;
+	}
+	
+	public void createInventoryHandler(){
+		//TODO log
+		ih = new InventoryHandler(this);
+	}
+	
+	public void removeInventoryHandler(){
+		//TODO log
+		ih = null;
+	}
+	
 }

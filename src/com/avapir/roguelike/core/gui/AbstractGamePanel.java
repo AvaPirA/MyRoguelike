@@ -70,8 +70,10 @@ public abstract class AbstractGamePanel extends JPanel {
 	@Override
 	public void paintComponent(final Graphics g) {
 		super.paintComponent(g);
+		
 		final Graphics2D g2 = (Graphics2D) g;
 		paintBackground(g2);
+		System.out.println("222");
 		paintGUI(g2);
 	}
 
