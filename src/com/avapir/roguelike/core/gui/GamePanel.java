@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.font.FontRenderContext;
-import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -270,43 +269,35 @@ public class GamePanel extends AbstractGamePanel {
 		private void heroStats(final Graphics2D g2, final Hero hero) {
 			g2.setColor(Color.yellow);
 			o.translate(statsOffset.x, statsOffset.y); // o == offset
-			final int maxStat = Hero.PrimaryStats.MAX_STAT_VALUE;
 			final int dFS = defaultFont.getSize(); // defaultFontSize
-			final int oY = o.y - 4;// экспериментально полученное лучшее значение
+			final int oY = o.y - 4;// экспериментально полученное визуально лучшее значение
+			final boolean isChangingStats = game.getState() == GameState.CHANGE_STATS;
 
 			for (int i = 0; i < PrimaryStats.STATS_STRINGS.length; i++) {
-				int curStat = game.getHero().getStats().values(i);
+				final int curStat = game.getHero().getStats().values(i);
+				final int diff = isChangingStats ? game.getStatsHandler().getDiff()[i] : 0;
 
-				if (game.getState() == GameState.CHANGE_STATS) {
-					int diff = game.getStatsHandler().getDiff()[i];
-					Color oldColor = g2.getColor();
-
-					if (curStat + diff <= 0) {
-						g2.setColor(Color.black);
-						g2.fillRect(o.x, oY + i * dFS, 75 - 75 * (curStat + diff) / maxStat(), dFS);
-					} else {
-						g2.setColor(getStatColor(curStat + diff));
-						g2.fillRect(o.x, oY + i * dFS, 75, dFS);
-						if (curStat > 0) {
-							g2.fillRect(o.x, oY + i * dFS, (int) (75 + Math.signum(curStat) * 75
-									* curStat / maxStat()), dFS);
-						}
-						g2.fillRect(o.x, oY + i * dFS, 75 + 75 * (curStat + diff) / maxStat(), dFS);
-					}
-					g2.setColor(new Color(255, 255, 255, 128));
-					drawString(g2, o.x + 75, o.y + i * 15, (diff >= 0 ? "+" : "") + diff);
-					g2.setColor(oldColor);
+				// rectangles
+				if (curStat + diff <= 0) {
+					g2.setColor(Color.black);
+					g2.fillRect(o.x, oY + i * dFS, 75 - 75 * (curStat + diff) / maxStat(), dFS);
 				} else {
-					if (curStat < 0) {
-						g2.setColor(Color.black);
-						g2.fillRect(o.x, oY + i * dFS, 75 - 75 * curStat / maxStat(), dFS);
-					} else {
-						g2.setColor(getStatColor(curStat));
-						g2.fillRect(o.x, oY + i * dFS, 75, dFS);
-						g2.fillRect(o.x, oY + i * dFS, 75 + 75 * curStat / maxStat(), dFS);
+					g2.setColor(getStatColor(curStat + diff));
+					g2.fillRect(o.x, oY + i * dFS, 75, dFS);
+					if (curStat > 0) {
+						g2.fillRect(o.x, oY + i * dFS, (int) (75 + Math.signum(curStat) * 75
+								* curStat / maxStat()), dFS);
 					}
+					g2.fillRect(o.x, oY + i * dFS, 75 + 75 * (curStat + diff) / maxStat(), dFS);
 				}
 
+				if (isChangingStats) {
+					// difference
+					g2.setColor(new Color(255, 255, 255, 128));
+					drawString(g2, o.x + 75, o.y + i * 15, (diff >= 0 ? "+" : "") + diff);
+				}
+
+				// "STR  239"
 				g2.setColor(Color.yellow);
 				drawString(g2, o.x, o.y + i * 15, PrimaryStats.STATS_STRINGS[i]
 						+ getStatDelimeter(hero.getStats().values(i)) + hero.getStats().values(i));
@@ -314,8 +305,7 @@ public class GamePanel extends AbstractGamePanel {
 			}
 
 			if (hero.getStats().hasFreeStats()) {
-				drawString(g2, o.x, o.y + 6 * 15, "Не распределено: "
-						+ hero.getStats().getFreeAmount());
+				drawString(g2, o.x, o.y + 6 * 15, "Не распределено: " + hero.getStats().getFree());
 			}
 
 			if (game.getState() == GameState.CHANGE_STATS) {

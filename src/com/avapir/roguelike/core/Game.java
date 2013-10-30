@@ -286,7 +286,7 @@ public class Game {
 	public void createStatsHandler() {
 		log("_____________________");
 		log("Изменение характеристик:");
-		log("Свободных хар-к: " + hero.getStats().getFreeAmount());
+		log("Свободных хар-к: " + hero.getStats().getFree());
 		chs = new ChangingStatsHandler(this);
 	}
 
@@ -305,12 +305,14 @@ public class Game {
 	}
 
 	public void createInventoryHandler() {
-		// TODO log
+		log("_____________________");
+		log("Открыт инвентарь!");
 		ih = new InventoryHandler(this);
 	}
 
 	public void removeInventoryHandler() {
-		// TODO log
+		log("Инвентарь закрыт");
+		log("_____________________");
 		ih = null;
 	}
 

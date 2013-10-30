@@ -156,7 +156,7 @@ public class Hero extends Mob implements Locatable {
 			return freeStats > 0;
 		}
 
-		public int getFreeAmount() {
+		public int getFree() {
 			return freeStats;
 		}
 	}
