@@ -9,6 +9,8 @@ import java.awt.Point;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import com.avapir.roguelike.battle.Armor;
@@ -96,17 +98,16 @@ public class GamePanel extends AbstractGamePanel {
 		private final Point	attackOffset	= new Point(0, 90);
 		private final Point	armorOffset		= new Point(150, 0);
 		private final Point	statsOffset		= new Point(-150, 110);
-		private final Point	offset			= new Point(WIDTH_IN_TILES * Tile.SIZE_px + 15,
+		private final Point	o				= new Point(WIDTH_IN_TILES * Tile.SIZE_px + 15,
 													HEIGHT_IN_TILES * Tile.SIZE_px / 2);
-		private final Point	offsetDFT		= new Point(offset.x, offset.y);
+		private final Point	offsetDFT		= new Point(o.x, o.y);
 
-		private final int	defaultFontSize	= 15;
-		private final Font	defaultFont		= new Font(Font.MONOSPACED, Font.PLAIN, defaultFontSize);
+		private final Font	defaultFont		= new Font(Font.MONOSPACED, Font.PLAIN, 15);
 
 		public void paint(final Graphics2D g2) {
 			invalidateMax();
 			final Hero h = game.getHero();
-			offset.move(offsetDFT.x, offsetDFT.y);
+			o.move(offsetDFT.x, offsetDFT.y);
 			heroInventory(g2, h);
 			g2.setFont(defaultFont);
 			// heroMainStats(g2, h);
@@ -116,7 +117,7 @@ public class GamePanel extends AbstractGamePanel {
 		}
 
 		private void heroInventory(Graphics2D g2, Hero h) {
-			Point oI = new Point(offset.x + 100, 100);// offset Inventory
+			Point oI = new Point(o.x + 100, 100);// offset Inventory
 			Image itemBg = getImage("inventory_border");
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 4; j++) {
@@ -136,17 +137,17 @@ public class GamePanel extends AbstractGamePanel {
 		private void heroMainStats(final Graphics2D g2, final Hero hero) {
 			g2.setColor(Color.yellow);
 			// location
-			drawString(g2, offset.x, offset.y, "X: " + hero.getLoc().x);
-			drawString(g2, offset.x, offset.y + 15, "Y: " + hero.getLoc().y);
+			drawString(g2, o.x, o.y, "X: " + hero.getLoc().x);
+			drawString(g2, o.x, o.y + 15, "Y: " + hero.getLoc().y);
 
 			// name
-			drawString(g2, offset.x, offset.y + 30, hero.getName());
+			drawString(g2, o.x, o.y + 30, hero.getName());
 
 			// level xp/XP
 			drawString(
 					g2,
-					offset.x + 80,
-					offset.y,
+					o.x + 80,
+					o.y,
 					String.format("Level [%s] (%s/%s)", hero.getLevel(), hero.getXP(),
 							hero.getAdvanceXP()));
 
@@ -154,8 +155,8 @@ public class GamePanel extends AbstractGamePanel {
 			g2.setColor(Color.green);
 			drawString(
 					g2,
-					offset.x,
-					offset.y + 50,
+					o.x,
+					o.y + 50,
 					String.format("%s/%s", roundOneDigit(hero.getHP()),
 							Hero.StatsFormulas.getMaxHP(hero)));
 
@@ -163,8 +164,8 @@ public class GamePanel extends AbstractGamePanel {
 			g2.setColor(Color.blue);
 			drawString(
 					g2,
-					offset.x,
-					offset.y + 65,
+					o.x,
+					o.y + 65,
 					String.format("%s/%s", roundOneDigit(hero.getMP()),
 							Hero.StatsFormulas.getMaxMP(hero)));
 		}
@@ -172,21 +173,21 @@ public class GamePanel extends AbstractGamePanel {
 		private void heroAttack(final Graphics2D g2, final Hero hero) {
 			g2.setColor(Color.red);
 
-			offset.translate(attackOffset.x, attackOffset.y);
+			o.translate(attackOffset.x, attackOffset.y);
 
 			for (int i = 0; i < Attack.TOTAL_DMG_TYPES; i++) {
 				final float heroDmg = roundOneDigit(hero.getAttack(i));
-				drawString(g2, offset.x, offset.y + i * 15, Float.toString(heroDmg));
+				drawString(g2, o.x, o.y + i * 15, Float.toString(heroDmg));
 			}
 		}
 
 		private void heroArmor(final Graphics2D g2, final Hero hero) {
 			g2.setColor(Color.orange);
-			offset.translate(armorOffset.x, armorOffset.y);
+			o.translate(armorOffset.x, armorOffset.y);
 
 			for (int i = 0; i < Armor.TOTAL_DEF_TYPES; i++) {
 				final float heroDef = roundOneDigit(hero.getArmor(i));
-				drawString(g2, offset.x, offset.y + i * 15, Float.toString(heroDef));
+				drawString(g2, o.x, o.y + i * 15, Float.toString(heroDef));
 			}
 		}
 
@@ -238,26 +239,22 @@ public class GamePanel extends AbstractGamePanel {
 		private int	validMax;
 
 		private int maxStat() {
-			if (game.getState() == GameState.CHANGE_STATS) {
-
-				if (validMax == -1) {
-					int max = 0;
-					int[] stats = game.getHero().getStats().getArray();
-					int[] diff = game.getStatsHandler().getDiff();
-					for (int i = 0; i < Hero.PrimaryStats.PRIMARY_STATS_AMOUNT; i++) {
-						max = max > stats[i] + diff[i] ? max : stats[i] + diff[i];
+			if (validMax == Integer.MIN_VALUE) {
+				int max = 0;
+				List<Integer> arr = new ArrayList<>();
+				for (int i = 0; i < Hero.PrimaryStats.PRIMARY_STATS_AMOUNT; i++) {
+					arr.add(Math.abs(game.getHero().getStats().values(i)));
+					if (game.getState() == GameState.CHANGE_STATS) {
+						arr.add(Math.abs(game.getHero().getStats().values(i)
+								+ game.getStatsHandler().getDiff()[i]));
 					}
-					validMax = max;
 				}
 
-			} else {
-				if (validMax == -1) {
-					int max = 0;
-					for (int i : game.getHero().getStats().getArray()) {
-						max = max > i ? max : i;
-					}
-					validMax = max;
+				for (int i : arr) {
+					max = max > i ? max : i;
 				}
+				validMax = max;
+				System.out.println(max);
 			}
 			return validMax;
 		}
@@ -267,63 +264,57 @@ public class GamePanel extends AbstractGamePanel {
 		 * {@link #maxStat()}
 		 */
 		private void invalidateMax() {
-			validMax = -1;
-		}
-
-		/**
-		 * Syntax sugar
-		 * 
-		 * @return game.getHero().getStats().values(i);
-		 */
-		private int getStatByIdx(int i) {
-			return game.getHero().getStats().values(i);
+			validMax = Integer.MIN_VALUE;
 		}
 
 		private void heroStats(final Graphics2D g2, final Hero hero) {
 			g2.setColor(Color.yellow);
-
-			offset.translate(statsOffset.x, statsOffset.y);
-
-			final int offsetY = offset.y - defaultFontSize * 3 / 4;
+			o.translate(statsOffset.x, statsOffset.y); // o == offset
+			final int maxStat = Hero.PrimaryStats.MAX_STAT_VALUE;
+			final int dFS = defaultFont.getSize(); // defaultFontSize
+			final int oY = o.y - 4;// экспериментально полученное лучшее значение
 
 			for (int i = 0; i < PrimaryStats.STATS_STRINGS.length; i++) {
-				FontRenderContext frc = g2.getFontRenderContext();
-				TextLayout text = new TextLayout(PrimaryStats.STATS_STRINGS[i]
-						+ getStatDelimeter(hero.getStats().values(i)) + hero.getStats().values(i),
-						defaultFont, frc);
-				g2.setColor(getStatColor(getStatByIdx(i)));
-				g2.fillRect(offset.x, offsetY + i * 15, 75, defaultFontSize);
-				g2.fillRect(offset.x, offsetY + i * 15, 75 + 75 * getStatByIdx(i) / maxStat(),
-						defaultFontSize);
+				int curStat = game.getHero().getStats().values(i);
+
 				if (game.getState() == GameState.CHANGE_STATS) {
-					if (game.getState() == GameState.CHANGE_STATS) {
-						int diff = game.getStatsHandler().getDiff()[i];
-						Color oldColor = g2.getColor();
+					int diff = game.getStatsHandler().getDiff()[i];
+					Color oldColor = g2.getColor();
 
-						g2.setColor(new Color(255, 255, 255, 128));
-
-						if (diff < 0) {
-							g2.setColor(new Color(0, 0, 0));
+					if (curStat + diff <= 0) {
+						g2.setColor(Color.black);
+						g2.fillRect(o.x, oY + i * dFS, 75 - 75 * (curStat + diff) / maxStat(), dFS);
+					} else {
+						g2.setColor(getStatColor(curStat + diff));
+						g2.fillRect(o.x, oY + i * dFS, 75, dFS);
+						if (curStat > 0) {
+							g2.fillRect(o.x, oY + i * dFS, (int) (75 + Math.signum(curStat) * 75
+									* curStat / maxStat()), dFS);
 						}
-						System.out.println((diff < 0 ? 1 : 75) * diff / maxStat());
-						g2.fillRect(offset.x + 75 + 75 * getStatByIdx(i) / maxStat(), offsetY + i
-								* 15, Math.max(-75, (diff < 0 ? 1 : 75) * diff / maxStat()),
-								defaultFontSize);
-						if (diff < 0) {
-							g2.setColor(new Color(255, 255, 255, 128));
-						}
-						drawString(g2, offset.x + 75, offset.y + i * 15 - defaultFontSize / 2,
-								(diff >= 0 ? "+" : "") + diff);
-						g2.setColor(oldColor);
+						g2.fillRect(o.x, oY + i * dFS, 75 + 75 * (curStat + diff) / maxStat(), dFS);
+					}
+					g2.setColor(new Color(255, 255, 255, 128));
+					drawString(g2, o.x + 75, o.y + i * 15, (diff >= 0 ? "+" : "") + diff);
+					g2.setColor(oldColor);
+				} else {
+					if (curStat < 0) {
+						g2.setColor(Color.black);
+						g2.fillRect(o.x, oY + i * dFS, 75 - 75 * curStat / maxStat(), dFS);
+					} else {
+						g2.setColor(getStatColor(curStat));
+						g2.fillRect(o.x, oY + i * dFS, 75, dFS);
+						g2.fillRect(o.x, oY + i * dFS, 75 + 75 * curStat / maxStat(), dFS);
 					}
 				}
+
 				g2.setColor(Color.yellow);
-				text.draw(g2, offset.x, offset.y + i * 15);
+				drawString(g2, o.x, o.y + i * 15, PrimaryStats.STATS_STRINGS[i]
+						+ getStatDelimeter(hero.getStats().values(i)) + hero.getStats().values(i));
 
 			}
 
 			if (hero.getStats().hasFreeStats()) {
-				drawString(g2, offset.x, offset.y + 6 * 15, "Не распределено: "
+				drawString(g2, o.x, o.y + 6 * 15, "Не распределено: "
 						+ hero.getStats().getFreeAmount());
 			}
 
@@ -331,8 +322,9 @@ public class GamePanel extends AbstractGamePanel {
 				// cursor
 				g2.setColor(Color.yellow);
 				int cursor = game.getStatsHandler().getCursor().y;
-				g2.drawRect(offset.x, offsetY + cursor * 15, 75 + 75 * getStatByIdx(cursor)
-						/ maxStat(), defaultFontSize);
+				int stat = game.getHero().getStats().values(cursor);
+
+				g2.drawRect(o.x, oY + cursor * 15, 75 * 2, dFS);
 
 			}
 		}
