@@ -1,4 +1,4 @@
-package com.avapir.roguelike.core;
+package com.avapir.roguelike.core.statehandlers;
 
 import java.awt.Point;
 

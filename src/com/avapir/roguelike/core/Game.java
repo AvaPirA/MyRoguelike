@@ -13,6 +13,8 @@ import javax.swing.JFrame;
 
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.core.gui.GameWindow;
+import com.avapir.roguelike.core.statehandlers.ChangingStatsHandler;
+import com.avapir.roguelike.core.statehandlers.InventoryHandler;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Hero.PrimaryStats;

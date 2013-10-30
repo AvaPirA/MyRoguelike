@@ -1,4 +1,6 @@
-package com.avapir.roguelike.core;
+package com.avapir.roguelike.core.statehandlers;
+
+import com.avapir.roguelike.core.Game;
 
 
 public class InventoryHandler extends AbstractStateHandler {

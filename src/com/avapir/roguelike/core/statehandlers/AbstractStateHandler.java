@@ -1,6 +1,8 @@
-package com.avapir.roguelike.core;
+package com.avapir.roguelike.core.statehandlers;
 
 import java.awt.Point;
+
+import com.avapir.roguelike.core.Game;
 
 public abstract class AbstractStateHandler implements StateHandler {
 

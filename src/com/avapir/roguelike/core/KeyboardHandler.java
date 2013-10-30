@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import com.avapir.roguelike.core.Game.GameState;
+import com.avapir.roguelike.core.statehandlers.StateHandler;
 
 public class KeyboardHandler implements KeyListener {
 
