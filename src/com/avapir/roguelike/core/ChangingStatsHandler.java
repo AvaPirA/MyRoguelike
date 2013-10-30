@@ -21,7 +21,7 @@ public class ChangingStatsHandler extends AbstractStateHandler {
 	@Override
 	public void pressLeft() {
 		diff[y]--;
-		diff[y] = checkRestoreX(diff[x]);
+		diff[y] = checkRestoreX(diff[y]);
 		game.repaint();
 	}
 
