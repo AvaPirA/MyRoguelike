@@ -9,13 +9,13 @@ import java.util.Random;
 import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.core.Game;
-import com.avapir.roguelike.game.Map;
+import com.avapir.roguelike.core.Game.GameState;
 
 public class Hero extends Mob implements Locatable {
 
 	private static final class DefaultStats {//@formatter:off
 		/* 	STR 	AGI 	VIT 	INT 	DEX 	LUK */
-		static final int[]	PLAYER	= { 3, 		3, 		3,	 	3, 		2, 		1 };	// 16
+		static final int[]	PLAYER	= { 3, 		3, 		3000,	 	3, 		2, 		1 };	// 16
 //		static final int[]	PLAYER	= { 280, 	170,	230,	90,		70,		47 };	// 887
 		static final int[]	NPC		= { 50, 	100, 	100, 	50, 	50, 	10 };	// 360
 		static final int[]	ELDER	= { 290, 	120,	390, 	700,	400, 	100 }; 	// 2000
@@ -27,12 +27,15 @@ public class Hero extends Mob implements Locatable {
 
 		public static float getMaxHP(final Hero h) {
 			final int baseHP = 2;
-			return baseHP + 4 * h.stats.getStr() + 7 * h.stats.getVit();
+			final int STR = getStr(h);
+			final int VIT = getVit(h);
+			return baseHP + 4 * STR + 7 * VIT;
 		}
 
 		public static float getMaxMP(final Hero h) {
 			final int baseMP = 1;
-			return baseMP + 7 * h.stats.getInt();
+			final int INT = getInt(h);
+			return baseMP + 7 * INT;
 		}
 
 		public static double addBonusXp(final Hero h, final double xp) {
@@ -44,20 +47,19 @@ public class Hero extends Mob implements Locatable {
 
 		public static int getFOVR(final Hero h) {
 			final int baseFOVR = 5;
-			System.out.println(baseFOVR + h.stats.getDex() / 50 + h.stats.getInt() / 100);
-			// return baseFOVR + h.stats.getDex() / 50 + h.stats.getInt() / 100;
-			return baseFOVR + h.stats.getInt() / 50;
+			final int INT = getInt(h);
+			return baseFOVR + INT / 50;
 		}
 
 		public static int getATKR(final Hero h) {
-			final int AGI = h.stats.getAgi();
+			final int AGI = getAgi(h);
 			return AGI == 0 ? 0 : AGI < 50 ? 1 : AGI < 150 ? 2 : 3;
 		}
 
 		public static Attack getAttack(final Hero h) {
-			final float STR = h.stats.getStr();
-			final float DEX = h.stats.getDex();
-			final float INT = h.stats.getInt();
+			float STR = getStr(h);
+			float DEX = getDex(h);
+			float INT = getInt(h);
 			final float phy = 1.6f + STR + DEX * 0.4f + INT * 0.2f;
 			final float mag = 1.2f + INT + DEX * 0.4f;
 			System.out.println(STR + " " + DEX + " " + INT + " " + phy);
@@ -65,12 +67,45 @@ public class Hero extends Mob implements Locatable {
 		}
 
 		public static Armor getArmor(final Hero h) {
-			final float STR = h.stats.getStr();
-			final float AGI = h.stats.getAgi();
-			final float INT = h.stats.getInt();
+			final float STR = getStr(h);
+			final float AGI = getAgi(h);
+			final float INT = getInt(h);
 			final float phy = AGI * 0.7f + STR * 0.3f;
 			final float mag = INT * 0.5f;
 			return new Armor(phy, mag);
+		}
+
+		private static int getStr(Hero h) {
+			return getStat(h, 0);
+		}
+
+		private static int getAgi(Hero h) {
+			return getStat(h, 1);
+		}
+
+		private static int getVit(Hero h) {
+			return getStat(h, 2);
+		}
+
+		private static int getInt(Hero h) {
+			return getStat(h, 3);
+		}
+
+		private static int getDex(Hero h) {
+			return getStat(h, 4);
+		}
+
+		private static int getLuk(Hero h) {
+			return getStat(h, 5);
+		}
+
+		private static int getStat(Hero h, int i) {
+			int STAT = h.getStats().values(i);
+			GameState s = h.game.getState();
+			if (s == GameState.CHANGE_STATS) {
+				STAT += h.game.getStatsHandler().getDiff()[i];
+			}
+			return STAT;
 		}
 	}
 
@@ -95,7 +130,7 @@ public class Hero extends Mob implements Locatable {
 		public static final int			MAX_STAT_VALUE			= 300;
 
 		private final int[]				values					= new int[PRIMARY_STATS_AMOUNT];
-		private int						freeStats				= 15;
+		private int						freeStats				= 0;
 
 		//@formatter:off
 		public PrimaryStats(final String name) {
@@ -158,6 +193,10 @@ public class Hero extends Mob implements Locatable {
 
 		public int getFree() {
 			return freeStats;
+		}
+
+		public void changeFreeBy(int freeDiff) {
+			freeStats += freeDiff;
 		}
 	}
 
@@ -226,21 +265,25 @@ public class Hero extends Mob implements Locatable {
 
 	}
 
-	private static final int[]	XP_TO_LVL	= { 150, 400, 850, 2_000, 3_500, 7_000, 15_000, 25_000,
-			43_000							};
+	private static final int[]	XP_TO_LVL	= { 0, 68, 295, 805, 1716, 3154, 5249, 8136, 11955,
+			16851, 22978, 30475, 39516, 50261, 62876, 77537, 94421, 113712, 135596, 160266, 84495,
+			95074, 107905, 123472, 142427, 165669, 194509, 231086, 279822, 374430, 209536, 248781,
+			296428, 354546, 425860, 514086, 624568, 765820, 954872 };
 
 	private final String		name;
 	private final Inventory		inventory	= new Inventory();
 	private final PrimaryStats	stats;
+	private final Game			game;
 
-	private int					level		= 0;
+	private int					level		= 1;
 	private int					XP			= 0;
 
-	public Hero(final int x, final int y, final String n, final Map m) {
-		super(x, y, null, n, m);
+	public Hero(final int x, final int y, final String n, final Game g) {
+		super(x, y, null, n, g.getMap());
 		// TODO
 		name = n;
 		stats = new PrimaryStats(name);
+		game = g;
 		restore();
 	}
 
@@ -253,7 +296,7 @@ public class Hero extends Mob implements Locatable {
 		baseArmor.replaceBy(Hero.StatsFormulas.getArmor(this));
 	}
 
-	public void recomputeStats() {
+	public void updateStats() {
 		float HPperc = HP / maxHP;
 		float MPperc = MP / maxMP;
 

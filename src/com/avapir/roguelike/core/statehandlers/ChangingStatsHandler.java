@@ -12,25 +12,44 @@ public class ChangingStatsHandler extends AbstractStateHandler {
 
 	private final int[]	diff;
 
+	private int			freeDiff;
+
+	public int getFreeDiff() {
+		return freeDiff;
+	}
+
+	private int free() {
+		return freeDiff + game.getHero().getStats().getFree();
+	}
+
 	@Override
 	public void pressRight() {
-		diff[y]++;
-		diff[y] = checkRestoreX(diff[y]);
-		game.repaint();
+		if (free() > 0) {
+			int d = diff[y]++;
+			diff[y] = checkRestoreX(diff[y]);
+			if(d!=diff[y]){
+				freeDiff--;
+			}
+			game.repaint();
+		}
 	}
 
 	@Override
 	public void pressLeft() {
-		diff[y]--;
+		int d = diff[y]--;
 		diff[y] = checkRestoreX(diff[y]);
+		if (d != diff[y]) {
+			freeDiff++;
+		}
 		game.repaint();
 	}
 
 	@Override
 	protected int checkRestoreX(int x) {
 		int stat = game.getHero().getStats().values(y);
-		if (x + stat > 300) {
-			return 300 - stat;
+		System.out.println(x + stat);
+		if (x + stat == 301) {
+			return x - 1;
 		} else {
 			return x;
 		}
@@ -45,6 +64,7 @@ public class ChangingStatsHandler extends AbstractStateHandler {
 		for (int i = 0; i < Hero.PrimaryStats.PRIMARY_STATS_AMOUNT; i++) {
 			game.getHero().getStats().increaseBy(i, diff[i]);
 		}
+		game.getHero().getStats().changeFreeBy(freeDiff);
 	}
 
 	public int[] getDiff() {

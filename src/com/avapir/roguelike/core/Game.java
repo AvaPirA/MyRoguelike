@@ -43,13 +43,16 @@ public class Game {
 			super.add("[" + oneTurnCounter + ":" + (turnCounter) + "] " + s);
 			oneTurnCounter++;
 			if (size() > 15 && oneTurnCounter <= 15) {
-				super.poll();
+				poll();
 			}
 			return true;// so as super.add()
 		}
 
 		public void refresh() {
 			oneTurnCounter = 0;
+			while (size() > 15) {
+				poll();
+			}
 		}
 
 	}
@@ -78,7 +81,7 @@ public class Game {
 
 	public Game(final String t) {
 		winManager = new WindowsManager(t, this);
-		hero = new Hero(-1, -1, "Hero", currentMap);
+		hero = new Hero(-1, -1, "Hero", this);
 	}
 
 	public void start() {
@@ -146,6 +149,7 @@ public class Game {
 	}
 
 	public void repaint() {
+		hero.updateStats();
 		winManager.repaintGame();
 	}
 
@@ -168,11 +172,13 @@ public class Game {
 		mobs = new LinkedList<>();
 
 		final Random r = new Random();
+		int i = 320;
 		for (int x = 0; x < currentMap.getWidth(); x++) {
 			for (int y = 0; y < currentMap.getHeight(); y++) {
-				if (currentMap.hasTile(x, y) && r.nextInt(20) == 1) {
+				if (i > 0) {
 					mobs.add(Mob.MobSet.getSlime());
 					currentMap.putCharacter(mobs.get(mobs.size() - 1), x, y);
+					i--;
 				}
 			}
 		}
@@ -300,8 +306,8 @@ public class Game {
 				+ ss[1] + ":" + (hero.getStats().values(1) - chs.getDiff()[1]));
 		log(ss[2] + ":" + (hero.getStats().values(2) - chs.getDiff()[2]) + ";              "
 				+ ss[3] + ":" + (hero.getStats().values(3) - chs.getDiff()[3]));
-		log(ss[4] + ":" + (hero.getStats().values(4) - chs.getDiff()[4]) + ";             "
-				+ ss[5] + ":" + (hero.getStats().values(5) - chs.getDiff()[5]));
+		log(ss[4] + ":" + (hero.getStats().values(4) - chs.getDiff()[4]) + ";             " + ss[5]
+				+ ":" + (hero.getStats().values(5) - chs.getDiff()[5]));
 		log("__________________________");
 		chs = null;
 	}
@@ -316,6 +322,16 @@ public class Game {
 		log("Инвентарь закрыт");
 		log("_____________________");
 		ih = null;
+	}
+
+	private KeyboardHandler	kh;
+
+	public KeyboardHandler getKeyboardHandler() {
+		return kh;
+	}
+
+	public void setKeyboarHandler(KeyboardHandler keyboardHandler) {
+		kh = keyboardHandler;
 	}
 
 }

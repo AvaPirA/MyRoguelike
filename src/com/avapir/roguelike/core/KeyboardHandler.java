@@ -14,6 +14,13 @@ public class KeyboardHandler implements KeyListener {
 	public KeyboardHandler(final Game game) {
 		super();
 		this.game = game;
+		game.setKeyboarHandler(this);
+	}
+
+	Point	target	= null;
+
+	public void setBorgMove(Point p) {
+		target = p;
 	}
 
 	@Override
@@ -175,9 +182,27 @@ public class KeyboardHandler implements KeyListener {
 		default:
 			return;
 		}
-		final Point resultMove = game.getHero().move(p, game);
-		if (resultMove != null) {
-			game.EOT(resultMove);
+		move(p);
+	}
+
+	public void move(Point p) {
+		if (target == null) {
+			final Point resultMove = game.getHero().move(p, game);
+			if (resultMove != null) {
+				game.EOT(resultMove);
+			}
+		} else {
+			if(target.x == 0 && target.y == 0){
+				game.getHero().doAI(game);
+				return;
+			}
+			final Point resultMove = game.getHero().move(target, game);
+			if (resultMove != null) {
+				if(resultMove.x==0&&resultMove.y==0){
+					game.getHero().doAI(game);
+				}
+				game.EOT(resultMove);
+			}
 		}
 	}
 

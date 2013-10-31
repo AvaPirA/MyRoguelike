@@ -15,10 +15,12 @@ import java.util.StringTokenizer;
 import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.core.RoguelikeMain;
 import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.KeyboardHandler;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
+import com.avapir.roguelike.game.ai.Borg;
 import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Hero.PrimaryStats;
 import com.avapir.roguelike.locatable.Mob;
@@ -74,8 +76,8 @@ public class GamePanel extends AbstractGamePanel {
 		super.paintComponent(g);
 		// if (!BORG) {
 		final Graphics2D g2 = (Graphics2D) g;
-		// paintMap(g2, game.getMap());
-		// paintLog(g2);
+		paintMap(g2, game.getMap());
+		paintLog(g2);
 		if (game.getState() == GameState.GAME_OVER) {
 			final Image img = getImage("gameover");
 			drawImage(g, img, (WIDTH_IN_TILES * Tile.SIZE_px - img.getWidth(null)) / 2,
@@ -109,9 +111,9 @@ public class GamePanel extends AbstractGamePanel {
 			o.move(offsetDFT.x, offsetDFT.y);
 			heroInventory(g2, h);
 			g2.setFont(defaultFont);
-			// heroMainStats(g2, h);
-			// heroAttack(g2, h);
-			// heroArmor(g2, h);
+			heroMainStats(g2, h);
+			heroAttack(g2, h);
+			heroArmor(g2, h);
 			heroStats(g2, h);
 		}
 
@@ -141,6 +143,9 @@ public class GamePanel extends AbstractGamePanel {
 
 			// name
 			drawString(g2, o.x, o.y + 30, hero.getName());
+			if (RoguelikeMain.BORG) {
+				drawString(g2, o.x + 100, o.y + 30, ((Borg) hero.getAI()).getTargetString().toString());
+			}
 
 			// level xp/XP
 			drawString(
@@ -305,7 +310,11 @@ public class GamePanel extends AbstractGamePanel {
 			}
 
 			if (hero.getStats().hasFreeStats()) {
-				drawString(g2, o.x, o.y + 6 * 15, "Не распределено: " + hero.getStats().getFree());
+				int free = hero.getStats().getFree();
+				if (isChangingStats) {
+					free += game.getStatsHandler().getFreeDiff();
+				}
+				drawString(g2, o.x, o.y + 6 * 15, "Не распределено: " + free);
 			}
 
 			if (game.getState() == GameState.CHANGE_STATS) {

@@ -10,16 +10,19 @@ import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.battle.Battle;
 import com.avapir.roguelike.core.Game;
-import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.game.ai.AbstractAI;
-import com.avapir.roguelike.game.ai.EasyAI;
+import com.avapir.roguelike.game.ai.Borg;
 import com.avapir.roguelike.game.ai.IdleAI;
 import com.avapir.roguelike.game.ai.SlimeAI;
 
 public class Mob implements Locatable {
+
+	public AbstractAI getAI() {
+		return intel;
+	}
 
 	public static final class MobSet {
 
@@ -29,36 +32,6 @@ public class Mob implements Locatable {
 		public static Mob getSlime() {
 			final Mob m = new Mob(slime);
 			return m;
-		}
-
-	}
-
-	private static final class Borg extends EasyAI {
-		
-		static {
-			instance = new Borg();
-		}
-
-		@Override
-		public void computeAI(final Mob m, final Game g) {
-			if (g.getState() != GameState.GAME_OVER) {
-				if (m == g.getHero()) {
-					// Hero h = (Hero) m;
-					// final int fovRad = Hero.StatsFormulas.getFOVR(h);
-					// final int minX = h.getX() - fovRad;
-					// final int maxX = h.getX() + fovRad;
-					// final int minY = h.getY() - fovRad;
-					// final int maxY = h.getY() + fovRad;
-					// цикл запили
-
-				}
-			}
-		}
-
-		@Override
-		public void onDeath(Mob mob, Game g) {
-			// TODO Auto-generated method stub
-
 		}
 
 	}
@@ -235,9 +208,16 @@ public class Mob implements Locatable {
 	 * @param g
 	 */
 	protected void onDeath(final Game g) {
+		alive = false;
 		intel.onDeath(this, g);
 	}
 
+	private boolean	alive	= true;
+
+	public boolean isAlive(){
+		return alive;
+	}
+	
 	/**
 	 * @return native and given by effects {@link Armor}
 	 */
@@ -327,6 +307,11 @@ public class Mob implements Locatable {
 	@Override
 	public Point getLoc() {
 		return location;
+	}
+
+	@Override
+	public String toString() {
+		return name + String.format(" (%s, %s)", location.x, location.y);
 	}
 
 }

@@ -299,4 +299,8 @@ public class Map implements ILosMap {
 		getTile(x, y).setSeen(true);
 	}
 
+	public boolean isVisible(int x, int y) {
+		return getTile(x,y).isVisible();
+	}
+
 }
