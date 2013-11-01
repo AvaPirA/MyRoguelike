@@ -19,12 +19,12 @@ public class Point2I extends Point implements Serializable {
 	 */
 	private static final long	serialVersionUID	= 1360560915480181893L;
 
-	public Point2I(int x, int y) {
+	public Point2I(final int x, final int y) {
 		this.x = x;
 		this.y = y;
 	}
 
-	public Point2I(Point p) {
+	public Point2I(final Point p) {
 		this.x = p.x;
 		this.y = p.y;
 	}

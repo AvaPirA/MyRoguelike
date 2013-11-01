@@ -15,10 +15,11 @@ public final class Borg extends SmartAI {
 	private Point		targetP;
 
 	public String getTargetString() {
-		if (target != null)
+		if (target != null) {
 			return target.toString() + " " + String.format("(%s, %s)", targetP.x, targetP.y);
-		else
+		} else {
 			return String.format("(%s, %s)", targetP.x, targetP.y);
+		}
 	}
 
 	@Override
@@ -31,18 +32,18 @@ public final class Borg extends SmartAI {
 		// }
 		if (g.getState() != GameState.GAME_OVER) {
 			if (m == g.getHero()) {
-				Hero h = g.getHero();
+				final Hero h = g.getHero();
 				final int fovRad = Hero.StatsFormulas.getFOVR(h);
-				if (target!=null && !((Mob) target).isAlive()) {
+				if (target != null && !((Mob) target).isAlive()) {
 					target = null;
 				}
 				if (target == null) {
 					int x = 0;
 					int y = 0;
 					while (Math.abs(x) < fovRad && Math.abs(y) < fovRad) {
-						Tile tile = g.getMap().getTile(x + m.getX(), y + m.getY());
+						final Tile tile = g.getMap().getTile(x + m.getX(), y + m.getY());
 						if (tile != null) {
-							Mob t = tile.getMob();
+							final Mob t = tile.getMob();
 							if (t != null && t != m) {
 								target = t;
 								break;
@@ -75,13 +76,19 @@ public final class Borg extends SmartAI {
 		}
 	}
 
-	private static double getAngle(Point p1, Point p2) {
-		float dx = p2.x - p1.x;
-		float dy = p2.y - p1.y;
+	private static double getAngle(final Point p1, final Point p2) {
+		final float dx = p2.x - p1.x;
+		final float dy = p2.y - p1.y;
 		if (dx == 0) {
-			if (dy == 0) { return 0; }
-			if (dy > 0) { return Math.PI / 2; }
-			if (dy < 0) { return Math.PI * 3 / 2; }
+			if (dy == 0) {
+				return 0;
+			}
+			if (dy > 0) {
+				return Math.PI / 2;
+			}
+			if (dy < 0) {
+				return Math.PI * 3 / 2;
+			}
 		}
 		if (dx > 0) {
 			if (dy == 0) {
@@ -116,22 +123,38 @@ public final class Borg extends SmartAI {
 		private static final Point	LD	= new Point(L.x, D.y);
 	}
 
-	private static Point getDirection(Point from, Point to) {
-		double pi = Math.PI;
-		double a = getAngle(from, to);
-		if (a <= pi / 8) { return Points.R; }
-		if (a < 3 * pi / 8) { return Points.RD; }
-		if (a < 5 * pi / 8) { return Points.D; }
-		if (a < 7 * pi / 8) { return Points.LD; }
-		if (a <= 9 * pi / 8) { return Points.L; }
-		if (a < 11 * pi / 8) { return Points.LU; }
-		if (a < 13 * pi / 8) { return Points.U; }
-		if (a < 15 * pi / 8) { return Points.RU; }
+	private static Point getDirection(final Point from, final Point to) {
+		final double pi = Math.PI;
+		final double a = getAngle(from, to);
+		if (a <= pi / 8) {
+			return Points.R;
+		}
+		if (a < 3 * pi / 8) {
+			return Points.RD;
+		}
+		if (a < 5 * pi / 8) {
+			return Points.D;
+		}
+		if (a < 7 * pi / 8) {
+			return Points.LD;
+		}
+		if (a <= 9 * pi / 8) {
+			return Points.L;
+		}
+		if (a < 11 * pi / 8) {
+			return Points.LU;
+		}
+		if (a < 13 * pi / 8) {
+			return Points.U;
+		}
+		if (a < 15 * pi / 8) {
+			return Points.RU;
+		}
 		return Points.R;
 	}
 
 	@Override
-	public void onDeath(Mob mob, Game g) {
+	public void onDeath(final Mob mob, final Game g) {
 		// TODO Auto-generated method stub
 
 	}

@@ -46,7 +46,7 @@ public class Item implements Locatable {
 		return weight;
 	}
 
-	private Point location;	
+	private Point	location;
 
 	@Deprecated
 	@Override
@@ -61,16 +61,16 @@ public class Item implements Locatable {
 
 	@Override
 	public void setLocation(final int x, final int y) {
-		location.setLocation(x,y);
+		location.setLocation(x, y);
 	}
-	
+
 	@Override
 	public Point getLoc() {
 		return location;
 	}
 
 	@Override
-	public void setLocation(Point p) {
+	public void setLocation(final Point p) {
 		location.setLocation(p);
 	}
 }

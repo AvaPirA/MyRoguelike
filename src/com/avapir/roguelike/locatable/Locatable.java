@@ -11,9 +11,9 @@ public interface Locatable {
 	public int getY();
 
 	public Point getLoc();
-	
+
 	public void setLocation(final int x, final int y);
 
 	public void setLocation(final Point p);
-	
+
 }

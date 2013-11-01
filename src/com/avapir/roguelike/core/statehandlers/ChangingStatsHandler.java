@@ -5,7 +5,7 @@ import com.avapir.roguelike.locatable.Hero;
 
 public class ChangingStatsHandler extends AbstractStateHandler {
 
-	public ChangingStatsHandler(Game g) {
+	public ChangingStatsHandler(final Game g) {
 		super(g);
 		diff = new int[Hero.PrimaryStats.PRIMARY_STATS_AMOUNT];
 	}
@@ -25,9 +25,9 @@ public class ChangingStatsHandler extends AbstractStateHandler {
 	@Override
 	public void pressRight() {
 		if (free() > 0) {
-			int d = diff[y]++;
+			final int d = diff[y]++;
 			diff[y] = checkRestoreX(diff[y]);
-			if(d!=diff[y]){
+			if (d != diff[y]) {
 				freeDiff--;
 			}
 			game.repaint();
@@ -36,7 +36,7 @@ public class ChangingStatsHandler extends AbstractStateHandler {
 
 	@Override
 	public void pressLeft() {
-		int d = diff[y]--;
+		final int d = diff[y]--;
 		diff[y] = checkRestoreX(diff[y]);
 		if (d != diff[y]) {
 			freeDiff++;
@@ -45,8 +45,8 @@ public class ChangingStatsHandler extends AbstractStateHandler {
 	}
 
 	@Override
-	protected int checkRestoreX(int x) {
-		int stat = game.getHero().getStats().values(y);
+	protected int checkRestoreX(final int x) {
+		final int stat = game.getHero().getStats().values(y);
 		System.out.println(x + stat);
 		if (x + stat == 301) {
 			return x - 1;
@@ -56,7 +56,7 @@ public class ChangingStatsHandler extends AbstractStateHandler {
 	}
 
 	@Override
-	protected int checkRestoreY(int y) {
+	protected int checkRestoreY(final int y) {
 		return y < 0 ? 0 : y > 5 ? 5 : y;
 	}
 

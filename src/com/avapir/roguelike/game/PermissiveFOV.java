@@ -83,7 +83,7 @@ public class PermissiveFOV implements IFovAlgorithm {
 	}
 
 	class fieldT {
-		public fieldT(fieldT f) {
+		public fieldT(final fieldT f) {
 			steep = new Line2I(new Point2I(f.steep.near.x, f.steep.near.y), new Point2I(
 					f.steep.far.x, f.steep.far.y));
 			shallow = new Line2I(new Point2I(f.shallow.near.x, f.shallow.near.y), new Point2I(
@@ -109,16 +109,16 @@ public class PermissiveFOV implements IFovAlgorithm {
 	}
 
 	private void calculateFovQuadrant(final fovStateT state) {
-		LinkedList<bumpT> steepBumps = new LinkedList<bumpT>();
-		LinkedList<bumpT> shallowBumps = new LinkedList<bumpT>();
-		LinkedList<fieldT> activeFields = new LinkedList<fieldT>();
+		final LinkedList<bumpT> steepBumps = new LinkedList<bumpT>();
+		final LinkedList<bumpT> shallowBumps = new LinkedList<bumpT>();
+		final LinkedList<fieldT> activeFields = new LinkedList<fieldT>();
 		activeFields.addLast(new fieldT());
 		activeFields.getLast().shallow.near = new Point2I(0, 1);
 		activeFields.getLast().shallow.far = new Point2I(state.extent.x, 0);
 		activeFields.getLast().steep.near = new Point2I(1, 0);
 		activeFields.getLast().steep.far = new Point2I(0, state.extent.y);
 
-		Point2I dest = new Point2I(0, 0);
+		final Point2I dest = new Point2I(0, 0);
 
 		if (state.quadrant.x == 1 && state.quadrant.y == 1) {
 			actIsBlocked(state, dest);
@@ -127,10 +127,10 @@ public class PermissiveFOV implements IFovAlgorithm {
 		CLikeIterator<fieldT> currentField = new CLikeIterator<fieldT>(activeFields.listIterator());
 		int i = 0;
 		int j = 0;
-		int maxI = state.extent.x + state.extent.y;
+		final int maxI = state.extent.x + state.extent.y;
 		for (i = 1; i <= maxI && !activeFields.isEmpty(); ++i) {
-			int startJ = max(0, i - state.extent.x);
-			int maxJ = min(i, state.extent.y);
+			final int startJ = max(0, i - state.extent.x);
+			final int maxJ = min(i, state.extent.y);
 			for (j = startJ; j <= maxJ && !currentField.isAtEnd(); ++j) {
 				dest.x = i - j;
 				dest.y = j;
@@ -140,19 +140,19 @@ public class PermissiveFOV implements IFovAlgorithm {
 		}
 	}
 
-	private final int max(int i, int j) {
+	private final int max(final int i, final int j) {
 		return i > j ? i : j;
 	}
 
-	private final int min(int i, int j) {
+	private final int min(final int i, final int j) {
 		return i < j ? i : j;
 	}
 
 	private void visitSquare(final fovStateT state, final Point2I dest,
-			CLikeIterator<fieldT> currentField, LinkedList<bumpT> steepBumps,
-			LinkedList<bumpT> shallowBumps, LinkedList<fieldT> activeFields) {
-		Point2I topLeft = new Point2I(dest.x, dest.y + 1);
-		Point2I bottomRight = new Point2I(dest.x + 1, dest.y);
+			final CLikeIterator<fieldT> currentField, final LinkedList<bumpT> steepBumps,
+			final LinkedList<bumpT> shallowBumps, final LinkedList<fieldT> activeFields) {
+		final Point2I topLeft = new Point2I(dest.x, dest.y + 1);
+		final Point2I bottomRight = new Point2I(dest.x + 1, dest.y);
 
 		while (!currentField.isAtEnd()
 				&& currentField.getCurrent().steep.isBelowOrContains(bottomRight)) {
@@ -183,7 +183,7 @@ public class PermissiveFOV implements IFovAlgorithm {
 		}
 		// The square is between the lines in some way. This means that we
 		// need to visit it and determine whether it is blocked.
-		boolean isBlocked = actIsBlocked(state, dest);
+		final boolean isBlocked = actIsBlocked(state, dest);
 		if (!isBlocked) {
 			// We don't care what case might be left, because this square does
 			// not obstruct.
@@ -209,22 +209,23 @@ public class PermissiveFOV implements IFovAlgorithm {
 			// case BETWEEN
 			// The square intersects neither line. We need to split into two
 			// fields.
-			fieldT steeperField = currentField.getCurrent();
-			fieldT shallowerField = new fieldT(currentField.getCurrent());
+			final fieldT steeperField = currentField.getCurrent();
+			final fieldT shallowerField = new fieldT(currentField.getCurrent());
 			currentField.insertBeforeCurrent(shallowerField);
 			addSteepBump(bottomRight, shallowerField, steepBumps, shallowBumps);
 			currentField.gotoPrevious();
-			if (!checkField(currentField)) // did not remove
+			if (!checkField(currentField)) {
 				currentField.gotoNext();// point to the original element
+			}
 			addShallowBump(topLeft, steeperField, steepBumps, shallowBumps);
 			checkField(currentField);
 		}
 	}
 
-	private boolean checkField(CLikeIterator<fieldT> currentField) {
+	private boolean checkField(final CLikeIterator<fieldT> currentField) {
 		// If the two slopes are colinear, and if they pass through either
 		// extremity, remove the field of view.
-		fieldT currFld = currentField.getCurrent();
+		final fieldT currFld = currentField.getCurrent();
 		boolean ret = false;
 
 		if (currFld.shallow.doesContain(currFld.steep.near)
@@ -239,8 +240,8 @@ public class PermissiveFOV implements IFovAlgorithm {
 		return ret;
 	}
 
-	private void addShallowBump(final Point2I point, fieldT currFld, LinkedList<bumpT> steepBumps,
-			LinkedList<bumpT> shallowBumps) {
+	private void addShallowBump(final Point2I point, final fieldT currFld,
+			final LinkedList<bumpT> steepBumps, final LinkedList<bumpT> shallowBumps) {
 		// System.out.println("Adding shallow "+point);
 		// First, the far point of shallow is set to the new point.
 		currFld.shallow.far = point;
@@ -262,8 +263,8 @@ public class PermissiveFOV implements IFovAlgorithm {
 		}
 	}
 
-	private void addSteepBump(final Point2I point, fieldT currFld, LinkedList<bumpT> steepBumps,
-			LinkedList<bumpT> shallowBumps) {
+	private void addSteepBump(final Point2I point, final fieldT currFld,
+			final LinkedList<bumpT> steepBumps, final LinkedList<bumpT> shallowBumps) {
 		// System.out.println("Adding steep "+point);
 		currFld.steep.far = point;
 		steepBumps.addLast(new bumpT());
@@ -282,11 +283,13 @@ public class PermissiveFOV implements IFovAlgorithm {
 	}
 
 	private boolean actIsBlocked(final fovStateT state, final Point2I pos) {
-		Point2I adjustedPos = new Point2I(pos.x * state.quadrant.x + state.source.x, pos.y
+		final Point2I adjustedPos = new Point2I(pos.x * state.quadrant.x + state.source.x, pos.y
 				* state.quadrant.y + state.source.y);
 
-		if (!state.board.hasTile(adjustedPos.x, adjustedPos.y))
-			return false;// we are getting outside the board
+		if (!state.board.hasTile(adjustedPos.x, adjustedPos.y)) {
+			return false;// we are getting
+							// outside the board
+		}
 
 		// System.out.println("actIsBlocked "+adjustedPos.x+" "+adjustedPos.y);
 
@@ -315,18 +318,19 @@ public class PermissiveFOV implements IFovAlgorithm {
 				|| state.quadrantIndex == 0 // can visit anything from Q1
 				|| (state.quadrantIndex == 1 && pos.x != 0) // Q2 : no Y axis
 				|| (state.quadrantIndex == 2 && pos.y != 0) // Q3 : no X axis
-				|| (state.quadrantIndex == 3 && pos.x != 0 && pos.y != 0)) // Q4
-																			// no X
-																			// or Y
-																			// axis
+				|| (state.quadrantIndex == 3 && pos.x != 0 && pos.y != 0)) {
+			// no X
+			// or Y
+			// axis
 			if (doesPermissiveVisit(state.mask, pos.x * state.quadrant.x, pos.y * state.quadrant.y) == 1) {
 				state.board.visit(adjustedPos.x, adjustedPos.y);
 			}
+		}
 		return state.board.isObstacle(adjustedPos.x, adjustedPos.y);
 	}
 
-	private void permissiveFov(Point p, permissiveMaskT mask) {
-		fovStateT state = new fovStateT();
+	private void permissiveFov(final Point p, final permissiveMaskT mask) {
+		final fovStateT state = new fovStateT();
 		state.source = new Point2I(p);
 		state.mask = mask;
 		state.board = mask.board;
@@ -338,7 +342,7 @@ public class PermissiveFOV implements IFovAlgorithm {
 		final Point2I quadrants[] = { new Point2I(1, 1), new Point2I(-1, 1), new Point2I(-1, -1),
 				new Point2I(1, -1) };
 
-		Point2I extents[] = { new Point2I(mask.east, mask.north),
+		final Point2I extents[] = { new Point2I(mask.east, mask.north),
 				new Point2I(mask.west, mask.north), new Point2I(mask.west, mask.south),
 				new Point2I(mask.east, mask.south) };
 		int quadrantIndex = 0;
@@ -350,16 +354,17 @@ public class PermissiveFOV implements IFovAlgorithm {
 		}
 	}
 
-	private int doesPermissiveVisit(permissiveMaskT mask, int x, int y) {
-		if (x * x + y * y < mask.distPlusOneSq)
+	private int doesPermissiveVisit(final permissiveMaskT mask, final int x, final int y) {
+		if (x * x + y * y < mask.distPlusOneSq) {
 			return 1;
-		else
+		} else {
 			return 0;
+		}
 	}
 
 	@Override
-	public void visitFieldOfView(ILosMap b, Point p, int distance) {
-		permissiveMaskT mask = new permissiveMaskT();
+	public void visitFieldOfView(final ILosMap b, final Point p, final int distance) {
+		final permissiveMaskT mask = new permissiveMaskT();
 		mask.east = mask.north = mask.south = mask.west = distance;
 		mask.distPlusOneSq = (distance + 1) * (distance + 1);
 		mask.board = b;

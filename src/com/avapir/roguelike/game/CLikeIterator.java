@@ -15,12 +15,12 @@ public class CLikeIterator<T> {
 	T				curr;
 	boolean			atEnd	= false, atBegin = false;
 
-	public CLikeIterator(ListIterator<T> it) {
+	public CLikeIterator(final ListIterator<T> it) {
 		super();
 		this.it = it;
-		if (it.hasNext())
+		if (it.hasNext()) {
 			curr = it.next();
-		else {
+		} else {
 			curr = null;
 			atEnd = true;
 		}
@@ -74,7 +74,7 @@ public class CLikeIterator<T> {
 		gotoNext();
 	}
 
-	public void insertBeforeCurrent(T t) {
+	public void insertBeforeCurrent(final T t) {
 		it.previous();
 		it.add(t);
 		// checkPrevNext();

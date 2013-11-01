@@ -11,7 +11,7 @@ public class Line2I {
 
 	public Point2I	far;
 
-	public Line2I(Point2I newNear, Point2I newFar) {
+	public Line2I(final Point2I newNear, final Point2I newFar) {
 		near = newNear;
 		far = newFar;
 	}

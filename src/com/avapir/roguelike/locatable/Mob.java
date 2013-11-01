@@ -133,7 +133,9 @@ public class Mob implements Locatable {
 
 	public Point move(final Point dp, final Game g) {
 		Game.checkStep(dp);
-		if (dp.x == 0 && dp.y == 0) { return null; }
+		if (dp.x == 0 && dp.y == 0) {
+			return null;
+		}
 		final Map m = g.getMap();
 
 		final int ny = getY() + dp.y;
@@ -172,7 +174,9 @@ public class Mob implements Locatable {
 
 	protected float attackMob(final Point dp, final Game g) {
 		final Mob defender = g.getMap().getTile(dp.x, dp.y).getMob();
-		if (defender != g.getHero() && this != g.getHero()) { return 0; }
+		if (defender != g.getHero() && this != g.getHero()) {
+			return 0;
+		}
 		float damage = Battle.computeDamage(getAttack(), defender.getArmor());
 		defender.receiveDamage(damage, g);
 
@@ -214,10 +218,10 @@ public class Mob implements Locatable {
 
 	private boolean	alive	= true;
 
-	public boolean isAlive(){
+	public boolean isAlive() {
 		return alive;
 	}
-	
+
 	/**
 	 * @return native and given by effects {@link Armor}
 	 */

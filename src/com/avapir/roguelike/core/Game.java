@@ -57,7 +57,7 @@ public class Game {
 
 	}
 
-	private Log	gameLog	= new Log();
+	private final Log	gameLog	= new Log();
 
 	public void log(final String s) {
 		gameLog.add(s);
@@ -70,7 +70,7 @@ public class Game {
 	private final List<Map>			maps	= new ArrayList<>();
 	private final WindowsManager	winManager;
 
-	private Hero					hero;
+	private final Hero				hero;
 	private Map						currentMap;
 	private int						currentX;
 	private int						currentY;
@@ -171,7 +171,7 @@ public class Game {
 	private void placeMobsAndItems(final int scaler) {
 		mobs = new LinkedList<>();
 
-		final Random r = new Random();
+		new Random();
 		int i = 320;
 		for (int x = 0; x < currentMap.getWidth(); x++) {
 			for (int y = 0; y < currentMap.getHeight(); y++) {
@@ -227,7 +227,7 @@ public class Game {
 
 		// private final InventoryWindow inventoryWindow;
 
-		public WindowsManager(String title, Game game) {
+		public WindowsManager(final String title, final Game game) {
 			gameWindow = new GameWindow(title, game);
 			gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -242,7 +242,7 @@ public class Game {
 			gameWindow.repaint();
 		}
 
-		public void showGame(boolean visibility) {
+		public void showGame(final boolean visibility) {
 			gameWindow.setVisible(visibility);
 		}
 
@@ -272,7 +272,7 @@ public class Game {
 		return state;
 	}
 
-	public void setGameState(GameState state) {
+	public void setGameState(final GameState state) {
 		if (this.state == state) {
 			this.state = GameState.MOVE;
 		} else {
@@ -301,7 +301,7 @@ public class Game {
 	public void removeStatsHandler() {
 		chs.flush();
 		log("Характеристики увеличились на:");
-		String[] ss = PrimaryStats.STATS_STRINGS;
+		final String[] ss = PrimaryStats.STATS_STRINGS;
 		log(ss[0] + ":" + (hero.getStats().values(0) - chs.getDiff()[0]) + ";              "
 				+ ss[1] + ":" + (hero.getStats().values(1) - chs.getDiff()[1]));
 		log(ss[2] + ":" + (hero.getStats().values(2) - chs.getDiff()[2]) + ";              "
@@ -330,7 +330,7 @@ public class Game {
 		return kh;
 	}
 
-	public void setKeyboarHandler(KeyboardHandler keyboardHandler) {
+	public void setKeyboarHandler(final KeyboardHandler keyboardHandler) {
 		kh = keyboardHandler;
 	}
 

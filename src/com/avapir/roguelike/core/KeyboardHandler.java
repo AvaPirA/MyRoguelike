@@ -19,7 +19,7 @@ public class KeyboardHandler implements KeyListener {
 
 	Point	target	= null;
 
-	public void setBorgMove(Point p) {
+	public void setBorgMove(final Point p) {
 		target = p;
 	}
 
@@ -79,7 +79,7 @@ public class KeyboardHandler implements KeyListener {
 		}
 	}
 
-	private void moveType(KeyEvent e) {
+	private void moveType(final KeyEvent e) {
 		switch (e.getKeyChar()) {
 		case 'i':
 			game.setGameState(GameState.INVENTORY);
@@ -98,7 +98,7 @@ public class KeyboardHandler implements KeyListener {
 		}
 	}
 
-	private void inventoryType(KeyEvent e) {
+	private void inventoryType(final KeyEvent e) {
 		switch (e.getKeyChar()) {
 		case 'i':
 			game.removeInventoryHandler();
@@ -106,23 +106,23 @@ public class KeyboardHandler implements KeyListener {
 		}
 	}
 
-	private void inventoryPress(KeyEvent e) {
+	private void inventoryPress(final KeyEvent e) {
 		stateArrowsHandler(e.getKeyCode(), game.getInventoryHandler());
 	}
 
-	private void distanceAttackType(KeyEvent e) {
+	private void distanceAttackType(final KeyEvent e) {
 		switch (e.getKeyChar()) {
 
 		}
 	}
 
-	private void distanceAttackPress(KeyEvent e) {
+	private void distanceAttackPress(final KeyEvent e) {
 		switch (e.getKeyCode()) {
 
 		}
 	}
 
-	private void changeStatsType(KeyEvent e) {
+	private void changeStatsType(final KeyEvent e) {
 		switch (e.getKeyChar()) {
 		case 'c':
 			game.removeStatsHandler();
@@ -130,17 +130,17 @@ public class KeyboardHandler implements KeyListener {
 		}
 	}
 
-	private void changeStatsPress(KeyEvent e) {
+	private void changeStatsPress(final KeyEvent e) {
 		stateArrowsHandler(e.getKeyCode(), game.getStatsHandler());
 	}
 
-	private void viewType(KeyEvent e) {
+	private void viewType(final KeyEvent e) {
 		switch (e.getKeyChar()) {
 
 		}
 	}
 
-	private void viewPress(KeyEvent e) {
+	private void viewPress(final KeyEvent e) {
 		switch (e.getKeyCode()) {
 
 		}
@@ -185,20 +185,20 @@ public class KeyboardHandler implements KeyListener {
 		move(p);
 	}
 
-	public void move(Point p) {
+	public void move(final Point p) {
 		if (target == null) {
 			final Point resultMove = game.getHero().move(p, game);
 			if (resultMove != null) {
 				game.EOT(resultMove);
 			}
 		} else {
-			if(target.x == 0 && target.y == 0){
+			if (target.x == 0 && target.y == 0) {
 				game.getHero().doAI(game);
 				return;
 			}
 			final Point resultMove = game.getHero().move(target, game);
 			if (resultMove != null) {
-				if(resultMove.x==0&&resultMove.y==0){
+				if (resultMove.x == 0 && resultMove.y == 0) {
 					game.getHero().doAI(game);
 				}
 				game.EOT(resultMove);
@@ -215,7 +215,7 @@ public class KeyboardHandler implements KeyListener {
 		// TODO Auto-generated method stub
 	}
 
-	private void stateArrowsHandler(int keyCode, StateHandler sh) {
+	private void stateArrowsHandler(final int keyCode, final StateHandler sh) {
 		switch (keyCode) {
 		case KeyEvent.VK_UP:
 			sh.pressUp();

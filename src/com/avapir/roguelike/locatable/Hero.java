@@ -57,9 +57,9 @@ public class Hero extends Mob implements Locatable {
 		}
 
 		public static Attack getAttack(final Hero h) {
-			float STR = getStr(h);
-			float DEX = getDex(h);
-			float INT = getInt(h);
+			final float STR = getStr(h);
+			final float DEX = getDex(h);
+			final float INT = getInt(h);
 			final float phy = 1.6f + STR + DEX * 0.4f + INT * 0.2f;
 			final float mag = 1.2f + INT + DEX * 0.4f;
 			System.out.println(STR + " " + DEX + " " + INT + " " + phy);
@@ -75,33 +75,33 @@ public class Hero extends Mob implements Locatable {
 			return new Armor(phy, mag);
 		}
 
-		private static int getStr(Hero h) {
+		private static int getStr(final Hero h) {
 			return getStat(h, 0);
 		}
 
-		private static int getAgi(Hero h) {
+		private static int getAgi(final Hero h) {
 			return getStat(h, 1);
 		}
 
-		private static int getVit(Hero h) {
+		private static int getVit(final Hero h) {
 			return getStat(h, 2);
 		}
 
-		private static int getInt(Hero h) {
+		private static int getInt(final Hero h) {
 			return getStat(h, 3);
 		}
 
-		private static int getDex(Hero h) {
+		private static int getDex(final Hero h) {
 			return getStat(h, 4);
 		}
 
-		private static int getLuk(Hero h) {
+		private static int getLuk(final Hero h) {
 			return getStat(h, 5);
 		}
 
-		private static int getStat(Hero h, int i) {
+		private static int getStat(final Hero h, final int i) {
 			int STAT = h.getStats().values(i);
-			GameState s = h.game.getState();
+			final GameState s = h.game.getState();
 			if (s == GameState.CHANGE_STATS) {
 				STAT += h.game.getStatsHandler().getDiff()[i];
 			}
@@ -151,7 +151,7 @@ public class Hero extends Mob implements Locatable {
 		public int 	 getLuk()   {return values[5];}
 		//@formatter:on
 
-		public boolean isMaxed(int i) {
+		public boolean isMaxed(final int i) {
 			return values[i] >= MAX_STAT_VALUE;
 		}
 
@@ -161,12 +161,12 @@ public class Hero extends Mob implements Locatable {
 		 * @param cursor
 		 *            stat index
 		 */
-		public void decrease(int cursor) {
+		public void decrease(final int cursor) {
 			decreaseBy(cursor, 1);
 			freeStats++;
 		}
 
-		public void decreaseBy(int cursor, int value) {
+		public void decreaseBy(final int cursor, final int value) {
 			values[cursor] -= value;
 		}
 
@@ -176,14 +176,14 @@ public class Hero extends Mob implements Locatable {
 		 * @param cursor
 		 *            stat index
 		 */
-		public void increase(int cursor) {
+		public void increase(final int cursor) {
 			if (freeStats > 0) {
 				increaseBy(cursor, 1);
 				freeStats--;
 			}
 		}
 
-		public void increaseBy(int cursor, int value) {
+		public void increaseBy(final int cursor, final int value) {
 			values[cursor] += value;
 		}
 
@@ -195,7 +195,7 @@ public class Hero extends Mob implements Locatable {
 			return freeStats;
 		}
 
-		public void changeFreeBy(int freeDiff) {
+		public void changeFreeBy(final int freeDiff) {
 			freeStats += freeDiff;
 		}
 	}
@@ -297,8 +297,8 @@ public class Hero extends Mob implements Locatable {
 	}
 
 	public void updateStats() {
-		float HPperc = HP / maxHP;
-		float MPperc = MP / maxMP;
+		final float HPperc = HP / maxHP;
+		final float MPperc = MP / maxMP;
 
 		maxHP = Hero.StatsFormulas.getMaxHP(this);
 		maxMP = Hero.StatsFormulas.getMaxMP(this);

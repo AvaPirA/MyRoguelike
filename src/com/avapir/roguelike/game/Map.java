@@ -19,7 +19,7 @@ public class Map implements ILosMap {
 	private static final int			DFT_DELTA		= 20;					// percents
 
 	private final Game					game;
-	private IFovAlgorithm				permissiveFov	= new PermissiveFOV();
+	private final IFovAlgorithm			permissiveFov	= new PermissiveFOV();
 	private static final MapGenerator	generator		= new MapGenerator();
 
 	private final int					HEIGHT_MAP;
@@ -85,8 +85,9 @@ public class Map implements ILosMap {
 		while (!putCharacter(c, x, y)) {
 			x = random.nextInt(WIDTH_MAP);
 			y = random.nextInt(HEIGHT_MAP);
-			if (counter++ > maxCounter) { throw new IllegalStateException(
-					"Bad map: no place to put character"); }
+			if (counter++ > maxCounter) {
+				throw new IllegalStateException("Bad map: no place to put character");
+			}
 		}
 		return new Point(x, y);
 	}
@@ -289,18 +290,18 @@ public class Map implements ILosMap {
 	}
 
 	@Override
-	public boolean isObstacle(int x, int y) {
+	public boolean isObstacle(final int x, final int y) {
 		return !getTile(x, y).isTransparent();
 	}
 
 	@Override
-	public void visit(int x, int y) {
+	public void visit(final int x, final int y) {
 		getTile(x, y).setVisible(true);
 		getTile(x, y).setSeen(true);
 	}
 
-	public boolean isVisible(int x, int y) {
-		return getTile(x,y).isVisible();
+	public boolean isVisible(final int x, final int y) {
+		return getTile(x, y).isVisible();
 	}
 
 }

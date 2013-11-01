@@ -38,10 +38,11 @@ public abstract class AbstractGamePanel extends JPanel {
 	private static final Color[]	COLOR_SET			= { Color.BLACK, Color.WHITE, Color.RED,
 			Color.GREEN, Color.BLUE, Color.CYAN, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.PINK };
 
-	protected static Color getDefaultStringColor(int index) {
-		if (index < 0 || index > 9)
+	protected static Color getDefaultStringColor(final int index) {
+		if (index < 0 || index > 9) {
 			throw new IllegalArgumentException("Wrong default string color index: " + index
 					+ "while have only " + COLOR_SET.length + " color");
+		}
 		return COLOR_SET[index];
 	}
 
@@ -70,7 +71,7 @@ public abstract class AbstractGamePanel extends JPanel {
 	@Override
 	public void paintComponent(final Graphics g) {
 		super.paintComponent(g);
-		
+
 		final Graphics2D g2 = (Graphics2D) g;
 		paintBackground(g2);
 		paintGUI(g2);
@@ -103,7 +104,9 @@ public abstract class AbstractGamePanel extends JPanel {
 	protected abstract void paintGUI(final Graphics2D g2);
 
 	public static BufferedImage toBufferedImage(Image image) {
-		if (image instanceof BufferedImage) { return (BufferedImage) image; }
+		if (image instanceof BufferedImage) {
+			return (BufferedImage) image;
+		}
 		// This code ensures that all the pixels in the image are loaded
 		image = new ImageIcon(image).getImage();
 		// Determine if the image has transparent pixels; for this method's
@@ -111,10 +114,10 @@ public abstract class AbstractGamePanel extends JPanel {
 		// boolean hasAlpha = hasAlpha(image);
 		// Create a buffered image with a format that's compatible with the screen
 		BufferedImage bimage = null;
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		try {
 			// Determine the type of transparency of the new buffered image
-			int transparency = Transparency.OPAQUE;
+			final int transparency = Transparency.OPAQUE;
 			/*
 			 * if (hasAlpha) {
 			 * 
@@ -123,16 +126,16 @@ public abstract class AbstractGamePanel extends JPanel {
 			 * }
 			 */
 			// Create the buffered image
-			GraphicsDevice gs = ge.getDefaultScreenDevice();
-			GraphicsConfiguration gc = gs.getDefaultConfiguration();
+			final GraphicsDevice gs = ge.getDefaultScreenDevice();
+			final GraphicsConfiguration gc = gs.getDefaultConfiguration();
 			bimage = gc.createCompatibleImage(image.getWidth(null), image.getHeight(null),
 					transparency);
-		} catch (HeadlessException e) {
+		} catch (final HeadlessException e) {
 			// The system does not have a screen
 		}
 		if (bimage == null) {
 			// Create a buffered image using the default color model
-			int type = BufferedImage.TYPE_INT_RGB;
+			final int type = BufferedImage.TYPE_INT_RGB;
 			// int type = BufferedImage.TYPE_3BYTE_BGR;//by wang
 			/*
 			 * if (hasAlpha) {
@@ -144,7 +147,7 @@ public abstract class AbstractGamePanel extends JPanel {
 			bimage = new BufferedImage(image.getWidth(null), image.getHeight(null), type);
 		}
 		// Copy image to buffered image
-		Graphics g = bimage.createGraphics();
+		final Graphics g = bimage.createGraphics();
 		// Paint the image onto the buffered image
 		g.drawImage(image, 0, 0, null);
 		g.dispose();

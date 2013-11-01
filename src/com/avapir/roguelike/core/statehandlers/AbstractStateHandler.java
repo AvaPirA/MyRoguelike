@@ -10,7 +10,7 @@ public abstract class AbstractStateHandler implements StateHandler {
 	protected int	y;
 	protected Game	game;
 
-	public AbstractStateHandler(Game g) {
+	public AbstractStateHandler(final Game g) {
 		game = g;
 	}
 

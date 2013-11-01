@@ -117,9 +117,9 @@ public class GamePanel extends AbstractGamePanel {
 			heroStats(g2, h);
 		}
 
-		private void heroInventory(Graphics2D g2, Hero h) {
-			Point oI = new Point(o.x + 100, 100);// offset Inventory
-			Image itemBg = getImage("inventory_border");
+		private void heroInventory(final Graphics2D g2, final Hero h) {
+			final Point oI = new Point(o.x + 100, 100);// offset Inventory
+			final Image itemBg = getImage("inventory_border");
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 4; j++) {
 					drawImage(g2, itemBg, oI.x + i * (itemBg.getWidth(null) + 1), oI.y + j
@@ -128,7 +128,7 @@ public class GamePanel extends AbstractGamePanel {
 			}
 			if (game.getState() == GameState.INVENTORY) {
 				g2.setColor(Color.yellow);
-				Point cursor = game.getInventoryHandler().getCursor();
+				final Point cursor = game.getInventoryHandler().getCursor();
 				g2.drawRect(oI.x + cursor.x * (itemBg.getWidth(null) + 1), oI.y + cursor.y
 						* (itemBg.getHeight(null) + 1), itemBg.getWidth(null),
 						itemBg.getHeight(null));
@@ -144,7 +144,8 @@ public class GamePanel extends AbstractGamePanel {
 			// name
 			drawString(g2, o.x, o.y + 30, hero.getName());
 			if (RoguelikeMain.BORG) {
-				drawString(g2, o.x + 100, o.y + 30, ((Borg) hero.getAI()).getTargetString().toString());
+				drawString(g2, o.x + 100, o.y + 30, ((Borg) hero.getAI()).getTargetString()
+						.toString());
 			}
 
 			// level xp/XP
@@ -205,11 +206,13 @@ public class GamePanel extends AbstractGamePanel {
 		 * @param stat
 		 * @return
 		 */
-		private Color getStatColor(int stat) {
-			if (stat < 0) { return Color.black; }
+		private Color getStatColor(final int stat) {
+			if (stat < 0) {
+				return Color.black;
+			}
 
 			int r = 0, g = 0, b = 0;
-			int factor = Hero.PrimaryStats.MAX_STAT_VALUE / 4;
+			final int factor = Hero.PrimaryStats.MAX_STAT_VALUE / 4;
 			switch (stat / factor) {
 			case 0:
 				r = 255;
@@ -245,7 +248,7 @@ public class GamePanel extends AbstractGamePanel {
 		private int maxStat() {
 			if (validMax == Integer.MIN_VALUE) {
 				int max = 0;
-				List<Integer> arr = new ArrayList<>();
+				final List<Integer> arr = new ArrayList<>();
 				for (int i = 0; i < Hero.PrimaryStats.PRIMARY_STATS_AMOUNT; i++) {
 					arr.add(Math.abs(game.getHero().getStats().values(i)));
 					if (game.getState() == GameState.CHANGE_STATS) {
@@ -254,7 +257,7 @@ public class GamePanel extends AbstractGamePanel {
 					}
 				}
 
-				for (int i : arr) {
+				for (final int i : arr) {
 					max = max > i ? max : i;
 				}
 				validMax = max;
@@ -320,15 +323,15 @@ public class GamePanel extends AbstractGamePanel {
 			if (game.getState() == GameState.CHANGE_STATS) {
 				// cursor
 				g2.setColor(Color.yellow);
-				int cursor = game.getStatsHandler().getCursor().y;
-				int stat = game.getHero().getStats().values(cursor);
+				final int cursor = game.getStatsHandler().getCursor().y;
+				game.getHero().getStats().values(cursor);
 
 				g2.drawRect(o.x, oY + cursor * 15, 75 * 2, dFS);
 
 			}
 		}
 
-		private String getStatDelimeter(int stat) {
+		private String getStatDelimeter(final int stat) {
 			if (stat < 0) {
 				return getStatDelimeter(-stat).substring(1);// one space less cos we have '-'
 			} else if (stat < 10) {
@@ -337,8 +340,9 @@ public class GamePanel extends AbstractGamePanel {
 				return "   ";// 3
 			} else if (stat < 1000) {
 				return "  ";// 2
-			} else
+			} else {
 				return " ";// 1
+			}
 		}
 	}
 
@@ -362,7 +366,7 @@ public class GamePanel extends AbstractGamePanel {
 				if (map.getTile(i, j).isPassable()) {
 					c = Color.yellow;
 					if (map.getTile(i, j).getMob() != null) {
-						String name = map.getTile(i, j).getMob().getName();
+						final String name = map.getTile(i, j).getMob().getName();
 						if (name.equals("Slime")) {
 							c = Color.green;
 						} else if (name.equals("Hero")) {
@@ -446,9 +450,11 @@ public class GamePanel extends AbstractGamePanel {
 				128, 255, 128));
 	}
 
-	public void paintColorBar(Graphics2D g2, int x, int y, int width, int height, float value,
-			Color transparentColor) {
-		if (value > 1 || value < 0) { throw new IllegalArgumentException(); }
+	public void paintColorBar(final Graphics2D g2, final int x, final int y, final int width,
+			final int height, final float value, final Color transparentColor) {
+		if (value > 1 || value < 0) {
+			throw new IllegalArgumentException();
+		}
 		g2.setColor(transparentColor);
 
 		g2.fillRect(x, y, width, height);

@@ -20,14 +20,18 @@ public class Attack {
 	private final List<Effect>	effects			= new ArrayList<Effect>();
 
 	public Attack(final float... input) {
-		if (input.length > TOTAL_DMG_TYPES) { throw new IllegalArgumentException(); }
+		if (input.length > TOTAL_DMG_TYPES) {
+			throw new IllegalArgumentException();
+		}
 		for (int i = 0; i < input.length; i++) {
 			damage[i] = input[i];
 		}
 	}
 
 	public Attack addDamage(final int[] damages) {
-		if (damages.length > TOTAL_DMG_TYPES) { throw new IllegalArgumentException(); }
+		if (damages.length > TOTAL_DMG_TYPES) {
+			throw new IllegalArgumentException();
+		}
 
 		for (int i = 0; i < damages.length; i++) {
 			damage[i] += damages[i];
@@ -36,21 +40,27 @@ public class Attack {
 	}
 
 	public Attack addEffect(final Effect eff) {
-		if (eff == null) { return this; }
+		if (eff == null) {
+			return this;
+		}
 
 		effects.add(eff);
 		return this;
 	}
 
 	public Attack addEffects(final List<Effect> eff) {
-		if (eff == null) { return this; }
+		if (eff == null) {
+			return this;
+		}
 
 		effects.addAll(eff);
 		return this;
 	}
 
 	public Attack addDamageFromAttack(final Attack atk) {
-		if (atk == null) { return this; }
+		if (atk == null) {
+			return this;
+		}
 
 		for (int i = 0; i < TOTAL_DMG_TYPES; i++) {
 			damage[i] += atk.damage[i];
@@ -59,14 +69,18 @@ public class Attack {
 	}
 
 	public Attack addEffectsFromAttack(final Attack atk) {
-		if (atk == null) { return this; }
+		if (atk == null) {
+			return this;
+		}
 
 		effects.addAll(atk.effects);
 		return this;
 	}
 
 	public Attack addAttack(final Attack atk) {
-		if (atk == null) { return this; }
+		if (atk == null) {
+			return this;
+		}
 
 		addDamageFromAttack(atk);
 		addEffectsFromAttack(atk);
@@ -86,7 +100,9 @@ public class Attack {
 	}
 
 	public Attack replaceBy(final Attack attack) {
-		if (attack == null) { return this; }
+		if (attack == null) {
+			return this;
+		}
 
 		clear();
 		addAttack(attack);
