@@ -14,10 +14,6 @@ import com.avapir.roguelike.battle.Attack;
  */
 public class Item implements Locatable {
 
-	public static enum ItemType {
-		ArmorHead, ArmorBody, ArmorLegs, ArmorArms, Weapon, Consumable
-	}
-
 	{
 		itemID = items++;
 	}
