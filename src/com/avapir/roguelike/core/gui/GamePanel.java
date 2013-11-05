@@ -144,8 +144,7 @@ public class GamePanel extends AbstractGamePanel {
 			// name
 			drawString(g2, o.x, o.y + 30, hero.getName());
 			if (RoguelikeMain.BORG) {
-				drawString(g2, o.x + 100, o.y + 30, ((Borg) hero.getAI()).getTargetString()
-						.toString());
+				drawString(g2, o.x + 100, o.y + 30, ((Borg) hero.getAI()).getTargetString());
 			}
 
 			// level xp/XP
@@ -219,7 +218,7 @@ public class GamePanel extends AbstractGamePanel {
 				g = 255 * stat / factor;
 			break;
 			case 1:
-				r = 255 - 255 * (stat - factor * 1) / factor;
+				r = 255 - 255 * (stat - factor) / factor;
 				g = 255;
 			break;
 			case 2:
@@ -450,8 +449,13 @@ public class GamePanel extends AbstractGamePanel {
 				128, 255, 128));
 	}
 
-	public void paintColorBar(final Graphics2D g2, final int x, final int y, final int width,
-			final int height, final float value, final Color transparentColor) {
+	void paintColorBar(final Graphics2D g2,
+                       final int x,
+                       final int y,
+                       final int width,
+                       final int height,
+                       final float value,
+                       final Color transparentColor) {
 		if (value > 1 || value < 0) {
 			throw new IllegalArgumentException();
 		}

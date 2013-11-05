@@ -9,22 +9,23 @@ import java.util.ListIterator;
  * 
  * @param <T>
  */
-public class CLikeIterator<T> {
+class CLikeIterator<T> {
 
-	ListIterator<T>	it;
-	T				curr;
-	boolean			atEnd	= false, atBegin = false;
+    private final ListIterator<T> it;
+    private       T               curr;
+    private boolean atEnd = false;
+    boolean atBegin = false;
 
-	public CLikeIterator(final ListIterator<T> it) {
-		super();
-		this.it = it;
-		if (it.hasNext()) {
-			curr = it.next();
-		} else {
-			curr = null;
-			atEnd = true;
-		}
-		// checkPrevNext();
+    public CLikeIterator(final ListIterator<T> it) {
+        super();
+        this.it = it;
+        if (it.hasNext()) {
+            curr = it.next();
+        } else {
+            curr = null;
+            atEnd = true;
+        }
+        // checkPrevNext();
 	}
 
 	// private final void checkPrevNext()

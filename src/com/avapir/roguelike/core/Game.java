@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.core.gui.GameWindow;
@@ -121,9 +121,9 @@ public class Game {
 
 	private void doAIforAll() {
 		hero.doAI(this);
-		for (int i = 0; i < mobs.size(); i++) {
-			mobs.get(i).doAI(this);
-		}
+        for (Mob mob : mobs) {
+            mob.doAI(this);
+        }
 	}
 
 	public Hero getHero() {
@@ -140,7 +140,7 @@ public class Game {
 
 	public void init() {}
 
-	public void move(final Point p) {
+	void move(final Point p) {
 		if (checkStep(p)) {
 			log("Перешел в [" + hero.getLoc().x + ", " + hero.getLoc().y + "]");
 		}
@@ -229,7 +229,7 @@ public class Game {
 
 		public WindowsManager(final String title, final Game game) {
 			gameWindow = new GameWindow(title, game);
-			gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			gameWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 			// newLevelWindow = new NewLevelWindow(game);
 			// newLevelWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

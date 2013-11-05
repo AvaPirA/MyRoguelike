@@ -15,20 +15,18 @@ import com.avapir.roguelike.locatable.Effect;
  */
 public class Attack {
 
-	public static final int		TOTAL_DMG_TYPES	= 6;
-	private final float[]		damage			= new float[TOTAL_DMG_TYPES];
-	private final List<Effect>	effects			= new ArrayList<Effect>();
+    public static final int          TOTAL_DMG_TYPES = 6;
+    private final       float[]      damage          = new float[TOTAL_DMG_TYPES];
+    private final       List<Effect> effects         = new ArrayList<>();
 
-	public Attack(final float... input) {
-		if (input.length > TOTAL_DMG_TYPES) {
-			throw new IllegalArgumentException();
-		}
-		for (int i = 0; i < input.length; i++) {
-			damage[i] = input[i];
-		}
-	}
+    public Attack(final float... input) {
+        if (input.length > TOTAL_DMG_TYPES) {
+            throw new IllegalArgumentException();
+        }
+        System.arraycopy(input, 0, damage, 0, input.length);
+    }
 
-	public Attack addDamage(final int[] damages) {
+    public Attack addDamage(final int[] damages) {
 		if (damages.length > TOTAL_DMG_TYPES) {
 			throw new IllegalArgumentException();
 		}
@@ -57,7 +55,7 @@ public class Attack {
 		return this;
 	}
 
-	public Attack addDamageFromAttack(final Attack atk) {
+	Attack addDamageFromAttack(final Attack atk) {
 		if (atk == null) {
 			return this;
 		}
@@ -68,7 +66,7 @@ public class Attack {
 		return this;
 	}
 
-	public Attack addEffectsFromAttack(final Attack atk) {
+	Attack addEffectsFromAttack(final Attack atk) {
 		if (atk == null) {
 			return this;
 		}

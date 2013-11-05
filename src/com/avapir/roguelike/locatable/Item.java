@@ -14,59 +14,54 @@ import com.avapir.roguelike.battle.Attack;
  */
 public class Item implements Locatable {
 
-	{
-		itemID = items++;
-	}
-	@SuppressWarnings("unused")
-	private final int	itemID;
-	public static int	items	= 0;
+    private static final int items = 0;
 
-	private String		name;
-	private Attack		damage;
-	private Armor		armor;
-	private int			weight;
+    private final String name;
+    private final Attack damage;
+    private final Armor  armor;
+    private final int    weight;
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public Attack getAttack() {
-		return damage;
-	}
+    public Attack getAttack() {
+        return damage;
+    }
 
-	public Armor getArmor() {
-		return armor;
-	}
+    public Armor getArmor() {
+        return armor;
+    }
 
-	public int getWeight() {
-		return weight;
-	}
+    public int getWeight() {
+        return weight;
+    }
 
-	private Point	location;
+    private final Point location;
 
-	@Deprecated
-	@Override
-	public int getX() {
-		return location.x;
-	}
+    @Deprecated
+    @Override
+    public int getX() {
+        return location.x;
+    }
 
-	@Override
-	public int getY() {
-		return location.y;
-	}
+    @Override
+    public int getY() {
+        return location.y;
+    }
 
-	@Override
-	public void setLocation(final int x, final int y) {
-		location.setLocation(x, y);
-	}
+    @Override
+    public void setLocation(final int x, final int y) {
+        location.setLocation(x, y);
+    }
 
-	@Override
-	public Point getLoc() {
-		return location;
-	}
+    @Override
+    public Point getLoc() {
+        return location;
+    }
 
-	@Override
-	public void setLocation(final Point p) {
-		location.setLocation(p);
-	}
+    @Override
+    public void setLocation(final Point p) {
+        location.setLocation(p);
+    }
 }

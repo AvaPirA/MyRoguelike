@@ -10,7 +10,7 @@ public class SlimeAI extends EasyAI {
 
 	private static final SlimeAI	instance	= new SlimeAI();
 
-	public static final AbstractAI getInstance() {
+	public static AbstractAI getInstance() {
 		return instance;
 	}
 

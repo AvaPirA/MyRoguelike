@@ -35,9 +35,7 @@ public class Tile {
 	}
 
 	public void restoreDefault() {
-		if (initialType == null) {
-			return;
-		} else {
+		if (initialType != null) {
 			flags = Tile.Type.examples[initialType.ordinal()].flags;
 		}
 	}
@@ -65,50 +63,50 @@ public class Tile {
 			}
 		}
 
-		static Tile[]	examples	= { getDefault(Type.EMPTY), getDefault(GRASS), getDefault(TREE) };
-	}
+        static final Tile[] examples = {getDefault(Type.EMPTY), getDefault(GRASS), getDefault(TREE)};
+    }
 
-	/**
-	 * Хранит всевозможные свойства-флаги тайла, а так же служебные флаги ( {@link #FULL_FLAG} и
-	 * {@link #EMPTY_FLAG})
-	 * 
-	 * @author Alpen
-	 */
-	public static final class Flag {
+    /**
+     * Хранит всевозможные свойства-флаги тайла, а так же служебные флаги ( {@link #FULL_FLAG} и
+     * {@link #EMPTY_FLAG})
+     *
+     * @author Alpen
+     */
+    public static final class Flag {
 
-		public static final int	FULL_FLAG		= 0b11111111111111111111111111111111;
-		public static final int	EMPTY_FLAG		= 0b00000000000000000000000000000000;
+        public static final int FULL_FLAG  = 0b11111111111111111111111111111111;
+        public static final int EMPTY_FLAG = 0b00000000000000000000000000000000;
 
-		/* 0-8 FOV */
-		// public static final int VISIBLE = 1 << 0;
-		// public static final int SEEN = 1 << 1;
-		public static final int	LIGHT_ON		= 1 << 2;
-		public static final int	TRANSPARENT		= 1 << 3;
-		public static final int	F4				= 1 << 4;
-		public static final int	F5				= 1 << 5;
-		public static final int	F6				= 1 << 6;
-		public static final int	F7				= 1 << 7;
-		public static final int	F8				= 1 << 8;
-		/* 9-14 terrain and moving */
-		public static final int	PASSABLE		= 1 << 9;
-		public static final int	EMPTY			= 1 << 10;
-		public static final int	GRASS			= 1 << 11;
-		public static final int	STONES			= 1 << 12;
-		public static final int	ICE				= 1 << 13;
-		/* 14-24 gaining effects */
-		public static final int	POISIONING		= 1 << 14;
-		public static final int	FLAMING			= 1 << 15;
-		public static final int	WET				= 1 << 16;
-		public static final int	INSTANT_DEATH	= 1 << 17;
-		public static final int	F18				= 1 << 18;
-		public static final int	F19				= 1 << 19;
-		public static final int	F20				= 1 << 20;
-		public static final int	F21				= 1 << 21;
-		public static final int	F22				= 1 << 22;
-		public static final int	F23				= 1 << 23;
-		/* 24-31 specials */
-		public static final int	F24				= 1 << 24;
-		public static final int	F25				= 1 << 25;
+        /* 0-8 FOV */
+        // public static final int VISIBLE = 1 << 0;
+        // public static final int SEEN = 1 << 1;
+        public static final int    LIGHT_ON           = 1 << 2;
+        public static final int    TRANSPARENT        = 1 << 3;
+        public static final int    F4                 = 1 << 4;
+        public static final int    F5                 = 1 << 5;
+        public static final int    F6                 = 1 << 6;
+        public static final int    F7                 = 1 << 7;
+        public static final int    F8                 = 1 << 8;
+        /* 9-14 terrain and moving */
+        public static final int    PASSABLE           = 1 << 9;
+        public static final int    EMPTY              = 1 << 10;
+        public static final int    GRASS              = 1 << 11;
+        public static final int    STONES             = 1 << 12;
+        public static final int    ICE                = 1 << 13;
+        /* 14-24 gaining effects */
+        public static final int    POISIONING         = 1 << 14;
+        public static final int    FLAMING            = 1 << 15;
+        public static final int    WET                = 1 << 16;
+        public static final int    INSTANT_DEATH      = 1 << 17;
+        public static final int    F18                = 1 << 18;
+        public static final int    F19                = 1 << 19;
+        public static final int    F20                = 1 << 20;
+        public static final int    F21                = 1 << 21;
+        public static final int    F22                = 1 << 22;
+        public static final int    F23                = 1 << 23;
+        /* 24-31 specials */
+        public static final int    F24                = 1 << 24;
+        public static final int	F25				= 1 << 25;
 		public static final int	F26				= 1 << 26;
 		public static final int	F27				= 1 << 27;
 		public static final int	OPEN_DOOR		= 1 << 28;
@@ -160,7 +158,7 @@ public class Tile {
 	public boolean isPoisioning() 		{return checkFlag(Flag.POISIONING);}
 	public boolean isFlaming() 			{return checkFlag(Flag.FLAMING);}
 	public boolean isWet() 				{return checkFlag(Flag.WET);}
-	public boolean isInstantKiller()	{return checkFlag(Flag.INSTANT_DEATH);}
+	boolean isInstantKiller()	{return checkFlag(Flag.INSTANT_DEATH);}
 
 	public boolean isClosed() 			{return checkFlag(Flag.CLOSED_DOOR);}
 	public boolean isUpLadder() 		{return checkFlag(Flag.UP_LADDER);}

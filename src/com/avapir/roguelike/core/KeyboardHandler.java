@@ -17,33 +17,33 @@ public class KeyboardHandler implements KeyListener {
 		game.setKeyboarHandler(this);
 	}
 
-	Point	target	= null;
+    private Point target = null;
 
-	public void setBorgMove(final Point p) {
-		target = p;
-	}
+    public void setBorgMove(final Point p) {
+        target = p;
+    }
 
-	@Override
-	public void keyTyped(final KeyEvent e) {
-		switch (game.getState()) {
-		case MOVE:
-			moveType(e);
-		break;
-		case GAME_OVER:
-			afterGameOverPressings(e);
-		break;
-		case CHANGE_STATS:
-			changeStatsType(e);
-		break;
-		case VIEW:
-			viewType(e);
-		break;
-		case DISTANCE_ATTACK:
-			distanceAttackType(e);
-		break;
-		case INVENTORY:
-			inventoryType(e);
-		break;
+    @Override
+    public void keyTyped(final KeyEvent e) {
+        switch (game.getState()) {
+            case MOVE:
+                moveType(e);
+                break;
+            case GAME_OVER:
+                afterGameOverPressings(e);
+                break;
+            case CHANGE_STATS:
+                changeStatsType(e);
+                break;
+            case VIEW:
+                viewType(e);
+                break;
+            case DISTANCE_ATTACK:
+                distanceAttackType(e);
+                break;
+            case INVENTORY:
+                inventoryType(e);
+                break;
 		default:
 			throw new IllegalStateException("Wrong game state");
 		}
@@ -185,7 +185,7 @@ public class KeyboardHandler implements KeyListener {
 		move(p);
 	}
 
-	public void move(final Point p) {
+	void move(final Point p) {
 		if (target == null) {
 			final Point resultMove = game.getHero().move(p, game);
 			if (resultMove != null) {

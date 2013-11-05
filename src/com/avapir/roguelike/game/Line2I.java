@@ -6,7 +6,7 @@ package com.avapir.roguelike.game;
  * @author Jonathan Duerig
  * 
  */
-public class Line2I {
+class Line2I {
 	public Point2I	near;
 
 	public Point2I	far;
@@ -39,7 +39,7 @@ public class Line2I {
 	// negative if the line is above the point.
 	// positive if the line is below the point.
 	// 0 if the line is on the point.
-	public int relativeSlope(final Point2I point) {
+    int relativeSlope(final Point2I point) {
 		return (far.y - near.y) * (far.x - point.x) - (far.y - point.y) * (far.x - near.x);
 	}
 

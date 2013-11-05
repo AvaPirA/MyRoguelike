@@ -133,11 +133,6 @@ public class Hero extends Mob implements Locatable {
         return getAttack().getDamageOfType(i);
     }
 
-    @Override
-    public void doTurnEffects() {
-        super.doTurnEffects();
-    }
-
     public int getXP() {
         return XP;
     }
@@ -150,7 +145,7 @@ public class Hero extends Mob implements Locatable {
         return level;
     }
 
-    public Inventory getInventory() {
+    Inventory getInventory() {
         return inventory;
     }
 
@@ -419,7 +414,7 @@ public class Hero extends Mob implements Locatable {
         }
     }
 
-    protected final class HiddenStats {
+    private final class HiddenStats {
 
         public int getFOVR() {
             return StatsFormulas.getFOVR(Hero.this);

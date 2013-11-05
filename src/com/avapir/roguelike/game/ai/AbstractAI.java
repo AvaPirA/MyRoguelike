@@ -20,12 +20,11 @@ public abstract class AbstractAI {
 		g.getMap().dropItems(getDrop(mob, g), mob.getLoc());
 	}
 
-	protected List<Item> getDrop(final Mob mob, final Game g) {
-		final List<Item> list = Collections.emptyList();
-		return list;
+	List<Item> getDrop(final Mob mob, final Game g) {
+        return Collections.emptyList();
 	}
 
-	protected Point getRandomDirection() {
+	Point getRandomDirection() {
 		return new Point(new Point(r.nextInt(3) - 1, r.nextInt(3) - 1));
 	}
 

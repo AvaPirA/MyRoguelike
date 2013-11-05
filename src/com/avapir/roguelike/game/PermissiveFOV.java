@@ -56,62 +56,61 @@ public class PermissiveFOV implements IFovAlgorithm {
 	// }
 
 	private class fovStateT {
-		Point2I			source;
+        Point2I source;
 
-		permissiveMaskT	mask;
+        permissiveMaskT mask;
 
-		Point2I			quadrant;
+        Point2I quadrant;
 
-		Point2I			extent;
+        Point2I extent;
 
-		int				quadrantIndex;
+        int quadrantIndex;
 
-		ILosMap			board;
+        ILosMap board;
 
-		boolean			isLos	= false;
-	};
+        final boolean isLos = false;
+    }
 
-	private class bumpT {
-		Point2I	location;
+    private class bumpT {
+        Point2I location;
 
-		bumpT	parent	= null;
+        bumpT parent = null;
 
-		@Override
-		public String toString() {
-			return location.toString() + " p( " + parent + " ) ";
-		}
-	}
+        @Override
+        public String toString() {
+            return location.toString() + " p( " + parent + " ) ";
+        }
+    }
 
-	class fieldT {
-		public fieldT(final fieldT f) {
-			steep = new Line2I(new Point2I(f.steep.near.x, f.steep.near.y), new Point2I(
-					f.steep.far.x, f.steep.far.y));
-			shallow = new Line2I(new Point2I(f.shallow.near.x, f.shallow.near.y), new Point2I(
-					f.shallow.far.x, f.shallow.far.y));
-			steepBump = f.steepBump;
-			shallowBump = f.shallowBump;
-		}
+    class fieldT {
+        public fieldT(final fieldT f) {
+            steep = new Line2I(new Point2I(f.steep.near.x, f.steep.near.y), new Point2I(f.steep.far.x, f.steep.far.y));
+            shallow = new Line2I(new Point2I(f.shallow.near.x, f.shallow.near.y), new Point2I(f.shallow.far.x,
+                                                                                              f.shallow.far.y));
+            steepBump = f.steepBump;
+            shallowBump = f.shallowBump;
+        }
 
-		public fieldT() {}
+        public fieldT() {}
 
-		Line2I	steep	= new Line2I(new Point2I(0, 0), new Point2I(0, 0));
+        Line2I steep = new Line2I(new Point2I(0, 0), new Point2I(0, 0));
 
-		Line2I	shallow	= new Line2I(new Point2I(0, 0), new Point2I(0, 0));
+        Line2I shallow = new Line2I(new Point2I(0, 0), new Point2I(0, 0));
 
-		bumpT	steepBump;
+        bumpT steepBump;
 
-		bumpT	shallowBump;
+        bumpT shallowBump;
 
-		@Override
-		public String toString() {
-			return "[ steep " + steep + ",  shallow " + shallow + "]";
-		}
-	}
+        @Override
+        public String toString() {
+            return "[ steep " + steep + ",  shallow " + shallow + "]";
+        }
+    }
 
-	private void calculateFovQuadrant(final fovStateT state) {
-		final LinkedList<bumpT> steepBumps = new LinkedList<bumpT>();
-		final LinkedList<bumpT> shallowBumps = new LinkedList<bumpT>();
-		final LinkedList<fieldT> activeFields = new LinkedList<fieldT>();
+    private void calculateFovQuadrant(final fovStateT state) {
+        final LinkedList<bumpT> steepBumps = new LinkedList<>();
+        final LinkedList<bumpT> shallowBumps = new LinkedList<>();
+        final LinkedList<fieldT> activeFields = new LinkedList<>();
 		activeFields.addLast(new fieldT());
 		activeFields.getLast().shallow.near = new Point2I(0, 1);
 		activeFields.getLast().shallow.far = new Point2I(state.extent.x, 0);
@@ -124,9 +123,9 @@ public class PermissiveFOV implements IFovAlgorithm {
 			actIsBlocked(state, dest);
 		}
 
-		CLikeIterator<fieldT> currentField = new CLikeIterator<fieldT>(activeFields.listIterator());
-		int i = 0;
-		int j = 0;
+		CLikeIterator<fieldT> currentField = new CLikeIterator<>(activeFields.listIterator());
+		int i;
+		int j;
 		final int maxI = state.extent.x + state.extent.y;
 		for (i = 1; i <= maxI && !activeFields.isEmpty(); ++i) {
 			final int startJ = max(0, i - state.extent.x);
@@ -136,15 +135,15 @@ public class PermissiveFOV implements IFovAlgorithm {
 				dest.y = j;
 				visitSquare(state, dest, currentField, steepBumps, shallowBumps, activeFields);
 			}
-			currentField = new CLikeIterator<fieldT>(activeFields.listIterator());
+			currentField = new CLikeIterator<>(activeFields.listIterator());
 		}
 	}
 
-	private final int max(final int i, final int j) {
+	private int max(final int i, final int j) {
 		return i > j ? i : j;
 	}
 
-	private final int min(final int i, final int j) {
+	private int min(final int i, final int j) {
 		return i < j ? i : j;
 	}
 

@@ -18,9 +18,7 @@ public class Armor {
 		if (input.length > TOTAL_DEF_TYPES) {
 			throw new IllegalArgumentException("Unknown armor type");
 		}
-		for (int i = 0; i < input.length; i++) {
-			armor[i] = input[i];
-		}
+        System.arraycopy(input, 0, armor, 0, input.length);
 	}
 
 	public float getArmor(final int index) {
@@ -45,9 +43,7 @@ public class Armor {
 		if (def == null) {
 			return this;
 		}
-		for (int i = 0; i < TOTAL_DEF_TYPES; i++) {
-			armor[i] = def.armor[i];
-		}
+        System.arraycopy(def.armor, 0, armor, 0, TOTAL_DEF_TYPES);
 		return this;
 	}
 
@@ -55,9 +51,7 @@ public class Armor {
 		if (armor == null) {
 			return this;
 		}
-		for (int i = 0; i < TOTAL_DEF_TYPES; i++) {
-			this.armor[i] = armor.armor[i];
-		}
+        System.arraycopy(armor.armor, 0, this.armor, 0, TOTAL_DEF_TYPES);
 		return this;
 	}
 

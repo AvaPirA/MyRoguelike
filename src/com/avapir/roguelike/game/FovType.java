@@ -8,5 +8,5 @@ package com.avapir.roguelike.game;
  * 
  */
 public enum FovType {
-	SQUARE, CIRCLE;
+	SQUARE, CIRCLE
 }

@@ -2,15 +2,15 @@ package com.avapir.roguelike.locatable;
 
 public abstract class Effect {
 
-	/**
-	 * false => this effect may be applied only on Hero
-	 */
-	private final String	name;
-	private final boolean	forAll;
-	protected int			level;
-	private int				timeLeft;
+    /**
+     * false => this effect may be applied only on Hero
+     */
+    private final String  name;
+    private final boolean forAll;
+    private final int     level;
+    private       int     timeLeft;
 
-	public Effect(final String n, final int lvl, final int t, final boolean f) {
+    public Effect(final String n, final int lvl, final int t, final boolean f) {
 		name = n;
 		forAll = f;
 		level = lvl;

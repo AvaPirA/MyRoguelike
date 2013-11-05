@@ -30,85 +30,91 @@ public class Mob implements Locatable {
 													new SlimeAI(), "Slime");
 
 		public static Mob getSlime() {
-			final Mob m = new Mob(slime);
-			return m;
+            return new Mob(slime);
 		}
 
 	}
 
-	// {
-	// mobID = mobs++;
-	// }
-	// public final int mobID;
-	// private static int mobs = 0;
+    // {
+    // mobID = mobs++;
+    // }
+    // public final int mobID;
+    // private static int mobs = 0;
 
-	private final String			name;
-	private final AbstractAI		intel;
+    private final String     name;
+    private final AbstractAI intel;
 
-	protected final List<Effect>	effects		= new ArrayList<>();
-	protected final Attack			baseAttack	= new Attack();
-	protected final Armor			baseArmor	= new Armor();
+    private final List<Effect> effects    = new ArrayList<>();
+    final         Attack       baseAttack = new Attack();
+    final         Armor        baseArmor  = new Armor();
 
-	protected float					HP;
-	protected float					MP;
-	protected float					maxMP;
-	protected float					maxHP;
+    float HP;
+    float MP;
+    float maxMP;
+    float maxHP;
 
-	/**
-	 * Constructor used into {@link MobSet} to create fully described monsters.
-	 * 
-	 * @param x
-	 * @param y
-	 * @param hp
-	 * @param mp
-	 * @param bAtk
-	 * @param bDef
-	 * @param ai
-	 * @param nm
-	 */
-	private Mob(final int x, final int y, final int hp, final int mp, final Attack bAtk,
-			final Armor bDef, final AbstractAI ai, final String nm) {
-		name = nm;
-		intel = ai;
+    /**
+     * Constructor used into {@link MobSet} to create fully described monsters.
+     *
+     * @param x
+     * @param y
+     * @param hp
+     * @param mp
+     * @param bAtk
+     * @param bDef
+     * @param ai
+     * @param nm
+     */
+    private Mob(final int x,
+                final int y,
+                final int hp,
+                final int mp,
+                final Attack bAtk,
+                final Armor bDef,
+                final AbstractAI ai,
+                final String nm) {
+        name = nm;
+        intel = ai;
 
-		baseAttack.addAttack(bAtk);
-		baseArmor.addArmor(bDef);
+        baseAttack.addAttack(bAtk);
+        baseArmor.addArmor(bDef);
 
-		HP = hp;
+        HP = hp;
+        MP = mp;
 
-		maxHP = HP;
-		maxMP = MP;
+        maxHP = HP;
+        maxMP = MP;
 
-		location = new Point(x, y);
-	}
+        location = new Point(x, y);
+    }
 
-	/**
-	 * Public constructor
-	 * 
-	 * @param x
-	 * @param y
-	 * @param ai
-	 * @param n
-	 * @param m
-	 */
-	public Mob(final int x, final int y, final AbstractAI ai, final String n, final Map m) {
-		intel = BORG ? new Borg() : ai != null ? ai : IdleAI.getNewInstance();
+    /**
+     * Public constructor
+     *
+     * @param x
+     * @param y
+     * @param ai
+     * @param n
+     * @param m
+     */
+    Mob(final int x, final int y, final AbstractAI ai, final String n, final Map m) {
+        intel = BORG ? new Borg() : ai != null ? ai : IdleAI.getNewInstance();
 
-		name = n;
+        name = n;
 
-		if (m != null && m.hasTile(x, y)) {
-			m.putCharacter(this, x, y);
-		}
-	}
+        if (m != null && m.hasTile(x, y)) {
+            m.putCharacter(this, x, y);
+        }
+    }
 
-	/**
-	 * Copying constructor
-	 * 
-	 * @param m
-	 */
-	private Mob(final Mob m) {
-		location.setLocation(location);
-		baseArmor.addArmor(baseArmor);
+    /**
+     * Copying constructor
+     *
+     * @param m
+     */
+    private Mob(final Mob m) {
+        location.setLocation(location);
+        baseArmor.addArmor(baseArmor);
 		baseAttack.addAttack(m.baseAttack);
 		effects.addAll(m.effects);
 		HP = m.HP;
@@ -172,7 +178,7 @@ public class Mob implements Locatable {
 		}
 	}
 
-	protected float attackMob(final Point dp, final Game g) {
+	float attackMob(final Point dp, final Game g) {
 		final Mob defender = g.getMap().getTile(dp.x, dp.y).getMob();
 		if (defender != g.getHero() && this != g.getHero()) {
 			return 0;
@@ -211,7 +217,7 @@ public class Mob implements Locatable {
 	 * 
 	 * @param g
 	 */
-	protected void onDeath(final Game g) {
+    void onDeath(final Game g) {
 		alive = false;
 		intel.onDeath(this, g);
 	}
@@ -225,7 +231,7 @@ public class Mob implements Locatable {
 	/**
 	 * @return native and given by effects {@link Armor}
 	 */
-	public Armor getArmor() {
+    Armor getArmor() {
 		return baseArmor;
 	}
 
@@ -240,7 +246,7 @@ public class Mob implements Locatable {
 	/**
 	 * @return @return native and given by effects {@link Attack}
 	 */
-	public Attack getAttack() {
+    Attack getAttack() {
 		return baseAttack;
 	}
 

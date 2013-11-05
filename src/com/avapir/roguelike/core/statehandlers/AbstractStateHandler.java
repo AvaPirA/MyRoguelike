@@ -6,20 +6,20 @@ import com.avapir.roguelike.core.Game;
 
 public abstract class AbstractStateHandler implements StateHandler {
 
-	protected int	x;
-	protected int	y;
-	protected Game	game;
+    private int x;
+    int y;
+    final Game game;
 
-	public AbstractStateHandler(final Game g) {
-		game = g;
-	}
+    AbstractStateHandler(final Game g) {
+        game = g;
+    }
 
-	protected abstract int checkRestoreX(int x);
+    protected abstract int checkRestoreX(int x);
 
-	protected abstract int checkRestoreY(int y);
+    protected abstract int checkRestoreY(int y);
 
-	@Override
-	public final void pressDown() {
+    @Override
+    public final void pressDown() {
 		y++;
 		y = checkRestoreY(y);
 		game.repaint();
