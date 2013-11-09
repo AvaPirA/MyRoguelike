@@ -1,25 +1,11 @@
 package com.avapir.roguelike.core.gui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.HeadlessException;
-import java.awt.Image;
-import java.awt.TexturePaint;
-import java.awt.Toolkit;
-import java.awt.Transparency;
+import com.avapir.roguelike.game.Tile;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-
-import com.avapir.roguelike.game.Tile;
 
 public abstract class AbstractGamePanel extends JPanel {
 
@@ -61,81 +47,80 @@ public abstract class AbstractGamePanel extends JPanel {
 
     public static int getScreenWidth() {
         return SCREEN_WIDTH;
-	}
+    }
 
-	public static int getScreenHeight() {
-		return SCREEN_HEIGHT;
-	}
+    public static int getScreenHeight() {
+        return SCREEN_HEIGHT;
+    }
 
-	@Override
-	public void paintComponent(final Graphics g) {
-		super.paintComponent(g);
+    @Override
+    public void paintComponent(final Graphics g) {
+        super.paintComponent(g);
 
-		final Graphics2D g2 = (Graphics2D) g;
-		paintBackground(g2);
-		paintGUI(g2);
-	}
+        final Graphics2D g2 = (Graphics2D) g;
+        paintBackground(g2);
+        paintGUI(g2);
+    }
 
-	public static float roundOneDigit(final float f) {
-		return Math.round(10 * f) / 10f;
-	}
+    public static float roundOneDigit(final float f) {
+        return Math.round(10 * f) / 10f;
+    }
 
-	void drawString(final Graphics2D g2, final int xx, final int yy, final String s) {
-		g2.drawString(s, xx, yy + 8);
-	}
+    void drawString(final Graphics2D g2, final int xx, final int yy, final String s) {
+        g2.drawString(s, xx, yy + 8);
+    }
 
-	void drawImage(final Graphics g2, final Image img, final int xx, final int yy) {
-		g2.drawImage(img, xx, yy, this);
-	}
+    void drawImage(final Graphics g2, final Image img, final int xx, final int yy) {
+        g2.drawImage(img, xx, yy, this);
+    }
 
-	final void paintBackground(final Graphics2D g2) {
-		final BufferedImage bgTex = toBufferedImage(getImage("background"));
-		final Rectangle2D canvas = new Rectangle2D.Double(0, 0, getWidth(), getHeight());
-		final Rectangle2D tr = new Rectangle2D.Double(0, 0, bgTex.getWidth(), bgTex.getHeight());
+    final void paintBackground(final Graphics2D g2) {
+        final BufferedImage bgTex = toBufferedImage(getImage("background"));
+        final Rectangle2D canvas = new Rectangle2D.Double(0, 0, getWidth(), getHeight());
+        final Rectangle2D tr = new Rectangle2D.Double(0, 0, bgTex.getWidth(), bgTex.getHeight());
 
-		// Create the TexturePaint.
-		final TexturePaint tp = new TexturePaint(bgTex, tr);
-		g2.setPaint(tp);
-		g2.fill(canvas);
-		// TODO draw borders of viewable area of map
-	}
+        // Create the TexturePaint.
+        final TexturePaint tp = new TexturePaint(bgTex, tr);
+        g2.setPaint(tp);
+        g2.fill(canvas);
+        // TODO draw borders of viewable area of map
+    }
 
-	protected abstract void paintGUI(final Graphics2D g2);
+    protected abstract void paintGUI(final Graphics2D g2);
 
-	private static BufferedImage toBufferedImage(Image image) {
-		if (image instanceof BufferedImage) {
-			return (BufferedImage) image;
-		}
-		// This code ensures that all the pixels in the image are loaded
-		image = new ImageIcon(image).getImage();
-		// Determine if the image has transparent pixels; for this method's
-		// implementation, see e661 Determining If an Image Has Transparent Pixels
-		// boolean hasAlpha = hasAlpha(image);
-		// Create a buffered image with a format that's compatible with the screen
-		BufferedImage bimage = null;
-		final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		try {
-			// Determine the type of transparency of the new buffered image
-			final int transparency = Transparency.OPAQUE;
-			/*
+    private static BufferedImage toBufferedImage(Image image) {
+        if (image instanceof BufferedImage) {
+            return (BufferedImage) image;
+        }
+        // This code ensures that all the pixels in the image are loaded
+        image = new ImageIcon(image).getImage();
+        // Determine if the image has transparent pixels; for this method's
+        // implementation, see e661 Determining If an Image Has Transparent Pixels
+        // boolean hasAlpha = hasAlpha(image);
+        // Create a buffered image with a format that's compatible with the screen
+        BufferedImage bimage = null;
+        final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        try {
+            // Determine the type of transparency of the new buffered image
+            final int transparency = Transparency.OPAQUE;
+            /*
 			 * if (hasAlpha) {
 			 * 
 			 * transparency = Transparency.BITMASK;
 			 * 
 			 * }
 			 */
-			// Create the buffered image
-			final GraphicsDevice gs = ge.getDefaultScreenDevice();
-			final GraphicsConfiguration gc = gs.getDefaultConfiguration();
-			bimage = gc.createCompatibleImage(image.getWidth(null), image.getHeight(null),
-					transparency);
-		} catch (final HeadlessException e) {
-			// The system does not have a screen
-		}
-		if (bimage == null) {
-			// Create a buffered image using the default color model
-			final int type = BufferedImage.TYPE_INT_RGB;
-			// int type = BufferedImage.TYPE_3BYTE_BGR;//by wang
+            // Create the buffered image
+            final GraphicsDevice gs = ge.getDefaultScreenDevice();
+            final GraphicsConfiguration gc = gs.getDefaultConfiguration();
+            bimage = gc.createCompatibleImage(image.getWidth(null), image.getHeight(null), transparency);
+        } catch (final HeadlessException e) {
+            // The system does not have a screen
+        }
+        if (bimage == null) {
+            // Create a buffered image using the default color model
+            final int type = BufferedImage.TYPE_INT_RGB;
+            // int type = BufferedImage.TYPE_3BYTE_BGR;//by wang
 			/*
 			 * if (hasAlpha) {
 			 * 
@@ -143,22 +128,21 @@ public abstract class AbstractGamePanel extends JPanel {
 			 * 
 			 * }
 			 */
-			bimage = new BufferedImage(image.getWidth(null), image.getHeight(null), type);
-		}
-		// Copy image to buffered image
-		final Graphics g = bimage.createGraphics();
-		// Paint the image onto the buffered image
-		g.drawImage(image, 0, 0, null);
-		g.dispose();
-		return bimage;
-	}
+            bimage = new BufferedImage(image.getWidth(null), image.getHeight(null), type);
+        }
+        // Copy image to buffered image
+        final Graphics g = bimage.createGraphics();
+        // Paint the image onto the buffered image
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return bimage;
+    }
 
-	Image getImage(final String filename) {
+    Image getImage(final String filename) {
 
-		return tKit.getImage(path.concat(filename.endsWith(".png") ? filename : filename
-				.concat(".png")));
-	}
+        return tKit.getImage(path.concat(filename.endsWith(".png") ? filename : filename.concat(".png")));
+    }
 
-	private static final String	path	= "res/sprite/";
+    private static final String path = "res/sprite/";
 
 }

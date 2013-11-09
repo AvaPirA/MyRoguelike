@@ -4,10 +4,9 @@ import java.util.ListIterator;
 
 /**
  * An iterator that behaves like C iterators
- * 
- * @author sdatta
- * 
+ *
  * @param <T>
+ * @author sdatta
  */
 class CLikeIterator<T> {
 
@@ -26,58 +25,58 @@ class CLikeIterator<T> {
             atEnd = true;
         }
         // checkPrevNext();
-	}
+    }
 
-	// private final void checkPrevNext()
-	// {
-	// // if(it.hasNext())
-	// // atEnd=false;
-	// // else
-	// // atEnd=true;
-	//
-	// if(it.hasPrevious())
-	// atBegin=false;
-	// else
-	// atBegin=true;
-	// }
+    // private final void checkPrevNext()
+    // {
+    // // if(it.hasNext())
+    // // atEnd=false;
+    // // else
+    // // atEnd=true;
+    //
+    // if(it.hasPrevious())
+    // atBegin=false;
+    // else
+    // atBegin=true;
+    // }
 
-	public final T getCurrent() {
-		return curr;
-	}
+    public final T getCurrent() {
+        return curr;
+    }
 
-	public void gotoNext() {
-		if (it.hasNext()) {
-			curr = it.next();
-		} else {
-			atEnd = true;
-			curr = null;
-		}
-		// checkPrevNext();
-	}
+    public void gotoNext() {
+        if (it.hasNext()) {
+            curr = it.next();
+        } else {
+            atEnd = true;
+            curr = null;
+        }
+        // checkPrevNext();
+    }
 
-	public void gotoPrevious() {
-		if (it.hasPrevious()) {
-			curr = it.previous();
-		}
-		// else
-		// {
-		// curr=null;
-		// }
-		// checkPrevNext();
-	}
+    public void gotoPrevious() {
+        if (it.hasPrevious()) {
+            curr = it.previous();
+        }
+        // else
+        // {
+        // curr=null;
+        // }
+        // checkPrevNext();
+    }
 
-	public boolean isAtEnd() {
-		return atEnd;
-	}
+    public boolean isAtEnd() {
+        return atEnd;
+    }
 
-	public void removeCurrent() {
-		it.remove();
-		gotoNext();
-	}
+    public void removeCurrent() {
+        it.remove();
+        gotoNext();
+    }
 
-	public void insertBeforeCurrent(final T t) {
-		it.previous();
-		it.add(t);
-		// checkPrevNext();
-	}
+    public void insertBeforeCurrent(final T t) {
+        it.previous();
+        it.add(t);
+        // checkPrevNext();
+    }
 }

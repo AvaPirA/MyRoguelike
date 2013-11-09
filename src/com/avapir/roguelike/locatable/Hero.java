@@ -80,7 +80,6 @@ public class Hero extends Mob implements Locatable {
         stats.freeStats += PrimaryStats.DEFAULT_STAT_INCREASE;
         restore();
         g.log(String.format("%s достиг %s уровня!", name, level));
-        g.getWindowsManager();
     }
 
     private boolean lvlUp() {
@@ -248,7 +247,7 @@ public class Hero extends Mob implements Locatable {
         }
 
         public static int getMaxWeight(Hero hero) {
-            return 30*getStr(hero);
+            return 30 * getStr(hero);
         }
 
     }

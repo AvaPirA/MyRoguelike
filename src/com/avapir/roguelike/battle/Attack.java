@@ -1,9 +1,9 @@
 package com.avapir.roguelike.battle;
 
+import com.avapir.roguelike.locatable.Effect;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.avapir.roguelike.locatable.Effect;
 
 /**
  * Physical<br>
@@ -27,91 +27,91 @@ public class Attack {
     }
 
     public Attack addDamage(final int[] damages) {
-		if (damages.length > TOTAL_DMG_TYPES) {
-			throw new IllegalArgumentException();
-		}
+        if (damages.length > TOTAL_DMG_TYPES) {
+            throw new IllegalArgumentException();
+        }
 
-		for (int i = 0; i < damages.length; i++) {
-			damage[i] += damages[i];
-		}
-		return this;
-	}
+        for (int i = 0; i < damages.length; i++) {
+            damage[i] += damages[i];
+        }
+        return this;
+    }
 
-	public Attack addEffect(final Effect eff) {
-		if (eff == null) {
-			return this;
-		}
+    public Attack addEffect(final Effect eff) {
+        if (eff == null) {
+            return this;
+        }
 
-		effects.add(eff);
-		return this;
-	}
+        effects.add(eff);
+        return this;
+    }
 
-	public Attack addEffects(final List<Effect> eff) {
-		if (eff == null) {
-			return this;
-		}
+    public Attack addEffects(final List<Effect> eff) {
+        if (eff == null) {
+            return this;
+        }
 
-		effects.addAll(eff);
-		return this;
-	}
+        effects.addAll(eff);
+        return this;
+    }
 
-	Attack addDamageFromAttack(final Attack atk) {
-		if (atk == null) {
-			return this;
-		}
+    Attack addDamageFromAttack(final Attack atk) {
+        if (atk == null) {
+            return this;
+        }
 
-		for (int i = 0; i < TOTAL_DMG_TYPES; i++) {
-			damage[i] += atk.damage[i];
-		}
-		return this;
-	}
+        for (int i = 0; i < TOTAL_DMG_TYPES; i++) {
+            damage[i] += atk.damage[i];
+        }
+        return this;
+    }
 
-	Attack addEffectsFromAttack(final Attack atk) {
-		if (atk == null) {
-			return this;
-		}
+    Attack addEffectsFromAttack(final Attack atk) {
+        if (atk == null) {
+            return this;
+        }
 
-		effects.addAll(atk.effects);
-		return this;
-	}
+        effects.addAll(atk.effects);
+        return this;
+    }
 
-	public Attack addAttack(final Attack atk) {
-		if (atk == null) {
-			return this;
-		}
+    public Attack addAttack(final Attack atk) {
+        if (atk == null) {
+            return this;
+        }
 
-		addDamageFromAttack(atk);
-		addEffectsFromAttack(atk);
-		return this;
-	}
+        addDamageFromAttack(atk);
+        addEffectsFromAttack(atk);
+        return this;
+    }
 
-	public List<Effect> getEffects() {
-		return effects;
-	}
+    public List<Effect> getEffects() {
+        return effects;
+    }
 
-	public float getDamageOfType(final int index) {
-		return damage[index];
-	}
+    public float getDamageOfType(final int index) {
+        return damage[index];
+    }
 
-	public float[] getDamage() {
-		return damage;
-	}
+    public float[] getDamage() {
+        return damage;
+    }
 
-	public Attack replaceBy(final Attack attack) {
-		if (attack == null) {
-			return this;
-		}
+    public Attack replaceBy(final Attack attack) {
+        if (attack == null) {
+            return this;
+        }
 
-		clear();
-		addAttack(attack);
-		return this;
-	}
+        clear();
+        addAttack(attack);
+        return this;
+    }
 
-	private void clear() {
-		for (int i = 0; i < TOTAL_DMG_TYPES; i++) {
-			damage[i] = 0;
-		}
-		effects.clear();
-	}
+    private void clear() {
+        for (int i = 0; i < TOTAL_DMG_TYPES; i++) {
+            damage[i] = 0;
+        }
+        effects.clear();
+    }
 
 }

@@ -1,67 +1,66 @@
 package com.avapir.roguelike.game;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.avapir.roguelike.locatable.Item;
 import com.avapir.roguelike.locatable.Mob;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Представление одной ячейки карты. Умеет управлять тем, что лежит на ней,
  * хранит все свои свойства. Ну понятно, короче
- * 
+ *
  * @author Alpen
  *         //TODO нужно допридумать свойства (флаги) тайлов
  */
 public class Tile {
 
-	public static final int		SIZE_px		= 32;
+    public static final int SIZE_px = 32;
 
-	private Mob					charHere	= null;
-	private final List<Item>	itemsHere	= new ArrayList<>();
-	private final Tile.Type		initialType;
-	private int					flags;
+    private       Mob        charHere  = null;
+    private final List<Item> itemsHere = new ArrayList<>();
+    private final Tile.Type initialType;
+    private       int       flags;
 
-	public Tile(final Tile.Type it) {
-		initialType = it;
-		flags = Tile.Type.examples[it.ordinal()].flags;
-	}
+    public Tile(final Tile.Type it) {
+        initialType = it;
+        flags = Tile.Type.examples[it.ordinal()].flags;
+    }
 
-	private Tile(final Tile.Type t, final int... flg) {
-		initialType = t;
-		for (final int f : flg) {
-			flags |= f;
-		}
-	}
+    private Tile(final Tile.Type t, final int... flg) {
+        initialType = t;
+        for (final int f : flg) {
+            flags |= f;
+        }
+    }
 
-	public void restoreDefault() {
-		if (initialType != null) {
-			flags = Tile.Type.examples[initialType.ordinal()].flags;
-		}
-	}
+    public void restoreDefault() {
+        if (initialType != null) {
+            flags = Tile.Type.examples[initialType.ordinal()].flags;
+        }
+    }
 
-	/**
-	 * Хранит типы тайлов, создавалку типовых тайлов и образцы (на всякий
-	 * случай, но чтобы не создавать заново каждый раз, когда вдруг понадобится)
-	 * 
-	 * @author Alpen
-	 * 
-	 */
-	public static enum Type {
-		EMPTY, GRASS, TREE, CLOSED_DOOR, OPENED_DOOR, STAIR_UP, STAIR_DOWN, WALL;
+    /**
+     * Хранит типы тайлов, создавалку типовых тайлов и образцы (на всякий
+     * случай, но чтобы не создавать заново каждый раз, когда вдруг понадобится)
+     *
+     * @author Alpen
+     */
+    public static enum Type {
+        EMPTY, GRASS, TREE, CLOSED_DOOR, OPENED_DOOR, STAIR_UP, STAIR_DOWN, WALL;
 
-		static Tile getDefault(final Type t) {
-			switch (t) {
-			case EMPTY:
-				return new Tile(EMPTY, Flag.EMPTY, Flag.PASSABLE, Flag.TRANSPARENT);
-			case GRASS:
-				return new Tile(GRASS, Flag.GRASS, Flag.PASSABLE, Flag.TRANSPARENT);
-			case TREE:
-				return new Tile(TREE, Flag.GRASS);
-			default:
-				return null;
-			}
-		}
+        static Tile getDefault(final Type t) {
+            switch (t) {
+                case EMPTY:
+                    return new Tile(EMPTY, Flag.EMPTY, Flag.PASSABLE, Flag.TRANSPARENT);
+                case GRASS:
+                    return new Tile(GRASS, Flag.GRASS, Flag.PASSABLE, Flag.TRANSPARENT);
+                case TREE:
+                    return new Tile(TREE, Flag.GRASS);
+                default:
+                    return null;
+            }
+        }
 
         static final Tile[] examples = {getDefault(Type.EMPTY), getDefault(GRASS), getDefault(TREE)};
     }
@@ -80,155 +79,166 @@ public class Tile {
         /* 0-8 FOV */
         // public static final int VISIBLE = 1 << 0;
         // public static final int SEEN = 1 << 1;
-        public static final int    LIGHT_ON           = 1 << 2;
-        public static final int    TRANSPARENT        = 1 << 3;
-        public static final int    F4                 = 1 << 4;
-        public static final int    F5                 = 1 << 5;
-        public static final int    F6                 = 1 << 6;
-        public static final int    F7                 = 1 << 7;
-        public static final int    F8                 = 1 << 8;
+        public static final int LIGHT_ON      = 1 << 2;
+        public static final int TRANSPARENT   = 1 << 3;
+        public static final int F4            = 1 << 4;
+        public static final int F5            = 1 << 5;
+        public static final int F6            = 1 << 6;
+        public static final int F7            = 1 << 7;
+        public static final int F8            = 1 << 8;
         /* 9-14 terrain and moving */
-        public static final int    PASSABLE           = 1 << 9;
-        public static final int    EMPTY              = 1 << 10;
-        public static final int    GRASS              = 1 << 11;
-        public static final int    STONES             = 1 << 12;
-        public static final int    ICE                = 1 << 13;
+        public static final int PASSABLE      = 1 << 9;
+        public static final int EMPTY         = 1 << 10;
+        public static final int GRASS         = 1 << 11;
+        public static final int STONES        = 1 << 12;
+        public static final int ICE           = 1 << 13;
         /* 14-24 gaining effects */
-        public static final int    POISIONING         = 1 << 14;
-        public static final int    FLAMING            = 1 << 15;
-        public static final int    WET                = 1 << 16;
-        public static final int    INSTANT_DEATH      = 1 << 17;
-        public static final int    F18                = 1 << 18;
-        public static final int    F19                = 1 << 19;
-        public static final int    F20                = 1 << 20;
-        public static final int    F21                = 1 << 21;
-        public static final int    F22                = 1 << 22;
-        public static final int    F23                = 1 << 23;
+        public static final int POISIONING    = 1 << 14;
+        public static final int FLAMING       = 1 << 15;
+        public static final int WET           = 1 << 16;
+        public static final int INSTANT_DEATH = 1 << 17;
+        public static final int F18           = 1 << 18;
+        public static final int F19           = 1 << 19;
+        public static final int F20           = 1 << 20;
+        public static final int F21           = 1 << 21;
+        public static final int F22           = 1 << 22;
+        public static final int F23           = 1 << 23;
         /* 24-31 specials */
-        public static final int    F24                = 1 << 24;
-        public static final int	F25				= 1 << 25;
-		public static final int	F26				= 1 << 26;
-		public static final int	F27				= 1 << 27;
-		public static final int	OPEN_DOOR		= 1 << 28;
-		public static final int	CLOSED_DOOR		= 1 << 29;
-		public static final int	UP_LADDER		= 1 << 30;
-		public static final int	DOWN_LADDER		= 1 << 31;
+        public static final int F24           = 1 << 24;
+        public static final int F25           = 1 << 25;
+        public static final int F26           = 1 << 26;
+        public static final int F27           = 1 << 27;
+        public static final int OPEN_DOOR     = 1 << 28;
+        public static final int CLOSED_DOOR   = 1 << 29;
+        public static final int UP_LADDER     = 1 << 30;
+        public static final int DOWN_LADDER   = 1 << 31;
 
-	}
+    }
 
-	private boolean checkFlag(final int flag) {
-		return flag == (flags & flag);
-	}
+    private boolean checkFlag(final int flag) {
+        return flag == (flags & flag);
+    }
 
-	// private void addFlags(final int newFlag) {
-	// flags = flags | newFlag;
-	// }
-	//
-	// private void removeFlags(final int newFlag) {
-	// flags = flags & invertFlag(newFlag);
-	// }
+    // private void addFlags(final int newFlag) {
+    // flags = flags | newFlag;
+    // }
+    //
+    // private void removeFlags(final int newFlag) {
+    // flags = flags & invertFlag(newFlag);
+    // }
 
-	// private int invertFlag(final int flag) {
-	// return Flag.FULL_FLAG ^ flag;
-	// }
+    // private int invertFlag(final int flag) {
+    // return Flag.FULL_FLAG ^ flag;
+    // }
 
-	// private void setFlag(final boolean b, final int flag) {
-	// if (b) {
-	// addFlags(flag);
-	// } else {
-	// removeFlags(flag);
-	// }
-	// }
+    // private void setFlag(final boolean b, final int flag) {
+    // if (b) {
+    // addFlags(flag);
+    // } else {
+    // removeFlags(flag);
+    // }
+    // }
 
-	private boolean	visible;
-	private boolean	seen;
+    private boolean visible;
+    private boolean seen;
 
-	//@formatter:off
-	public boolean isVisible() 			{return visible;}
-	public boolean isSeen() 			{return seen;}
-	public boolean isLantern() 			{return checkFlag(Flag.LIGHT_ON);}
-	public boolean isTransparent()		{return checkFlag(Flag.TRANSPARENT);}
+    //@formatter:off
+    public boolean isVisible() {return visible;}
 
-	public boolean isPassable() 		{return checkFlag(Flag.PASSABLE);}
-	public boolean isEmpty() 			{return checkFlag(Flag.EMPTY);}
+    public boolean isSeen() {return seen;}
 
-	public boolean isGrass() 			{return checkFlag(Flag.GRASS);}
-	public boolean isStone() 			{return checkFlag(Flag.STONES);}
-	public boolean isIce() 				{return checkFlag(Flag.ICE);}
-	public boolean isPoisioning() 		{return checkFlag(Flag.POISIONING);}
-	public boolean isFlaming() 			{return checkFlag(Flag.FLAMING);}
-	public boolean isWet() 				{return checkFlag(Flag.WET);}
-	boolean isInstantKiller()	{return checkFlag(Flag.INSTANT_DEATH);}
+    public boolean isLantern() {return checkFlag(Flag.LIGHT_ON);}
 
-	public boolean isClosed() 			{return checkFlag(Flag.CLOSED_DOOR);}
-	public boolean isUpLadder() 		{return checkFlag(Flag.UP_LADDER);}
-	public boolean isDownLadder() 		{return checkFlag(Flag.DOWN_LADDER);}
+    public boolean isTransparent() {return checkFlag(Flag.TRANSPARENT);}
 
-	public void setVisible(final boolean b) {visible = b;}
-	public void setSeen(final boolean b) 	{seen = b;}
-	//@formatter:on
+    public boolean isPassable() {return checkFlag(Flag.PASSABLE);}
 
-	// add-methods
+    public boolean isEmpty() {return checkFlag(Flag.EMPTY);}
 
-	/**
-	 * Ставит персонажа на этот тайл, если <li>тут никого нет</li> <li>проходимо</li> <li>не
-	 * instantKiller</li>
-	 * 
-	 * @param chr
-	 *            кого ставим
-	 * @return поставился ли
-	 */
-	public boolean putCharacter(final Mob chr) {
-		if (charHere != null || !isPassable() || isInstantKiller()) {
-			return false;
-		} else {
-			charHere = chr;
-			return true;
-		}
-	}
+    public boolean isGrass() {return checkFlag(Flag.GRASS);}
 
-	/**
-	 * Кладет на тайл новый предмет
-	 * 
-	 * @param item
-	 *            что кладем
-	 */
-	public void dropItem(final Item item) {
-		itemsHere.add(item);
-	}
+    public boolean isStone() {return checkFlag(Flag.STONES);}
 
-	public void dropItems(final List<Item> items) {
-		itemsHere.addAll(items);
-	}
+    public boolean isIce() {return checkFlag(Flag.ICE);}
 
-	// get-methods
+    public boolean isPoisioning() {return checkFlag(Flag.POISIONING);}
 
-	public Mob getMob() {
-		return charHere;
-	}
+    public boolean isFlaming() {return checkFlag(Flag.FLAMING);}
 
-	public int getFlags() {
-		return flags;
-	}
+    public boolean isWet() {return checkFlag(Flag.WET);}
 
-	public List<Item> getItemList() {
-		return itemsHere;
-	}
+    boolean isInstantKiller() {return checkFlag(Flag.INSTANT_DEATH);}
 
-	public Type getType() {
-		return initialType;
-	}
+    public boolean isClosed() {return checkFlag(Flag.CLOSED_DOOR);}
 
-	// remove-methods
+    public boolean isUpLadder() {return checkFlag(Flag.UP_LADDER);}
 
-	/**
-	 * Убирает всё живое с тайла
-	 * 
-	 * @return кто стоял
-	 */
-	public Mob removeCharacter() {
-		final Mob c = charHere;
-		charHere = null;
-		return c;
-	}
+    public boolean isDownLadder() {return checkFlag(Flag.DOWN_LADDER);}
+
+    public void setVisible(final boolean b) {visible = b;}
+
+    public void setSeen(final boolean b) {seen = b;}
+    //@formatter:on
+
+    // add-methods
+
+    /**
+     * Ставит персонажа на этот тайл, если <li>тут никого нет</li> <li>проходимо</li> <li>не
+     * instantKiller</li>
+     *
+     * @param chr кого ставим
+     * @return поставился ли
+     */
+    public boolean putCharacter(final Mob chr) {
+        if (charHere != null || !isPassable() || isInstantKiller()) {
+            return false;
+        } else {
+            charHere = chr;
+            return true;
+        }
+    }
+
+    /**
+     * Кладет на тайл новый предмет
+     *
+     * @param item что кладем
+     */
+    public void dropItem(final Item item) {
+        itemsHere.add(item);
+    }
+
+    public void dropItems(final List<Item> items) {
+        itemsHere.addAll(items);
+    }
+
+    // get-methods
+
+    public Mob getMob() {
+        return charHere;
+    }
+
+    public int getFlags() {
+        return flags;
+    }
+
+    public List<Item> getItemList() {
+        return itemsHere;
+    }
+
+    public Type getType() {
+        return initialType;
+    }
+
+    // remove-methods
+
+    /**
+     * Убирает всё живое с тайла
+     *
+     * @return кто стоял
+     */
+    public Mob removeCharacter() {
+        final Mob c = charHere;
+        charHere = null;
+        return c;
+    }
 }
