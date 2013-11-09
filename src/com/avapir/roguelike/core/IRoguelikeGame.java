@@ -2,6 +2,9 @@ package com.avapir.roguelike.core;
 
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.locatable.Hero;
+import com.avapir.roguelike.locatable.Mob;
+
+import java.awt.*;
 
 /**
  * User: Alpen Ditrix
@@ -16,9 +19,9 @@ public interface IRoguelikeGame {
 
     int getTurnCounter();
 
-    int X();
+    int getCurrentX();
 
-    int Y();
+    int getCurrentY();
 
     /**
      * Устанавливает состояния конца игры
@@ -27,5 +30,13 @@ public interface IRoguelikeGame {
 
     Game.GameState getState();
 
-    void setGameState(Game.GameState state);
+    void setState(Game.GameState state);
+
+    void repaint();
+
+    Mob removeMob(Mob m);
+
+    void setScreenCenterAt(Point p);
+
+    void EOT(Point mapMove);
 }

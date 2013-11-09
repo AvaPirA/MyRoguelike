@@ -134,8 +134,8 @@ public class GamePanel extends AbstractGamePanel {
         private void heroMainStats(final Graphics2D g2, final Hero hero) {
             g2.setColor(Color.yellow);
             // location
-            drawString(g2, o.x, o.y, "X: " + hero.getLoc().x);
-            drawString(g2, o.x, o.y + 15, "Y: " + hero.getLoc().y);
+            drawString(g2, o.x, o.y, "getCurrentX: " + hero.getLoc().x);
+            drawString(g2, o.x, o.y + 15, "getCurrentY: " + hero.getLoc().y);
 
             // name
             drawString(g2, o.x, o.y + 30, hero.getName());
@@ -364,15 +364,15 @@ public class GamePanel extends AbstractGamePanel {
     }
 
     private void paintMap(final Graphics2D g2, final Map map) {
-        final int ox = game.X();
-        final int oy = game.Y();
+        final int ox = game.getCurrentX();
+        final int oy = game.getCurrentY();
         for (int i = 0; i < HEIGHT_IN_TILES; i++) {
             for (int j = 0; j < WIDTH_IN_TILES; j++) {
 
                 // indexes on the Map
                 final int x = ox + j;
                 final int y = oy + i;
-                // pixels where to paint current Tile
+                // pixels where to paint getCurrentY Tile
                 final int xx = j * Tile.SIZE_px;
                 final int yy = i * Tile.SIZE_px;
                 final Tile tile = map.getTile(x, y);
@@ -450,8 +450,8 @@ public class GamePanel extends AbstractGamePanel {
     }
 
     // private boolean hasTileOnScreen(final int y, final int x) {
-    // return y >= game.Y() && y < HEIGHT_IN_TILES + game.Y() && x >= game.X()
-    // && x < WIDTH_IN_TILES + game.X();
+    // return y >= game.getCurrentY() && y < HEIGHT_IN_TILES + game.getCurrentY() && x >= game.getCurrentX()
+    // && x < WIDTH_IN_TILES + game.getCurrentX();
     // }
 
 }

@@ -187,7 +187,7 @@ public class PermissiveFOV implements IFovAlgorithm {
         if (currentField.getCurrent().shallow.isAbove(bottomRight) &&
                 currentField.getCurrent().steep.isBelow(topLeft)) {
             // case BLOCKING
-            // Both lines intersect the square. This current field has ended.
+            // Both lines intersect the square. This getCurrentY field has ended.
             currentField.removeCurrent();
         } else if (currentField.getCurrent().shallow.isAbove(bottomRight)) {
             // case SHALLOW BUMP
@@ -312,11 +312,11 @@ public class PermissiveFOV implements IFovAlgorithm {
 		 */
         if (state.isLos // In LOS calculation all visits allowed
                 || state.quadrantIndex == 0 // can visit anything from Q1
-                || (state.quadrantIndex == 1 && pos.x != 0) // Q2 : no Y axis
-                || (state.quadrantIndex == 2 && pos.y != 0) // Q3 : no X axis
+                || (state.quadrantIndex == 1 && pos.x != 0) // Q2 : no getCurrentY axis
+                || (state.quadrantIndex == 2 && pos.y != 0) // Q3 : no getCurrentX axis
                 || (state.quadrantIndex == 3 && pos.x != 0 && pos.y != 0)) {
-            // no X
-            // or Y
+            // no getCurrentX
+            // or getCurrentY
             // axis
             if (doesPermissiveVisit(state.mask, pos.x * state.quadrant.x, pos.y * state.quadrant.y) == 1) {
                 state.board.visit(adjustedPos.x, adjustedPos.y);

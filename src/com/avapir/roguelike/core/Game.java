@@ -15,18 +15,17 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
-    private final Log       gameLog = new Log();
-    private final List<Map> maps    = new ArrayList<>();
+    private final Log                  gameLog;
+    private final List<Map>            maps;
     private final Hero                 hero;
     private final GameWindow           gameWindow;
+    private final List<Mob>            mobs;
     private       Map                  currentMap;
     private       int                  currentX;
     private       int                  currentY;
-    private       List<Mob>            mobs;
     private       int                  turnCounter;
     private       GameState            state;
     private       ChangingStatsHandler chs;
@@ -37,9 +36,12 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         gameWindow = new GameWindow(title, this);
         gameWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         hero = new Hero(-1, -1, "Hero", this);
+        gameLog = new Log();
+        maps = new ArrayList<>();
+        mobs = new ArrayList<>();
     }
 
-    public static boolean checkStep(final Point dp) {
+    private static boolean isMoved(final Point dp) {
         if (!((dp.x == 1 || dp.x == 0 || dp.x == -1) && (dp.y == 1 || dp.y == 0 || dp.y == -1))) {
             throw new IllegalArgumentException("Wrong step");
         } else {
@@ -47,13 +49,14 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         }
     }
 
-    public void log(final String s) {
-        gameLog.add(s);
+    private static void loadFonts() {
+        final Graphics2D g2 = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR).createGraphics();
+        g2.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+        g2.drawString("asd", 0, 0);
     }
 
-    public Log getLog() {
-        return gameLog;
-    }
+    @Override
+    public void init() {}
 
     @Override
     public void start() {
@@ -65,8 +68,37 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         turnCounter = 0;
     }
 
-    private void switchToMap(final int index) {
+    @Override
+    public void done() {
+        loadFonts();
+        gameWindow.setVisible(true);
+    }
 
+    public void log(final String s) {
+        gameLog.add(s);
+    }
+
+    private void doTurnEffects() {
+        hero.doTurnEffects();
+        for (final Mob m : mobs) {
+            m.doTurnEffects();
+        }
+    }
+
+    private void placeMobsAndItems(final int scaler) {
+        int i = 320;
+        for (int x = 0; x < currentMap.getWidth(); x++) {
+            for (int y = 0; y < currentMap.getHeight(); y++) {
+                if (i > 0) {
+                    mobs.add(Mob.MobSet.getSlime());
+                    currentMap.putCharacter(mobs.get(mobs.size() - 1), x, y);
+                    i--;
+                }
+            }
+        }
+    }
+
+    private void switchToMap(final int index) {
         if (maps.get(index) == null) {
             currentMap = new Map(this, 40, 40);
             maps.add(index, currentMap);
@@ -79,19 +111,15 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         EOT(new Point(0, 0));
     }
 
-    @Override
-    public void done() {
-        loadFonts();
-        gameWindow.setVisible(true);
+    private void move(final Point p) {
+        if (isMoved(p)) {
+            log("Перешел в [" + hero.getLoc().x + ", " + hero.getLoc().y + "]");
+        }
+        currentX += p.x;
+        currentY += p.y;
     }
 
-    private void loadFonts() {
-        final Graphics2D g2 = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR).createGraphics();
-        g2.setFont(new Font("Times New Roman", Font.PLAIN, 12));
-        g2.drawString("asd", 0, 0);
-    }
-
-    private void doAIforAll() {
+    private void doUnlimitedAiWorks() {
         hero.doAI(this);
         for (Mob mob : mobs) {
             mob.doAI(this);
@@ -114,74 +142,40 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     }
 
     @Override
-    public void init() {}
-
-    void move(final Point p) {
-        if (checkStep(p)) {
-            log("Перешел в [" + hero.getLoc().x + ", " + hero.getLoc().y + "]");
-        }
-        currentX += p.x;
-        currentY += p.y;
-    }
-
     public void repaint() {
         hero.updateStats();
         gameWindow.repaint();
     }
 
     @Override
-    public int X() {
+    public int getCurrentX() {
         return currentX;
     }
 
     @Override
-    public int Y() {
+    public int getCurrentY() {
         return currentY;
     }
 
-    private void doTurnEffects() {
-        hero.doTurnEffects();
-        for (final Mob m : mobs) {
-            m.doTurnEffects();
-        }
-    }
-
-    private void placeMobsAndItems(final int scaler) {
-        mobs = new LinkedList<>();
-
-        new Random();
-        int i = 320;
-        for (int x = 0; x < currentMap.getWidth(); x++) {
-            for (int y = 0; y < currentMap.getHeight(); y++) {
-                if (i > 0) {
-                    mobs.add(Mob.MobSet.getSlime());
-                    currentMap.putCharacter(mobs.get(mobs.size() - 1), x, y);
-                    i--;
-                }
-            }
-        }
-    }
-
+    @Override
     public Mob removeMob(final Mob m) {
         mobs.remove(m);
         return m;
     }
 
-    private void setScreenCenterAt(final Point p) {
+    @Override
+    public void setScreenCenterAt(final Point p) {
         currentX = p.x - AbstractGamePanel.getWidthInTiles() / 2;
         currentY = p.y - AbstractGamePanel.getHeightInTiles() / 2;
+        repaint();
     }
 
-    /**
-     * Обрабатывает всю хурму после хода игрока, если не выполнилось условие конца игры.
-     *
-     * @param mapMove если герой сдвинулся, то нужно сдвинуть карту в том же направлении
-     */
-    void EOT(final Point mapMove) {
+    @Override
+    public void EOT(final Point mapMove) {
         move(mapMove);
-        // TODO SET GAME.BISY
+        // TODO SET GAME.BUSY
         currentMap.computeFOV(hero.getLoc(), Hero.StatsFormulas.getFOVR(hero));
-        doAIforAll();
+        doUnlimitedAiWorks();
         doTurnEffects();
 
         turnCounter++;
@@ -191,7 +185,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     @Override
     public void gameOver() {
-        setGameState(GameState.GAME_OVER);
+        setState(GameState.GAME_OVER);
     }
 
     @Override
@@ -200,7 +194,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     }
 
     @Override
-    public void setGameState(final GameState state) {
+    public void setState(final GameState state) {
         if (this.state == state) {
             this.state = GameState.MOVE;
         } else {
@@ -216,6 +210,16 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     @Override
     public InventoryHandler getInventoryHandler() {
         return ih;
+    }
+
+    @Override
+    public KeyboardHandler getKeyboardHandler() {
+        return kh;
+    }
+
+    @Override
+    public void setKeyboardHandler(final KeyboardHandler keyboardHandler) {
+        kh = keyboardHandler;
     }
 
     @Override
@@ -255,14 +259,8 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         ih = null;
     }
 
-    @Override
-    public KeyboardHandler getKeyboardHandler() {
-        return kh;
-    }
-
-    @Override
-    public void setKeyboardHandler(final KeyboardHandler keyboardHandler) {
-        kh = keyboardHandler;
+    public Log getLog() {
+        return gameLog;
     }
 
     public static enum GameState {
@@ -295,5 +293,4 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         }
 
     }
-
 }

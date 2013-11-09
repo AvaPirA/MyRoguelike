@@ -1,6 +1,7 @@
 package com.avapir.roguelike.game;
 
 import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.locatable.DroppedItem;
 import com.avapir.roguelike.locatable.Item;
 import com.avapir.roguelike.locatable.Mob;
 
@@ -105,11 +106,15 @@ public class Map implements ILosMap {
      * @param item
      */
     public void dropItem(final Item item, final Point p) {
-        field[p.y][p.x].dropItem(item);
+        field[p.y][p.x].dropItem(new DroppedItem(item,p));
     }
 
     public void dropItems(final List<Item> items, final Point p) {
-        field[p.y][p.x].dropItems(items);
+        List<DroppedItem> dropped = new ArrayList<>();
+        for (Item item : items) {
+            dropped.add(new DroppedItem(item, p));
+        }
+        field[p.y][p.x].dropItems(dropped);
     }
 
     @Deprecated

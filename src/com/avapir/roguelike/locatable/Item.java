@@ -3,29 +3,36 @@ package com.avapir.roguelike.locatable;
 import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 
-import java.awt.*;
-
 /**
- * Мб будет компас, который указывает на место, где лежит искомый предмет =>
- * надо Locatables
- *
  * @author Alpen
  */
-public class Item implements Locatable {
+public class Item {
 
-    private static final int items = 0;
+    private static int items = 0;
+
+    {
+        items++;
+    }
 
     private String name;
-    private  Attack damage;
-    private  Armor  armor;
-    private  int    weight;
+    private Attack attack;
+    private Armor  armor;
+    private int    weight;
+    private boolean stackable;
+
+    private Item(String name, int weight, Attack attack, Armor armor) {
+        this.name = name;
+        this.attack = attack == null ? new Attack() : attack;
+        this.armor = armor == null ? new Armor() : armor;
+        this.weight = weight;
+    }
 
     public String getName() {
         return name;
     }
 
     public Attack getAttack() {
-        return damage;
+        return attack;
     }
 
     public Armor getArmor() {
@@ -36,31 +43,29 @@ public class Item implements Locatable {
         return weight;
     }
 
-    private  Point location;
+    public static final class ItemBuilder {
 
-    @Deprecated
-    @Override
-    public int getX() {
-        return location.x;
+        public static final Item createItem(String name) {
+            return createItem(name, 0);
+        }
+
+        public static final Item createItem(String name, int weight) {
+            return createItem(name, weight, null, null);
+        }
+
+        public static final Item craeteItem(String name, int weight, Attack attack) {
+            return createItem(name, weight, attack, null);
+        }
+
+        public static final Item createItem(String name, int weight, Armor armor) {
+            return createItem(name, weight, null, armor);
+        }
+
+        public static final Item createItem(String name, int weight, Attack attack, Armor armor) {
+            return new Item(name, weight, attack, armor);
+        }
+
+
     }
 
-    @Override
-    public int getY() {
-        return location.y;
-    }
-
-    @Override
-    public void setLocation(final int x, final int y) {
-        location.setLocation(x, y);
-    }
-
-    @Override
-    public Point getLoc() {
-        return location;
-    }
-
-    @Override
-    public void setLocation(final Point p) {
-        location.setLocation(p);
-    }
 }

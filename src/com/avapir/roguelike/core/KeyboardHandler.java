@@ -4,20 +4,19 @@ import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.statehandlers.StateHandler;
 
 import java.awt.*;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
-public class KeyboardHandler implements KeyListener {
+public class KeyboardHandler extends KeyAdapter {
 
     private final Game game;
+    private Point target = null;
 
     public KeyboardHandler(final Game game) {
         super();
         this.game = game;
         game.setKeyboardHandler(this);
     }
-
-    private Point target = null;
 
     public void setBorgMove(final Point p) {
         target = p;
@@ -82,17 +81,17 @@ public class KeyboardHandler implements KeyListener {
     private void moveType(final KeyEvent e) {
         switch (e.getKeyChar()) {
             case 'i':
-                game.setGameState(GameState.INVENTORY);
+                game.setState(GameState.INVENTORY);
                 game.createInventoryHandler();
                 break;
             case 'd':
-                game.setGameState(GameState.DISTANCE_ATTACK);
+                game.setState(GameState.DISTANCE_ATTACK);
                 break;
             case 'v':
-                game.setGameState(GameState.VIEW);
+                game.setState(GameState.VIEW);
                 break;
             case 'c':
-                game.setGameState(GameState.CHANGE_STATS);
+                game.setState(GameState.CHANGE_STATS);
                 game.createStatsHandler();
                 break;
         }
@@ -102,7 +101,7 @@ public class KeyboardHandler implements KeyListener {
         switch (e.getKeyChar()) {
             case 'i':
                 game.removeInventoryHandler();
-                game.setGameState(GameState.MOVE);
+                game.setState(GameState.MOVE);
         }
     }
 
@@ -126,7 +125,7 @@ public class KeyboardHandler implements KeyListener {
         switch (e.getKeyChar()) {
             case 'c':
                 game.removeStatsHandler();
-                game.setGameState(GameState.MOVE);
+                game.setState(GameState.MOVE);
         }
     }
 
@@ -208,11 +207,6 @@ public class KeyboardHandler implements KeyListener {
 
     private void afterGameOverPressings(final KeyEvent e) {
         System.exit(0);
-    }
-
-    @Override
-    public void keyReleased(final KeyEvent e) {
-        // TODO Auto-generated method stub
     }
 
     private void stateArrowsHandler(final int keyCode, final StateHandler sh) {

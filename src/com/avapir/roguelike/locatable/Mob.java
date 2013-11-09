@@ -137,7 +137,6 @@ public class Mob implements Locatable {
     }
 
     public Point move(final Point dp, final Game g) {
-        Game.checkStep(dp);
         if (dp.x == 0 && dp.y == 0) {
             return null;
         }
@@ -158,7 +157,7 @@ public class Mob implements Locatable {
                 if (this == g.getHero()) {
                     switch (t.getItemList().size()) {
                         case 1:
-                            g.log(String.format("Здесь есть %s.", t.getItemList().get(0).getName()));
+                            g.log(String.format("Здесь есть %s.", t.getItemList().get(0).getItem().getName()));
                         case 0:
                             break;
                         default:
