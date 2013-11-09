@@ -21,6 +21,10 @@ public class Armor {
         System.arraycopy(input, 0, armor, 0, input.length);
     }
 
+    public Armor(Armor bDef) {
+        System.arraycopy(bDef.armor, 0, armor, 0, TOTAL_DEF_TYPES);
+    }
+
     public float getArmor(final int index) {
         return armor[index];
     }

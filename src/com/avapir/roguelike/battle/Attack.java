@@ -19,6 +19,20 @@ public class Attack {
         System.arraycopy(input, 0, damage, 0, input.length);
     }
 
+    private Attack() {}
+
+    public Attack(Attack bAtk) {
+        System.arraycopy(bAtk.damage, 0, damage, 0, TOTAL_DMG_TYPES);
+        effects.addAll(bAtk.effects);
+    }
+
+//    @Override
+//    public Object clone() {
+//        Attack newInst = new Attack();
+//        System.arraycopy(damage, 0, newInst.damage, 0, TOTAL_DMG_TYPES);
+//
+//    }
+
     public Attack addDamage(final int[] damages) {
         if (damages.length > TOTAL_DMG_TYPES) {
             throw new IllegalArgumentException();

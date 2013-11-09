@@ -14,22 +14,20 @@ import java.util.Random;
 
 public class Hero extends Mob implements Locatable {
 
-    private static final int[] XP_TO_LVL = {0, 68, 295, 805, 1716, 3154, 5249, 8136, 11955, 16851, 22978, 30475,
+    private static final int[]     XP_TO_LVL = {0, 68, 295, 805, 1716, 3154, 5249, 8136, 11955, 16851, 22978, 30475,
             39516, 50261, 62876, 77537, 94421, 113712, 135596, 160266, 84495, 95074, 107905, 123472, 142427, 165669,
             194509, 231086, 279822, 374430, 209536, 248781, 296428, 354546, 425860, 514086, 624568, 765820, 954872};
     //@formatter:on
-    private final String name;
-    private final Inventory inventory = new Inventory();
+    private final        Inventory inventory = new Inventory();
     private final PrimaryStats stats;
     private final Game         game;
     private int level = 1;
     private int XP    = 0;
 
     public Hero(final int x, final int y, final String n, final Game g) {
-        super(x, y, null, n, g.getMap());
+        super(n, 1, 1, null, null, null, new Point(-1, -1));
         // TODO
-        name = n;
-        stats = new PrimaryStats(name);
+        stats = new PrimaryStats(n);
         game = g;
         restore();
     }
@@ -39,8 +37,8 @@ public class Hero extends Mob implements Locatable {
         maxMP = Hero.StatsFormulas.getMaxMP(this);
         HP = maxHP;
         MP = maxMP;
-        baseAttack.replaceBy(Hero.StatsFormulas.getAttack(this));
-        baseArmor.replaceBy(Hero.StatsFormulas.getArmor(this));
+        attack.replaceBy(Hero.StatsFormulas.getAttack(this));
+        armor.replaceBy(Hero.StatsFormulas.getArmor(this));
     }
 
     public void updateStats() {
@@ -51,8 +49,8 @@ public class Hero extends Mob implements Locatable {
         maxMP = Hero.StatsFormulas.getMaxMP(this);
         HP = maxHP * HPperc;
         MP = maxMP * MPperc;
-        baseAttack.replaceBy(Hero.StatsFormulas.getAttack(this));
-        baseArmor.replaceBy(Hero.StatsFormulas.getArmor(this));
+        attack.replaceBy(Hero.StatsFormulas.getAttack(this));
+        armor.replaceBy(Hero.StatsFormulas.getArmor(this));
     }
 
     public PrimaryStats getStats() {
@@ -79,16 +77,11 @@ public class Hero extends Mob implements Locatable {
         level++;
         stats.freeStats += PrimaryStats.DEFAULT_STAT_INCREASE;
         restore();
-        g.log(String.format("%s достиг %s уровня!", name, level));
+        g.log(String.format("%s достиг %s уровня!", getName(), level));
     }
 
     private boolean lvlUp() {
         return XP >= XP_TO_LVL[level];
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override

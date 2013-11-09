@@ -8,94 +8,54 @@ import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.game.ai.AbstractAI;
-import com.avapir.roguelike.game.ai.Borg;
-import com.avapir.roguelike.game.ai.IdleAI;
 import com.avapir.roguelike.game.ai.SlimeAI;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
-
-import static com.avapir.roguelike.core.RoguelikeMain.BORG;
 
 public class Mob implements Locatable {
 
-    public AbstractAI getAI() {
-        return intel;
-    }
-
-    public static final class MobSet {
-
-        private static final Mob slime = new Mob(-1, -1, 15, 0, new Attack(2), new Armor(0), new SlimeAI(), "Slime");
-
-        public static Mob getSlime() {
-            return new Mob(slime);
-        }
-
-    }
-
+    protected final Attack       attack;
+    protected final Armor        armor;
     // {
     // mobID = mobs++;
     // }
     // public final int mobID;
     // private static int mobs = 0;
+    private final   String       name;
+    private final   AbstractAI   ai;
+    protected       float        HP;
+    protected       float        MP;
+    protected       float        maxMP;
+    protected       float        maxHP;
+    private         List<Effect> effects;//TODO AppliedEffect#updateAttack(Attack) #updateArmor(Armor)
+    private boolean alive = true;
+    private Point location;
 
-    private final String     name;
-    private final AbstractAI intel;
+    public Mob(String name, float maxHP, float maxMP, Attack bAtk, Armor bArm, AbstractAI ai, Point location) {
+        this.name = name;
+        this.maxHP = maxHP;
+        this.maxMP = maxMP;
+        HP = maxHP;
+        MP = maxMP;
+        attack = new Attack(bAtk);
+        armor = new Armor(bArm);
+        this.ai = ai;
+        this.location = new Point(location);
 
-    private final List<Effect> effects    = new ArrayList<>();
-    final         Attack       baseAttack = new Attack();
-    final         Armor        baseArmor  = new Armor();
+        //   this.ai = BORG ? new Borg() : ai != null ? ai : IdleAI.getNewInstance();
 
-    float HP;
-    float MP;
-    float maxMP;
-    float maxHP;
-
-    private Mob(final int x,
-                final int y,
-                final int hp,
-                final int mp,
-                final Attack bAtk,
-                final Armor bDef,
-                final AbstractAI ai,
-                final String nm) {
-        name = nm;
-        intel = ai;
-
-        baseAttack.addAttack(bAtk);
-        baseArmor.addArmor(bDef);
-
-        HP = hp;
-        MP = mp;
-
-        maxHP = HP;
-        maxMP = MP;
-
-        location = new Point(x, y);
+//            if (m != null && m.hasTile(x, y)) {
+//                m.putCharacter(this, x, y);
+//            }
     }
 
-    Mob(final int x, final int y, final AbstractAI ai, final String n, final Map m) {
-        intel = BORG ? new Borg() : ai != null ? ai : IdleAI.getNewInstance();
-
-        name = n;
-
-        if (m != null && m.hasTile(x, y)) {
-            m.putCharacter(this, x, y);
-        }
+    public Object clone() {
+        return new Mob(name, maxHP, maxMP, attack, armor, ai, location);
     }
 
-    private Mob(final Mob m) {
-        location.setLocation(location);
-        baseArmor.addArmor(baseArmor);
-        baseAttack.addAttack(m.baseAttack);
-        effects.addAll(m.effects);
-        HP = m.HP;
-        MP = m.MP;
-        maxHP = m.maxHP;
-        maxMP = m.maxMP;
-        intel = m.intel;
-        name = m.name;
+    public AbstractAI getAi() {
+        return ai;
     }
 
     public String getName() {
@@ -178,17 +138,15 @@ public class Mob implements Locatable {
 
     void onDeath(final Game g) {
         alive = false;
-        intel.onDeath(this, g);
+        ai.onDeath(this, g);
     }
-
-    private boolean alive = true;
 
     public boolean isAlive() {
         return alive;
     }
 
     Armor getArmor() {
-        return baseArmor;
+        return armor;
     }
 
     public float getArmor(final int i) {
@@ -196,7 +154,7 @@ public class Mob implements Locatable {
     }
 
     Attack getAttack() {
-        return baseAttack;
+        return attack;
     }
 
     public float getAttack(final int i) {
@@ -212,7 +170,7 @@ public class Mob implements Locatable {
     }
 
     public void doAI(final Game g) {
-        intel.computeAI(this, g);
+        ai.computeAI(this, g);
     }
 
     public void doTurnEffects() {
@@ -226,8 +184,6 @@ public class Mob implements Locatable {
             }
         }
     }
-
-    private Point location = new Point(-1, -1);
 
     @Deprecated
     @Override
@@ -259,6 +215,17 @@ public class Mob implements Locatable {
     @Override
     public String toString() {
         return name + String.format(" (%s, %s)", location.x, location.y);
+    }
+
+    public static final class MobSet {
+
+        private static final Mob slime = new Mob("Slime", 15, 0, new Attack(2), new Armor(0), new SlimeAI(),
+                                                 new Point(-1, -1));
+
+        public static Mob getSlime() {
+            return (Mob) slime.clone();
+        }
+
     }
 
 }

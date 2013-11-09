@@ -137,7 +137,7 @@ public class GamePanel extends AbstractGamePanel {
             // name
             drawString(g2, o.x, o.y + 30, hero.getName());
             if (RoguelikeMain.BORG) {
-                drawString(g2, o.x + 100, o.y + 30, ((Borg) hero.getAI()).getTargetString());
+                drawString(g2, o.x + 100, o.y + 30, ((Borg) hero.getAi()).getTargetString());
             }
 
             // level xp/XP
