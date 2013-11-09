@@ -14,7 +14,7 @@ public class KeyboardHandler implements KeyListener {
 	public KeyboardHandler(final Game game) {
 		super();
 		this.game = game;
-		game.setKeyboarHandler(this);
+		game.setKeyboardHandler(this);
 	}
 
     private Point target = null;

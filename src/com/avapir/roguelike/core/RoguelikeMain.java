@@ -7,7 +7,7 @@ public class RoguelikeMain {
     public static final boolean BORG = false;
 
     public static void main(final String[] args) {
-        final Game game = new Game("MyRoguelike" + (args.length > 0 ? Arrays.toString(args) : ""));
+        final IGame game = new Game("MyRoguelike" + (args.length > 0 ? Arrays.toString(args) : ""));
 		game.init();
 		game.start();
 		game.done();
