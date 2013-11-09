@@ -8,7 +8,7 @@ package com.avapir.roguelike.battle;
  * Lightning<br>
  * Curse
  */
-public class Armor {
+public class Armor implements Cloneable {
 
     public static final int TOTAL_DEF_TYPES = 6;
 
@@ -57,6 +57,18 @@ public class Armor {
         }
         System.arraycopy(armor.armor, 0, this.armor, 0, TOTAL_DEF_TYPES);
         return this;
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            Armor arm = (Armor) super.clone();
+            System.arraycopy(armor, 0, arm.armor, 0, TOTAL_DEF_TYPES);
+            return arm;
+        } catch (CloneNotSupportedException e) {
+            // this shouldn't happen, since we are Cloneable
+            throw new InternalError();
+        }
     }
 
 }

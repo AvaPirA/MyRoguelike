@@ -1,6 +1,6 @@
 package com.avapir.roguelike.battle;
 
-public class Attack {
+public class Attack implements Cloneable {
 
     public static final int     TOTAL_DMG_TYPES = 6;
     private final       float[] damage          = new float[TOTAL_DMG_TYPES];
@@ -80,4 +80,16 @@ public class Attack {
         }
     }
 
+    @Override
+    public Object clone() {
+        try {
+            Attack atk = (Attack) super.clone();
+            System.arraycopy(damage, 0, atk.damage, 0, TOTAL_DMG_TYPES);
+            return atk;
+        } catch (CloneNotSupportedException e) {
+            // this shouldn't happen, since we are Cloneable
+            throw new InternalError();
+        }
+    }
 }
+

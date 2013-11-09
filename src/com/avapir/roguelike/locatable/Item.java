@@ -3,25 +3,20 @@ package com.avapir.roguelike.locatable;
 import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 
-public class Item {
+public class Item implements Cloneable {
 
-    private static int items = 0;
-
-    {
-        items++;
-    }
-
-    private String  name;
-    private Attack  attack;
-    private Armor   armor;
-    private int     weight;
-    private boolean stackable;
+    private final String  name;
+    private final Attack  attack;
+    private final Armor   armor;
+    private final int     weight;
+    private final boolean stackable;
 
     private Item(String name, int weight, Attack attack, Armor armor) {
         this.name = name;
         this.attack = attack == null ? new Attack() : attack;
         this.armor = armor == null ? new Armor() : armor;
         this.weight = weight;
+        stackable = false;
     }
 
     public String getName() {
@@ -38,6 +33,18 @@ public class Item {
 
     public int getWeight() {
         return weight;
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            Item item = (Item) super.clone();
+            //all fields are final and none of them will be changed in the item`s lifetime, so deep clone if not proper
+            return item;
+        } catch (CloneNotSupportedException e) {
+            // this shouldn't happen, since we are Cloneable
+            throw new InternalError();
+        }
     }
 
     public static final class ItemBuilder {
@@ -62,7 +69,7 @@ public class Item {
             return new Item(name, weight, attack, armor);
         }
 
-
     }
 
 }
+

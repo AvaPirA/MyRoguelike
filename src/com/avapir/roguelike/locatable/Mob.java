@@ -48,10 +48,6 @@ public class Mob implements Locatable {
 //            }
     }
 
-    public Object clone() {
-        return new Mob(name, maxHP, maxMP, attack, armor, ai, location);
-    }
-
     public AbstractAI getAi() {
         return ai;
     }
@@ -212,6 +208,19 @@ public class Mob implements Locatable {
             return (Mob) slime.clone();
         }
 
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            Mob mob = (Mob) super.clone();
+            mob.attack.replaceBy(attack);
+            mob.armor.replaceBy(armor);
+            return mob;
+        } catch (CloneNotSupportedException e) {
+            // this shouldn't happen, since we are Cloneable
+            throw new InternalError();
+        }
     }
 
 }
