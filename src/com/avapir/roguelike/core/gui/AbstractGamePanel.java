@@ -9,15 +9,11 @@ import java.awt.image.BufferedImage;
 
 public abstract class AbstractGamePanel extends JPanel {
 
-    /**
-     *
-     */
     private static final long    serialVersionUID = 1L;
     private static final Toolkit tKit             = Toolkit.getDefaultToolkit();
     private static final int SCREEN_WIDTH;
     private static final int SCREEN_HEIGHT;
 
-    // load non-default font on start
     static final Font logFont = new Font("Times New Roman", Font.PLAIN, 15);
 
     private static final Color[] COLOR_SET = {Color.BLACK, Color.WHITE, Color.RED, Color.GREEN, Color.BLUE,
@@ -104,7 +100,7 @@ public abstract class AbstractGamePanel extends JPanel {
             // Determine the type of transparency of the new buffered image
             final int transparency = Transparency.OPAQUE;
             /*
-			 * if (hasAlpha) {
+             * if (hasAlpha) {
 			 * 
 			 * transparency = Transparency.BITMASK;
 			 * 

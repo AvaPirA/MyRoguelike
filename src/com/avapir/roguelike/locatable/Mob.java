@@ -52,18 +52,6 @@ public class Mob implements Locatable {
     float maxMP;
     float maxHP;
 
-    /**
-     * Constructor used into {@link MobSet} to create fully described monsters.
-     *
-     * @param x
-     * @param y
-     * @param hp
-     * @param mp
-     * @param bAtk
-     * @param bDef
-     * @param ai
-     * @param nm
-     */
     private Mob(final int x,
                 final int y,
                 final int hp,
@@ -87,15 +75,6 @@ public class Mob implements Locatable {
         location = new Point(x, y);
     }
 
-    /**
-     * Public constructor
-     *
-     * @param x
-     * @param y
-     * @param ai
-     * @param n
-     * @param m
-     */
     Mob(final int x, final int y, final AbstractAI ai, final String n, final Map m) {
         intel = BORG ? new Borg() : ai != null ? ai : IdleAI.getNewInstance();
 
@@ -106,11 +85,6 @@ public class Mob implements Locatable {
         }
     }
 
-    /**
-     * Copying constructor
-     *
-     * @param m
-     */
     private Mob(final Mob m) {
         location.setLocation(location);
         baseArmor.addArmor(baseArmor);
@@ -195,11 +169,6 @@ public class Mob implements Locatable {
         return damage;
     }
 
-    /**
-     * Decreases damage and checks if this {@link Mob} died
-     *
-     * @param dmg caused damage
-     */
     private void receiveDamage(final float dmg, final Game g) {
         HP -= dmg;
         if (HP <= 0) {
@@ -207,11 +176,6 @@ public class Mob implements Locatable {
         }
     }
 
-    /**
-     * Called once while mob`s hp goes below zero
-     *
-     * @param g
-     */
     void onDeath(final Game g) {
         alive = false;
         intel.onDeath(this, g);
@@ -223,46 +187,26 @@ public class Mob implements Locatable {
         return alive;
     }
 
-    /**
-     * @return native and given by effects {@link Armor}
-     */
     Armor getArmor() {
         return baseArmor;
     }
 
-    /**
-     * @param i
-     * @return specified type of {@link Armor}
-     */
     public float getArmor(final int i) {
         return getArmor().getArmor(i);
     }
 
-    /**
-     * @return @return native and given by effects {@link Attack}
-     */
     Attack getAttack() {
         return baseAttack;
     }
 
-    /**
-     * @param i
-     * @return specified type of {@link Attack}
-     */
     public float getAttack(final int i) {
         return getAttack().getDamageOfType(i);
     }
 
-    /**
-     * @return Maximum value of {@link #HP} that this {@link Hero} may have
-     */
     public float getMaxHp() {
         return maxHP;
     }
 
-    /**
-     * @return Maximum value of {@link #MP} that this {@link Hero} may have
-     */
     public float getMaxMp() {
         return maxMP;
     }
@@ -282,8 +226,6 @@ public class Mob implements Locatable {
             }
         }
     }
-
-	/* Implementation of Locatable interface */
 
     private Point location = new Point(-1, -1);
 

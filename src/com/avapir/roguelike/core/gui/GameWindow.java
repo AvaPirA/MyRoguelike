@@ -2,11 +2,6 @@ package com.avapir.roguelike.core.gui;
 
 import com.avapir.roguelike.core.Game;
 
-/**
- * Главное окно
- *
- * @author Alpen
- */
 @SuppressWarnings("serial")
 public class GameWindow extends javax.swing.JFrame {
 

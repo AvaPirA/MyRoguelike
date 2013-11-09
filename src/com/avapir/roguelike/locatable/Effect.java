@@ -2,9 +2,6 @@ package com.avapir.roguelike.locatable;
 
 public abstract class Effect {
 
-    /**
-     * false => this effect may be applied only on Hero
-     */
     private final String  name;
     private final boolean forAll;
     private final int     level;
@@ -25,10 +22,6 @@ public abstract class Effect {
 
     public abstract void onRemove(Mob m);
 
-    /**
-     * Equality is about names. But less powerfull effects will be removed (on
-     * apply on someone) by more powerfull
-     */
     @Override
     public boolean equals(final Object o) {
         return o instanceof Effect && this.name.equals(((Effect) o).name);

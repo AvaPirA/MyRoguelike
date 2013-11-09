@@ -22,9 +22,6 @@ import java.util.StringTokenizer;
 
 public class GamePanel extends AbstractGamePanel {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
     private final Game game;
     private final int  WIDTH_IN_TILES;
@@ -223,9 +220,6 @@ public class GamePanel extends AbstractGamePanel {
             return new Color(r, g, b, 64);
         }
 
-        /**
-         * Cached value of the maximum stat of the hero
-         */
         private int validMax;
 
         private int maxStat() {
@@ -248,10 +242,6 @@ public class GamePanel extends AbstractGamePanel {
             return validMax;
         }
 
-        /**
-         * Sets {@link #validMax} not valid so it will be recomputed on the next call of
-         * {@link #maxStat()}
-         */
         private void invalidateMax() {
             validMax = Integer.MIN_VALUE;
         }

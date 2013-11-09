@@ -1,11 +1,5 @@
 package com.avapir.roguelike.game;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Alpen Ditrix
- * Date: 05.11.13
- * Time: 23:24
- */
 public enum Wear {
     ARTEFACT_1, HELMET, ARTEFACT_2,
     NECKLACE, VEST, WEAPON_2,

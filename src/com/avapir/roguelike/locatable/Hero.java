@@ -307,11 +307,6 @@ public class Hero extends Mob implements Locatable {
             return values[i] >= MAX_STAT_VALUE;
         }
 
-        /**
-         * Used by default stats distribution by user
-         *
-         * @param cursor stat index
-         */
         public void decrease(final int cursor) {
             decreaseBy(cursor, 1);
             freeStats++;
@@ -321,11 +316,6 @@ public class Hero extends Mob implements Locatable {
             values[cursor] -= value;
         }
 
-        /**
-         * Used by default stats distribution by user when he has free
-         *
-         * @param cursor stat index
-         */
         public void increase(final int cursor) {
             if (freeStats > 0) {
                 increaseBy(cursor, 1);

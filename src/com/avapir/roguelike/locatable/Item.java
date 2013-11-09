@@ -3,9 +3,6 @@ package com.avapir.roguelike.locatable;
 import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 
-/**
- * @author Alpen
- */
 public class Item {
 
     private static int items = 0;
@@ -14,10 +11,10 @@ public class Item {
         items++;
     }
 
-    private String name;
-    private Attack attack;
-    private Armor  armor;
-    private int    weight;
+    private String  name;
+    private Attack  attack;
+    private Armor   armor;
+    private int     weight;
     private boolean stackable;
 
     private Item(String name, int weight, Attack attack, Armor armor) {

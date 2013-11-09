@@ -48,13 +48,6 @@ public class Map implements ILosMap {
         }
     }
 
-    /**
-     * Ставит кого-то на определенные координаты, если возможно.
-     *
-     * @param x
-     * @param y
-     * @return смог ли поставить
-     */
     public boolean putCharacter(final Mob chr, final int x, final int y) {
         if (hasTile(x, y)) {
             try {
@@ -70,12 +63,6 @@ public class Map implements ILosMap {
         }
     }
 
-    /**
-     * Ищет позицию, куда можно поставить персонажа и ставит
-     *
-     * @param c кого ставить
-     * @throws RuntimeException если не находит подходящий тайл за {@code ЧИСЛО_ТАЙЛОВ * 2}
-     */
     public Point putCharacter(final Mob c) {
         int x = random.nextInt(WIDTH_MAP), y = random.nextInt(HEIGHT_MAP);
         int counter = 0;
@@ -91,22 +78,12 @@ public class Map implements ILosMap {
         return new Point(x, y);
     }
 
-    /**
-     * Убирает персонажа с определенного тайла и из {@link Game#mobs}
-     *
-     * @return кто стоял
-     */
     public Mob removeCharacter(final Point p) {
         return game.removeMob(field[p.y][p.x].removeCharacter());
     }
 
-    /**
-     * Кладет предмет на определенные координаты
-     *
-     * @param item
-     */
     public void dropItem(final Item item, final Point p) {
-        field[p.y][p.x].dropItem(new DroppedItem(item,p));
+        field[p.y][p.x].dropItem(new DroppedItem(item, p));
     }
 
     public void dropItems(final List<Item> items, final Point p) {
@@ -138,15 +115,7 @@ public class Map implements ILosMap {
         generator.generate(this);
     }
 
-    /**
-     * Заполняет пустую карту объектами. Вроде как должен генерировать в
-     * соответствии с полученных seed
-     */
     private static class MapGenerator {
-        /**
-         * Список уже использованных seed для генерации карт. Надо бы не
-         * повторяться!
-         */
         final List<Long> usedSeeds = new ArrayList<>();
 
         void generateEmpty(final Map map) {
@@ -175,13 +144,6 @@ public class Map implements ILosMap {
         }
     }
 
-    /**
-     * Проверяет, есть ли на этой карте тайл с такими координатами
-     *
-     * @param x
-     * @param y
-     * @return
-     */
     @Override
     public boolean hasTile(final int x, final int y) {
         return x >= 0 && x < WIDTH_MAP && y >= 0 && y < HEIGHT_MAP;
@@ -231,12 +193,6 @@ public class Map implements ILosMap {
     // }
     // }
 
-    /**
-     * Спижженый алгоритм для рассчета Field Of View персонажа. Без понятия, что
-     * там происходит
-     *
-     * @param radius радиус видимости?
-     */
     public void computeFOV(final Point p, final int radius) {
         for (int i = 0; i < HEIGHT_MAP; i++) {
             for (int j = 0; j < WIDTH_MAP; j++) {

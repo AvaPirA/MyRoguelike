@@ -5,14 +5,7 @@ import com.avapir.roguelike.locatable.Effect;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Physical<br>
- * Magic<br>
- * Water<br>
- * Fire<br>
- * Lightning<br>
- * Curse
- */
+
 public class Attack {
 
     public static final int          TOTAL_DMG_TYPES = 6;
