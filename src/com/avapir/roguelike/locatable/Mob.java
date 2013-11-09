@@ -11,24 +11,22 @@ import com.avapir.roguelike.game.ai.AbstractAI;
 import com.avapir.roguelike.game.ai.SlimeAI;
 
 import java.awt.*;
-import java.util.List;
 
 public class Mob implements Locatable {
 
-    protected final Attack       attack;
-    protected final Armor        armor;
+    protected final Attack     attack;
+    protected final Armor      armor;
     // {
     // mobID = mobs++;
     // }
     // public final int mobID;
     // private static int mobs = 0;
-    private final   String       name;
-    private final   AbstractAI   ai;
-    protected       float        HP;
-    protected       float        MP;
-    protected       float        maxMP;
-    protected       float        maxHP;
-    private         List<Effect> effects;//TODO AppliedEffect#updateAttack(Attack) #updateArmor(Armor)
+    private final   String     name;
+    private final   AbstractAI ai;
+    protected       float      HP;
+    protected       float      MP;
+    protected       float      maxMP;
+    protected       float      maxHP;
     private boolean alive = true;
     private Point location;
 
@@ -171,18 +169,6 @@ public class Mob implements Locatable {
 
     public void doAI(final Game g) {
         ai.computeAI(this, g);
-    }
-
-    public void doTurnEffects() {
-        for (int i = 0; i < effects.size(); i++) {
-            final Effect e = effects.get(i);
-            if (e.getAndDecrementTime() == 0 || !e.isAppliedForAll() && this instanceof Hero) {
-                e.onRemove(this);
-                effects.remove(i);
-            } else {
-                e.applyTo(this);
-            }
-        }
     }
 
     @Deprecated

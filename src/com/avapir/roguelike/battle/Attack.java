@@ -1,16 +1,9 @@
 package com.avapir.roguelike.battle;
 
-import com.avapir.roguelike.locatable.Effect;
-
-import java.util.ArrayList;
-import java.util.List;
-
-
 public class Attack {
 
-    public static final int          TOTAL_DMG_TYPES = 6;
-    private final       float[]      damage          = new float[TOTAL_DMG_TYPES];
-    private final       List<Effect> effects         = new ArrayList<>();
+    public static final int     TOTAL_DMG_TYPES = 6;
+    private final       float[] damage          = new float[TOTAL_DMG_TYPES];
 
     public Attack(final float... input) {
         if (input.length > TOTAL_DMG_TYPES) {
@@ -23,7 +16,6 @@ public class Attack {
 
     public Attack(Attack bAtk) {
         System.arraycopy(bAtk.damage, 0, damage, 0, TOTAL_DMG_TYPES);
-        effects.addAll(bAtk.effects);
     }
 
 //    @Override
@@ -44,24 +36,6 @@ public class Attack {
         return this;
     }
 
-    public Attack addEffect(final Effect eff) {
-        if (eff == null) {
-            return this;
-        }
-
-        effects.add(eff);
-        return this;
-    }
-
-    public Attack addEffects(final List<Effect> eff) {
-        if (eff == null) {
-            return this;
-        }
-
-        effects.addAll(eff);
-        return this;
-    }
-
     Attack addDamageFromAttack(final Attack atk) {
         if (atk == null) {
             return this;
@@ -73,27 +47,13 @@ public class Attack {
         return this;
     }
 
-    Attack addEffectsFromAttack(final Attack atk) {
-        if (atk == null) {
-            return this;
-        }
-
-        effects.addAll(atk.effects);
-        return this;
-    }
-
     public Attack addAttack(final Attack atk) {
         if (atk == null) {
             return this;
         }
 
         addDamageFromAttack(atk);
-        addEffectsFromAttack(atk);
         return this;
-    }
-
-    public List<Effect> getEffects() {
-        return effects;
     }
 
     public float getDamageOfType(final int index) {
@@ -118,7 +78,6 @@ public class Attack {
         for (int i = 0; i < TOTAL_DMG_TYPES; i++) {
             damage[i] = 0;
         }
-        effects.clear();
     }
 
 }

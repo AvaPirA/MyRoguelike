@@ -78,13 +78,6 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         gameLog.add(s);
     }
 
-    private void doTurnEffects() {
-        hero.doTurnEffects();
-        for (final Mob m : mobs) {
-            m.doTurnEffects();
-        }
-    }
-
     private void placeMobsAndItems(final int scaler) {
         int i = 320;
         for (int x = 0; x < currentMap.getWidth(); x++) {
@@ -176,7 +169,6 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         // TODO SET GAME.BUSY
         currentMap.computeFOV(hero.getLoc(), Hero.StatsFormulas.getFOVR(hero));
         doUnlimitedAiWorks();
-        doTurnEffects();
 
         turnCounter++;
         gameLog.refresh();
