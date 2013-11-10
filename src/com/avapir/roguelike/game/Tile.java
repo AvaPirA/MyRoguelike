@@ -171,8 +171,6 @@ public class Tile {
             itemsHere = new ArrayList<>();
             itemsHere.add(item);
         }
-
-
     }
 
     public void dropItems(final List<DroppedItem> items) {
@@ -190,6 +188,10 @@ public class Tile {
 
     public List<DroppedItem> getItemList() {
         return itemsHere;
+    }
+
+    public int getItemsAmount() {
+        return itemsHere == null ? 0 : itemsHere.size();
     }
 
     public Type getType() {

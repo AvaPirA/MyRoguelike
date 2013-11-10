@@ -14,7 +14,9 @@ public class Armor implements Cloneable {
     }
 
     public Armor(Armor bDef) {
-        System.arraycopy(bDef.armor, 0, armor, 0, TOTAL_DEF_TYPES);
+        if (bDef != null) {
+            System.arraycopy(bDef.armor, 0, armor, 0, TOTAL_DEF_TYPES);
+        }
     }
 
     public float getArmor(final int index) {

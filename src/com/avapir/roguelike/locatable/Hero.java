@@ -28,8 +28,8 @@ public class Hero extends Mob implements Locatable {
     private       int          level;
     private       int          XP;
 
-    public Hero(String name, Point location, Game g) {
-        super(name, 1, 1, null, null, location, BORG ? Borg.getNewInstance() : IdleAI.getNewInstance());
+    public Hero(String name, Game g) {
+        super(name, 1, 1, null, null, UNRESOLVED_LOCATION, BORG ? Borg.getNewInstance() : IdleAI.getNewInstance());
         stats = new PrimaryStats(name);
         inventory = new Inventory();
         game = g;

@@ -37,12 +37,15 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     private       KeyboardHandler      kh;
 
     public Game(final String title) {
+        Mob.game = this;
         gameWindow = new GameWindow(title, this);
         gameWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        hero = new Hero(-1, -1, "Hero", this);
+        hero = new Hero("Hero", this);
         gameLog = new Log();
         maps = new ArrayList<>();
         mobs = new ArrayList<>();
+
+
     }
 
     public class Log extends LinkedList<String> {

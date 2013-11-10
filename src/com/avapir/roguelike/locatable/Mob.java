@@ -15,13 +15,9 @@ import java.awt.*;
 
 public class Mob implements Cloneable, Locatable {
 
+    public static   Game       game;
     protected final Attack     attack;
     protected final Armor      armor;
-    // {
-    // mobID = mobs++;
-    // }
-    // public final int mobID;
-    // private static int mobs = 0;
     private final   String     name;
     private final   AbstractAI ai;
     protected       float      HP;
@@ -42,9 +38,10 @@ public class Mob implements Cloneable, Locatable {
         this.ai = ai;
         this.location = new Point(location);
 
-//            if (m != null && m.hasTile(x, y)) {
-//                m.putCharacter(this, x, y);
-//            }
+        Map m = game.getMap();
+        if (m != null && m.hasTile(location.x, location.y)) {
+            m.putCharacter(this, location.x, location.y);
+        }
     }
 
     public static final class MobBuilder {
@@ -143,7 +140,7 @@ public class Mob implements Cloneable, Locatable {
             } else if (t.isPassable()) {
                 m.putCharacter(this, nx, ny);
                 if (this == g.getHero()) {
-                    switch (t.getItemList().size()) {
+                    switch (t.getItemsAmount()) {
                         case 1:
                             g.log(String.format("Здесь есть %s.", t.getItemList().get(0).getItem().getName()));
                         case 0:

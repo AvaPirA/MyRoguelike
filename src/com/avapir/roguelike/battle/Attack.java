@@ -16,7 +16,9 @@ public class Attack implements Cloneable {
     private Attack() {}
 
     public Attack(Attack bAtk) {
-        System.arraycopy(bAtk.damage, 0, damage, 0, TOTAL_DMG_TYPES);
+        if (bAtk != null) {
+            System.arraycopy(bAtk.damage, 0, damage, 0, TOTAL_DMG_TYPES);
+        }
     }
 
 //    @Override
