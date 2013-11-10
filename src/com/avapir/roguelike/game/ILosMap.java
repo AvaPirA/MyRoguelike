@@ -1,10 +1,8 @@
 package com.avapir.roguelike.game;
 
 /**
- * An interface board that allows visibility alogithms to
- * decide which points are in the board, which points are
- * obstacles to this form of visibility, and visit those points
- * on the board.
+ * An interface board that allows visibility alogithms to decide which points are in the board, which points are
+ * obstacles to this form of visibility, and visit those points on the board.
  *
  * @author sdatta
  */
@@ -15,6 +13,7 @@ public interface ILosMap {
      *
      * @param x
      * @param y
+     *
      * @return
      */
     public boolean hasTile(int x, int y);
@@ -24,16 +23,15 @@ public interface ILosMap {
      *
      * @param x
      * @param y
+     *
      * @return
      */
     public boolean isObstacle(int x, int y);
 
     /**
-     * Location (x,y) is visible
-     * Visit the location (x,y)
+     * Location (x,y) is visible Visit the location (x,y)
      * <p/>
-     * This can involve saving the points in a collection,
-     * setting flags on a 2D map etc.
+     * This can involve saving the points in a collection, setting flags on a 2D map etc.
      *
      * @param x
      * @param y

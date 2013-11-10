@@ -6,8 +6,7 @@ import java.io.Serializable;
 /**
  * A class encapsulating a 2D point, as integers
  * <p/>
- * (Reason for existance: java.awt.Point uses double
- * and I wanted speed.)
+ * (Reason for existance: java.awt.Point uses double and I wanted speed.)
  *
  * @author sdatta
  */
@@ -28,9 +27,7 @@ public class Point2I extends Point implements Serializable {
         this.y = p.y;
     }
 
-    /**
-     * Uses x+y as hash
-     */
+    /** Uses x+y as hash */
     @Override
     public int hashCode() {
         return x << 7 - x + y;// x*prime+y

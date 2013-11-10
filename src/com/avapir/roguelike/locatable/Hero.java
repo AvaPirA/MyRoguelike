@@ -5,6 +5,8 @@ import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.game.Wear;
+import com.avapir.roguelike.game.ai.Borg;
+import com.avapir.roguelike.game.ai.IdleAI;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -12,136 +14,31 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 
+import static com.avapir.roguelike.core.RoguelikeMain.BORG;
+
 public class Hero extends Mob implements Locatable {
 
-    private static final int[]     XP_TO_LVL = {0, 68, 295, 805, 1716, 3154, 5249, 8136, 11955, 16851, 22978, 30475,
+    /** Stolen from L2 */
+    private static final int[] XP_TO_LVL = {0, 68, 295, 805, 1716, 3154, 5249, 8136, 11955, 16851, 22978, 30475,
             39516, 50261, 62876, 77537, 94421, 113712, 135596, 160266, 84495, 95074, 107905, 123472, 142427, 165669,
             194509, 231086, 279822, 374430, 209536, 248781, 296428, 354546, 425860, 514086, 624568, 765820, 954872};
-    //@formatter:on
-    private final        Inventory inventory = new Inventory();
+    private final Inventory    inventory;
     private final PrimaryStats stats;
     private final Game         game;
-    private int level = 1;
-    private int XP    = 0;
+    private       int          level;
+    private       int          XP;
 
-    public Hero(final int x, final int y, final String n, final Game g) {
-        super(n, 1, 1, null, null, null, new Point(-1, -1));
-        // TODO
-        stats = new PrimaryStats(n);
+    public Hero(String name, Point location, Game g) {
+        super(name, 1, 1, null, null, location, BORG ? Borg.getNewInstance() : IdleAI.getNewInstance());
+        stats = new PrimaryStats(name);
+        inventory = new Inventory();
         game = g;
-        restore();
-    }
-
-    private void restore() {
-        maxHP = Hero.StatsFormulas.getMaxHP(this);
-        maxMP = Hero.StatsFormulas.getMaxMP(this);
-        HP = maxHP;
-        MP = maxMP;
-        attack.replaceBy(Hero.StatsFormulas.getAttack(this));
-        armor.replaceBy(Hero.StatsFormulas.getArmor(this));
-    }
-
-    public void updateStats() {
-        final float HPperc = HP / maxHP;
-        final float MPperc = MP / maxMP;
-
-        maxHP = Hero.StatsFormulas.getMaxHP(this);
-        maxMP = Hero.StatsFormulas.getMaxMP(this);
-        HP = maxHP * HPperc;
-        MP = maxMP * MPperc;
-        attack.replaceBy(Hero.StatsFormulas.getAttack(this));
-        armor.replaceBy(Hero.StatsFormulas.getArmor(this));
-    }
-
-    public PrimaryStats getStats() {
-        return stats;
-    }
-
-    public ListIterator<Item> getInventoryIterator() {
-        return inventory.getIterator();
-    }
-
-    public void gainXPfromDamage(final float dmg, final Game g) {
-        final int xp = (int) Math.pow(dmg, 6 / 5f);
-        final int gainedXP = (int) StatsFormulas.addBonusXp(this, xp);
-        XP += gainedXP;
-        g.log(String.format("%s получает %s опыта", getName(), gainedXP));
-        while (lvlUp()) {
-            gainLvl(g);
-        }
-
-    }
-
-    private void gainLvl(final Game g) {
+        level = 1;
         XP = 0;
-        level++;
-        stats.freeStats += PrimaryStats.DEFAULT_STAT_INCREASE;
         restore();
-        g.log(String.format("%s достиг %s уровня!", getName(), level));
     }
 
-    private boolean lvlUp() {
-        return XP >= XP_TO_LVL[level];
-    }
-
-    @Override
-    public Point move(final Point dp, final Game g) {
-        if (!StatsFormulas.isOverweighted(this)) {
-            if (!inventory.hasTooMuchItems()) {
-                return super.move(dp, g);
-            } else {
-                g.log("Вы несете #2#слишком много вещей!#^#");
-            }
-        } else {
-            g.log("Вы #2#перегружены!#^#");
-        }
-        return null;
-    }
-
-    @Override
-    protected void onDeath(final Game g) {
-        HP = 0;
-        g.gameOver();
-        g.repaint();
-    }
-
-    @Override
-    public Armor getArmor() {
-        return super.getArmor().addArmor(inventory.getArmor());
-    }
-
-    @Override
-    public float getArmor(final int i) {
-        return getArmor().getArmor(i);
-    }
-
-    @Override
-    public Attack getAttack() {
-        return super.getAttack().addAttack(inventory.getAttack());
-    }
-
-    @Override
-    public float getAttack(final int i) {
-        return getAttack().getDamageOfType(i);
-    }
-
-    public int getXP() {
-        return XP;
-    }
-
-    public int getAdvanceXP() {
-        return XP_TO_LVL[level];
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    Inventory getInventory() {
-        return inventory;
-    }
-
-    private static final class DefaultStats {//@formatter:off
+    private static final class DefaultStats {
         /* 	STR 	AGI 	VIT 	INT 	DEX 	LUK */
         static final int[] PLAYER = {3, 3, 3000, 3, 2, 1};    // 16
         //		static final int[]	PLAYER	= { 280, 	170,	230,	90,		70,		47 };	// 887
@@ -248,14 +145,7 @@ public class Hero extends Mob implements Locatable {
     public static final class PrimaryStats {
 
         public static final String[] STATS_STRINGS         = {"STR", "AGI", "VIT", "INT", "DEX", "LUK"};
-        /**
-         * STRength <br>
-         * AGIlity <br>
-         * VITality <br>
-         * INTelligence <br>
-         * DEXterity <br>
-         * LUcK
-         */
+        /** STRength <br> AGIlity <br> VITality <br> INTelligence <br> DEXterity <br> LUcK */
         public static final int      PRIMARY_STATS_AMOUNT  = STATS_STRINGS.length;
         public static final int      DEFAULT_STAT_INCREASE = 5;
         public static final int      MAX_STAT_VALUE        = 300;
@@ -338,12 +228,7 @@ public class Hero extends Mob implements Locatable {
         public static final  int        MAX_ITEMS_AMOUNT = 50;
         private static final int        SLOTS            = 3 * 4; //12
         private final        List<Item> items            = new ArrayList<>();
-        /**
-         * art1  helm  art2
-         * weap  vest  weap2
-         * glov  trou  lkkl
-         * rng1  legs  rng2
-         */
+        /** art1  helm  art2 weap  vest  weap2 glov  trou  lkkl rng1  legs  rng2 */
         private final        int[]      wearedItems      = new int[SLOTS];
         private int storageWeight;
 
@@ -396,15 +281,109 @@ public class Hero extends Mob implements Locatable {
         }
     }
 
-    private final class HiddenStats {
+    private void restore() {
+        maxHP = Hero.StatsFormulas.getMaxHP(this);
+        maxMP = Hero.StatsFormulas.getMaxMP(this);
+        HP = maxHP;
+        MP = maxMP;
+        attack.replaceBy(Hero.StatsFormulas.getAttack(this));
+        armor.replaceBy(Hero.StatsFormulas.getArmor(this));
+    }
 
-        public int getFOVR() {
-            return StatsFormulas.getFOVR(Hero.this);
+    public void updateStats() {
+        final float hpPercentage = HP / maxHP;
+        final float mpPercentage = MP / maxMP;
+
+        maxHP = Hero.StatsFormulas.getMaxHP(this);
+        maxMP = Hero.StatsFormulas.getMaxMP(this);
+        HP = maxHP * hpPercentage;
+        MP = maxMP * mpPercentage;
+        attack.replaceBy(Hero.StatsFormulas.getAttack(this));
+        armor.replaceBy(Hero.StatsFormulas.getArmor(this));
+    }
+
+    public PrimaryStats getStats() {
+        return stats;
+    }
+
+    public void gainXpFromDamage(final float dmg, final Game g) {
+        final int xp = (int) Math.pow(dmg, 6 / 5f);
+        final int gainedXP = (int) StatsFormulas.addBonusXp(this, xp);
+        XP += gainedXP;
+        g.log(String.format("%s получает %s опыта", getName(), gainedXP));
+        while (lvlUp()) {
+            gainLvl(g);
         }
 
-        public int getATKR() {
-            return StatsFormulas.getATKR(Hero.this);
+    }
+
+    private void gainLvl(final Game g) {
+        XP = 0;
+        level++;
+        stats.freeStats += PrimaryStats.DEFAULT_STAT_INCREASE;
+        restore();
+        g.log(String.format("%s достиг %s уровня!", getName(), level));
+    }
+
+    private boolean lvlUp() {
+        return XP >= XP_TO_LVL[level];
+    }
+
+    @Override
+    public Point move(final Point dp, final Game g) {
+        if (!StatsFormulas.isOverweighted(this)) {
+            if (!inventory.hasTooMuchItems()) {
+                return super.move(dp, g);
+            } else {
+                g.log("Вы несете #2#слишком много вещей!#^#");
+            }
+        } else {
+            g.log("Вы #2#перегружены!#^#");
         }
+        return null;
+    }
+
+    @Override
+    protected void onDeath(final Game g) {
+        HP = 0;
+        g.gameOver();
+        g.repaint();
+    }
+
+    @Override
+    public Armor getArmor() {
+        return super.getArmor().addArmor(inventory.getArmor());
+    }
+
+    @Override
+    public float getArmor(final int i) {
+        return getArmor().getArmor(i);
+    }
+
+    @Override
+    public Attack getAttack() {
+        return super.getAttack().addAttack(inventory.getAttack());
+    }
+
+    @Override
+    public float getAttack(final int i) {
+        return getAttack().getDamageOfType(i);
+    }
+
+    public int getXP() {
+        return XP;
+    }
+
+    public int getAdvanceXP() {
+        return XP_TO_LVL[level];
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    Inventory getInventory() {
+        return inventory;
     }
 
 }

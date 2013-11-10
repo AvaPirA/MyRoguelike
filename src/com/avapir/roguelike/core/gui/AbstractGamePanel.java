@@ -9,15 +9,14 @@ import java.awt.image.BufferedImage;
 
 public abstract class AbstractGamePanel extends JPanel {
 
+    static final         Font    logFont          = new Font("Times New Roman", Font.PLAIN, 15);
     private static final long    serialVersionUID = 1L;
     private static final Toolkit tKit             = Toolkit.getDefaultToolkit();
     private static final int SCREEN_WIDTH;
     private static final int SCREEN_HEIGHT;
-
-    static final Font logFont = new Font("Times New Roman", Font.PLAIN, 15);
-
     private static final Color[] COLOR_SET = {Color.BLACK, Color.WHITE, Color.RED, Color.GREEN, Color.BLUE,
             Color.CYAN, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.PINK};
+    private static final String  path      = "res/sprite/";
 
     static Color getDefaultStringColor(final int index) {
         if (index < 0 || index > 9) {
@@ -49,6 +48,60 @@ public abstract class AbstractGamePanel extends JPanel {
         return SCREEN_HEIGHT;
     }
 
+    public static float roundOneDigit(final float f) {
+        return Math.round(10 * f) / 10f;
+    }
+
+    private static BufferedImage toBufferedImage(Image image) {
+        if (image instanceof BufferedImage) {
+            return (BufferedImage) image;
+        }
+        // This code ensures that all the pixels in the image are loaded
+        image = new ImageIcon(image).getImage();
+        // Determine if the image has transparent pixels; for this method's
+        // implementation, see e661 Determining If an Image Has Transparent Pixels
+        // boolean hasAlpha = hasAlpha(image);
+        // Create a buffered image with a format that's compatible with the screen
+        BufferedImage bimage = null;
+        final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        try {
+            // Determine the type of transparency of the new buffered image
+            final int transparency = Transparency.OPAQUE;
+            /*
+             * if (hasAlpha) {
+			 *
+			 * transparency = Transparency.BITMASK;
+			 *
+			 * }
+			 */
+            // Create the buffered image
+            final GraphicsDevice gs = ge.getDefaultScreenDevice();
+            final GraphicsConfiguration gc = gs.getDefaultConfiguration();
+            bimage = gc.createCompatibleImage(image.getWidth(null), image.getHeight(null), transparency);
+        } catch (final HeadlessException e) {
+            // The system does not have a screen
+        }
+        if (bimage == null) {
+            // Create a buffered image using the default color model
+            final int type = BufferedImage.TYPE_INT_RGB;
+            // int type = BufferedImage.TYPE_3BYTE_BGR;//by wang
+            /*
+             * if (hasAlpha) {
+			 *
+			 * type = BufferedImage.TYPE_INT_ARGB;
+			 *
+			 * }
+			 */
+            bimage = new BufferedImage(image.getWidth(null), image.getHeight(null), type);
+        }
+        // Copy image to buffered image
+        final Graphics g = bimage.createGraphics();
+        // Paint the image onto the buffered image
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return bimage;
+    }
+
     @Override
     public void paintComponent(final Graphics g) {
         super.paintComponent(g);
@@ -56,10 +109,6 @@ public abstract class AbstractGamePanel extends JPanel {
         final Graphics2D g2 = (Graphics2D) g;
         paintBackground(g2);
         paintGUI(g2);
-    }
-
-    public static float roundOneDigit(final float f) {
-        return Math.round(10 * f) / 10f;
     }
 
     void drawString(final Graphics2D g2, final int xx, final int yy, final String s) {
@@ -84,61 +133,9 @@ public abstract class AbstractGamePanel extends JPanel {
 
     protected abstract void paintGUI(final Graphics2D g2);
 
-    private static BufferedImage toBufferedImage(Image image) {
-        if (image instanceof BufferedImage) {
-            return (BufferedImage) image;
-        }
-        // This code ensures that all the pixels in the image are loaded
-        image = new ImageIcon(image).getImage();
-        // Determine if the image has transparent pixels; for this method's
-        // implementation, see e661 Determining If an Image Has Transparent Pixels
-        // boolean hasAlpha = hasAlpha(image);
-        // Create a buffered image with a format that's compatible with the screen
-        BufferedImage bimage = null;
-        final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        try {
-            // Determine the type of transparency of the new buffered image
-            final int transparency = Transparency.OPAQUE;
-            /*
-             * if (hasAlpha) {
-			 * 
-			 * transparency = Transparency.BITMASK;
-			 * 
-			 * }
-			 */
-            // Create the buffered image
-            final GraphicsDevice gs = ge.getDefaultScreenDevice();
-            final GraphicsConfiguration gc = gs.getDefaultConfiguration();
-            bimage = gc.createCompatibleImage(image.getWidth(null), image.getHeight(null), transparency);
-        } catch (final HeadlessException e) {
-            // The system does not have a screen
-        }
-        if (bimage == null) {
-            // Create a buffered image using the default color model
-            final int type = BufferedImage.TYPE_INT_RGB;
-            // int type = BufferedImage.TYPE_3BYTE_BGR;//by wang
-			/*
-			 * if (hasAlpha) {
-			 * 
-			 * type = BufferedImage.TYPE_INT_ARGB;
-			 * 
-			 * }
-			 */
-            bimage = new BufferedImage(image.getWidth(null), image.getHeight(null), type);
-        }
-        // Copy image to buffered image
-        final Graphics g = bimage.createGraphics();
-        // Paint the image onto the buffered image
-        g.drawImage(image, 0, 0, null);
-        g.dispose();
-        return bimage;
-    }
-
     Image getImage(final String filename) {
 
         return tKit.getImage(path.concat(filename.endsWith(".png") ? filename : filename.concat(".png")));
     }
-
-    private static final String path = "res/sprite/";
 
 }

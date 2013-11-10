@@ -11,7 +11,7 @@ import java.util.Random;
 
 public abstract class AbstractAI {
 
-    static final Random r = new Random();
+    protected static final Random r = new Random();
 
     public abstract void computeAI(Mob m, Game g);
 
@@ -21,6 +21,7 @@ public abstract class AbstractAI {
     }
 
     List<Item> getDrop(final Mob mob, final Game g) {
+        //TODO
         return Collections.emptyList();
     }
 

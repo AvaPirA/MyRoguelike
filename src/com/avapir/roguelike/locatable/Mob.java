@@ -8,11 +8,12 @@ import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.game.ai.AbstractAI;
+import com.avapir.roguelike.game.ai.IdleAI;
 import com.avapir.roguelike.game.ai.SlimeAI;
 
 import java.awt.*;
 
-public class Mob implements Locatable {
+public class Mob implements Cloneable, Locatable {
 
     protected final Attack     attack;
     protected final Armor      armor;
@@ -30,22 +31,81 @@ public class Mob implements Locatable {
     private boolean alive = true;
     private Point location;
 
-    public Mob(String name, float maxHP, float maxMP, Attack bAtk, Armor bArm, AbstractAI ai, Point location) {
+    protected Mob(String name, float maxHP, float maxMP, Attack attack, Armor armor, Point location, AbstractAI ai) {
         this.name = name;
         this.maxHP = maxHP;
         this.maxMP = maxMP;
         HP = maxHP;
         MP = maxMP;
-        attack = new Attack(bAtk);
-        armor = new Armor(bArm);
+        this.attack = new Attack(attack);
+        this.armor = new Armor(armor);
         this.ai = ai;
         this.location = new Point(location);
-
-        //   this.ai = BORG ? new Borg() : ai != null ? ai : IdleAI.getNewInstance();
 
 //            if (m != null && m.hasTile(x, y)) {
 //                m.putCharacter(this, x, y);
 //            }
+    }
+
+    public static final class MobBuilder {
+
+        public static final int DFT_HP = 100;
+        public static final int DFT_MP = 100;
+
+        public static Mob createMob(String name) {
+            return createMob(name, UNRESOLVED_LOCATION);
+        }
+
+        public static Mob createMob(String name, Point location) {
+            return createMob(name, DFT_HP, DFT_MP, location);
+        }
+
+        public static Mob createMob(String name, Attack attack, Armor armor) {
+            return createMob(name, attack, armor, UNRESOLVED_LOCATION);
+        }
+
+        public static Mob createMob(String name, float maxHP, float maxMP) {
+            return createMob(name, maxHP, maxMP, UNRESOLVED_LOCATION);
+        }
+
+        public static Mob createMob(String name, float maxHP, float maxMP, Point location) {
+            return createMob(name, maxHP, maxMP, new Attack(), new Armor(), location);
+        }
+
+        public static Mob createMob(String name, Attack attack, Armor armor, Point location) {
+            return createMob(name, DFT_HP, DFT_MP, attack, armor, location);
+        }
+
+        public static Mob createMob(String name, float maxHP, float maxMP, Attack attack, Armor armor) {
+            return createMob(name, maxHP, maxMP, attack, armor, UNRESOLVED_LOCATION);
+        }
+
+        public static Mob createMob(String name, float maxHP, float maxMP, Attack attack, Armor armor, Point location) {
+            return createMob(name, maxHP, maxMP, attack, armor, location, IdleAI.getNewInstance());
+
+        }
+
+        public static Mob createMob(String name,
+                                    float maxHP,
+                                    float maxMP,
+                                    Attack attack,
+                                    Armor armor,
+                                    Point location,
+                                    AbstractAI ai) {
+            return new Mob(name, maxHP, maxMP, attack, armor, location, ai);
+        }
+
+        public static Mob createMob(String name, int maxHP, int maxMP, Attack attack, Armor armor, AbstractAI ai) {
+            return createMob(name, maxHP, maxMP, attack, armor, UNRESOLVED_LOCATION, ai);
+        }
+    }
+
+    public static final class MobSet {
+
+        public static Mob getSlime() {
+            return MobBuilder.createMob("Slime", 15, 0, new Attack(2), new Armor(0), new SlimeAI());
+        }
+
     }
 
     public AbstractAI getAi() {
@@ -70,14 +130,14 @@ public class Mob implements Locatable {
         }
         final Map m = g.getMap();
 
-        final int ny = getY() + dp.y;
-        final int nx = getX() + dp.x;
+        final int ny = getLoc().y + dp.y;
+        final int nx = getLoc().x + dp.x;
         final Tile t = g.getMap().getTile(nx, ny);
         if (t != null) {
             if (t.getMob() != null) {
                 final float dmg = attackMob(new Point(nx, ny), g);
                 if (this == g.getHero()) {
-                    ((Hero) this).gainXPfromDamage(dmg, g);
+                    ((Hero) this).gainXpFromDamage(dmg, g);
                 }
                 return new Point(0, 0);
             } else if (t.isPassable()) {
@@ -197,17 +257,6 @@ public class Mob implements Locatable {
     @Override
     public String toString() {
         return name + String.format(" (%s, %s)", location.x, location.y);
-    }
-
-    public static final class MobSet {
-
-        private static final Mob slime = new Mob("Slime", 15, 0, new Attack(2), new Armor(0), new SlimeAI(),
-                                                 new Point(-1, -1));
-
-        public static Mob getSlime() {
-            return (Mob) slime.clone();
-        }
-
     }
 
     @Override

@@ -6,8 +6,8 @@ import java.util.LinkedList;
 /**
  * Precise permissive visibility algorithm.
  * <p/>
- * TODO : Do multitile organism by replacing offsetT(0,1)(1, 0) by offsetT(0,
- * size.y) (size.x, 0). Also need to consider border tiles.
+ * TODO : Do multitile organism by replacing offsetT(0,1)(1, 0) by offsetT(0, size.y) (size.x, 0). Also need to consider
+ * border tiles.
  *
  * @author sdatta
  */
@@ -18,15 +18,10 @@ public class PermissiveFOV implements IFovAlgorithm {
          * Do not interact with the members directly. Use the provided
          * functions.
          */ int north;
-
-        int south;
-
-        int east;
-
-        int west;
-
-        int distPlusOneSq;
-
+        int     south;
+        int     east;
+        int     west;
+        int     distPlusOneSq;
         ILosMap board;
     }
 
@@ -49,24 +44,17 @@ public class PermissiveFOV implements IFovAlgorithm {
     // }
 
     private class fovStateT {
-        Point2I source;
-
-        permissiveMaskT mask;
-
-        Point2I quadrant;
-
-        Point2I extent;
-
-        int quadrantIndex;
-
-        ILosMap board;
-
         final boolean isLos = false;
+        Point2I         source;
+        permissiveMaskT mask;
+        Point2I         quadrant;
+        Point2I         extent;
+        int             quadrantIndex;
+        ILosMap         board;
     }
 
     private class bumpT {
         Point2I location;
-
         bumpT parent = null;
 
         @Override
@@ -76,6 +64,11 @@ public class PermissiveFOV implements IFovAlgorithm {
     }
 
     class fieldT {
+        Line2I steep   = new Line2I(new Point2I(0, 0), new Point2I(0, 0));
+        Line2I shallow = new Line2I(new Point2I(0, 0), new Point2I(0, 0));
+        bumpT steepBump;
+        bumpT shallowBump;
+
         public fieldT(final fieldT f) {
             steep = new Line2I(new Point2I(f.steep.near.x, f.steep.near.y), new Point2I(f.steep.far.x, f.steep.far.y));
             shallow = new Line2I(new Point2I(f.shallow.near.x, f.shallow.near.y), new Point2I(f.shallow.far.x,
@@ -85,14 +78,6 @@ public class PermissiveFOV implements IFovAlgorithm {
         }
 
         public fieldT() {}
-
-        Line2I steep = new Line2I(new Point2I(0, 0), new Point2I(0, 0));
-
-        Line2I shallow = new Line2I(new Point2I(0, 0), new Point2I(0, 0));
-
-        bumpT steepBump;
-
-        bumpT shallowBump;
 
         @Override
         public String toString() {
@@ -304,7 +289,7 @@ public class PermissiveFOV implements IFovAlgorithm {
         // // return result;
         // }
         /*
-		 * ^ | 2 | <-3-+-1-> | 4 | v
+         * ^ | 2 | <-3-+-1-> | 4 | v
 		 * 
 		 * To ensure all squares are visited before checked ( so that we can
 		 * decide obstacling at visit time, eg walls destroyed by explosion) ,
@@ -337,7 +322,8 @@ public class PermissiveFOV implements IFovAlgorithm {
         final int quadrantCount = 4;
         final Point2I quadrants[] = {new Point2I(1, 1), new Point2I(-1, 1), new Point2I(-1, -1), new Point2I(1, -1)};
 
-        final Point2I extents[] = {new Point2I(mask.east, mask.north), new Point2I(mask.west, mask.north), new Point2I(mask.west, mask.south), new Point2I(mask.east, mask.south)};
+        final Point2I extents[] = {new Point2I(mask.east, mask.north), new Point2I(mask.west, mask.north),
+                new Point2I(mask.west, mask.south), new Point2I(mask.east, mask.south)};
         int quadrantIndex = 0;
         for (; quadrantIndex < quadrantCount; ++quadrantIndex) {
             state.quadrant = quadrants[quadrantIndex];

@@ -18,6 +18,10 @@ import java.util.List;
 
 public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
+    public static enum GameState {
+        MOVE, INVENTORY, CHANGE_STATS, GAME_OVER, DISTANCE_ATTACK, VIEW
+    }
+
     private final Log                  gameLog;
     private final List<Map>            maps;
     private final Hero                 hero;
@@ -39,6 +43,30 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         gameLog = new Log();
         maps = new ArrayList<>();
         mobs = new ArrayList<>();
+    }
+
+    public class Log extends LinkedList<String> {
+
+        private static final long serialVersionUID = 1L;
+        private int oneTurnCounter;
+
+        @Override
+        public boolean add(final String s) {
+            super.add("[" + oneTurnCounter + ":" + (turnCounter) + "] " + s);
+            oneTurnCounter++;
+            if (size() > 15 && oneTurnCounter <= 15) {
+                poll();
+            }
+            return true;// so as super.add()
+        }
+
+        public void refresh() {
+            oneTurnCounter = 0;
+            while (size() > 15) {
+                poll();
+            }
+        }
+
     }
 
     private static boolean isMoved(final Point dp) {
@@ -253,33 +281,5 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     public Log getLog() {
         return gameLog;
-    }
-
-    public static enum GameState {
-        MOVE, INVENTORY, CHANGE_STATS, GAME_OVER, DISTANCE_ATTACK, VIEW
-    }
-
-    public class Log extends LinkedList<String> {
-
-        private static final long serialVersionUID = 1L;
-        private int oneTurnCounter;
-
-        @Override
-        public boolean add(final String s) {
-            super.add("[" + oneTurnCounter + ":" + (turnCounter) + "] " + s);
-            oneTurnCounter++;
-            if (size() > 15 && oneTurnCounter <= 15) {
-                poll();
-            }
-            return true;// so as super.add()
-        }
-
-        public void refresh() {
-            oneTurnCounter = 0;
-            while (size() > 15) {
-                poll();
-            }
-        }
-
     }
 }

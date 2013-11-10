@@ -2,12 +2,7 @@ package com.avapir.roguelike.locatable;
 
 import java.awt.*;
 
-/**
- * User: Alpen Ditrix
- * Date: 09.11.13
- * Time: 15:39
- * To change this template use File | Settings | File Templates.
- */
+/** User: Alpen Ditrix Date: 09.11.13 Time: 15:39 To change this template use File | Settings | File Templates. */
 public class DroppedItem implements Locatable {
 
     private final Item  item;

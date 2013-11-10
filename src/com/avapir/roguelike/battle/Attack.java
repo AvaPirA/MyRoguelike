@@ -9,6 +9,7 @@ public class Attack implements Cloneable {
         if (input.length > TOTAL_DMG_TYPES) {
             throw new IllegalArgumentException();
         }
+
         System.arraycopy(input, 0, damage, 0, input.length);
     }
 

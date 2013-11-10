@@ -7,7 +7,6 @@ package com.avapir.roguelike.game;
  */
 class Line2I {
     public Point2I near;
-
     public Point2I far;
 
     public Line2I(final Point2I newNear, final Point2I newFar) {

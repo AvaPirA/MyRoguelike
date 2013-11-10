@@ -6,14 +6,15 @@ import java.util.ListIterator;
  * An iterator that behaves like C iterators
  *
  * @param <T>
+ *
  * @author sdatta
  */
 class CLikeIterator<T> {
 
     private final ListIterator<T> it;
-    private       T               curr;
-    private boolean atEnd = false;
     boolean atBegin = false;
+    private T curr;
+    private boolean atEnd = false;
 
     public CLikeIterator(final ListIterator<T> it) {
         super();

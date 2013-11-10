@@ -4,6 +4,8 @@ import java.awt.*;
 
 public interface Locatable {
 
+    public static final Point UNRESOLVED_LOCATION = new Point(-1, -1);
+
     @Deprecated
     public int getX();
 

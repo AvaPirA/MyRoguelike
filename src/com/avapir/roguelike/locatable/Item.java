@@ -19,6 +19,30 @@ public class Item implements Cloneable {
         stackable = false;
     }
 
+    public static final class ItemBuilder {
+
+        public static final Item createItem(String name) {
+            return createItem(name, 0);
+        }
+
+        public static final Item createItem(String name, int weight) {
+            return createItem(name, weight, null, null);
+        }
+
+        public static final Item craeteItem(String name, int weight, Attack attack) {
+            return createItem(name, weight, attack, null);
+        }
+
+        public static final Item createItem(String name, int weight, Armor armor) {
+            return createItem(name, weight, null, armor);
+        }
+
+        public static final Item createItem(String name, int weight, Attack attack, Armor armor) {
+            return new Item(name, weight, attack, armor);
+        }
+
+    }
+
     public String getName() {
         return name;
     }
@@ -45,30 +69,6 @@ public class Item implements Cloneable {
             // this shouldn't happen, since we are Cloneable
             throw new InternalError();
         }
-    }
-
-    public static final class ItemBuilder {
-
-        public static final Item createItem(String name) {
-            return createItem(name, 0);
-        }
-
-        public static final Item createItem(String name, int weight) {
-            return createItem(name, weight, null, null);
-        }
-
-        public static final Item craeteItem(String name, int weight, Attack attack) {
-            return createItem(name, weight, attack, null);
-        }
-
-        public static final Item createItem(String name, int weight, Armor armor) {
-            return createItem(name, weight, null, armor);
-        }
-
-        public static final Item createItem(String name, int weight, Attack attack, Armor armor) {
-            return new Item(name, weight, attack, armor);
-        }
-
     }
 
 }

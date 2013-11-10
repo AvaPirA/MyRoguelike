@@ -23,10 +23,9 @@ import java.util.StringTokenizer;
 public class GamePanel extends AbstractGamePanel {
 
     private static final long serialVersionUID = 1L;
-    private final Game game;
-    private final int  WIDTH_IN_TILES;
-    private final int  HEIGHT_IN_TILES;
-
+    private final Game       game;
+    private final int        WIDTH_IN_TILES;
+    private final int        HEIGHT_IN_TILES;
     private final GuiPainter guiPainter;
 
     public GamePanel(final Game g) {
@@ -40,53 +39,6 @@ public class GamePanel extends AbstractGamePanel {
         setFocusable(true);
     }
 
-    void drawColorString(final Graphics g, final String str, int lastX, final int lastY) {
-        final Graphics2D g2 = (Graphics2D) g;
-        final FontRenderContext context = g2.getFontRenderContext();
-        final Font f = new Font("Serif", Font.PLAIN, 12);
-        g2.setFont(f);
-        Rectangle2D bounds;
-        final StringTokenizer st = new StringTokenizer(str, "#");
-        String token;
-        while (st.hasMoreTokens()) {
-            token = st.nextToken();
-            if (token.equals("^")) {
-                g2.setColor(Color.WHITE);
-                continue;
-            } else if (token.length() <= 2) {
-                g2.setColor(getDefaultStringColor(Integer.parseInt(token)));
-                continue;
-            }
-            drawString(g2, lastX, lastY, token);
-            bounds = f.getStringBounds(token, context);
-            lastX += bounds.getWidth();
-        }
-    }
-
-    @Override
-    public void paintComponent(final Graphics g) {
-        super.paintComponent(g);
-        // if (!BORG) {
-        final Graphics2D g2 = (Graphics2D) g;
-        paintMap(g2, game.getMap());
-        paintLog(g2);
-        if (game.getState() == GameState.GAME_OVER) {
-            final Image img = getImage("gameover");
-            drawImage(g, img,
-                      (WIDTH_IN_TILES * Tile.SIZE_px - img.getWidth(null)) / 2,
-                      (HEIGHT_IN_TILES * Tile.SIZE_px - img.getHeight(null)) / 2);
-        }
-
-        // } else {
-        // TODO BORG RUN PAINTING
-        // }
-    }
-
-    @Override
-    protected void paintGUI(final Graphics2D g2) {
-        guiPainter.paint(g2);
-    }
-
     private class GuiPainter {
 
         private final Point attackOffset = new Point(0, 90);
@@ -95,8 +47,8 @@ public class GamePanel extends AbstractGamePanel {
         private final Point o            = new Point(
                 WIDTH_IN_TILES * Tile.SIZE_px + 15, HEIGHT_IN_TILES * Tile.SIZE_px / 2);
         private final Point offsetDFT    = new Point(o.x, o.y);
-
-        private final Font defaultFont = new Font(Font.MONOSPACED, Font.PLAIN, 15);
+        private final Font  defaultFont  = new Font(Font.MONOSPACED, Font.PLAIN, 15);
+        private int validMax;
 
         public void paint(final Graphics2D g2) {
             invalidateMax();
@@ -177,13 +129,11 @@ public class GamePanel extends AbstractGamePanel {
         }
 
         /**
-         * 255\0->255\0 0-74 ::: case 0
-         * 255->0\255\0 75-149 ::: case 1
-         * 0\255\0->255 150-224 ::: case 2
-         * 0\255->0\255 255-299 ::: case 3
-         * 300 ::: case 4
+         * 255\0->255\0 0-74 ::: case 0 255->0\255\0 75-149 ::: case 1 0\255\0->255 150-224 ::: case 2 0\255->0\255
+         * 255-299 ::: case 3 300 ::: case 4
          *
          * @param stat
+         *
          * @return
          */
         private Color getStatColor(final int stat) {
@@ -219,8 +169,6 @@ public class GamePanel extends AbstractGamePanel {
             }
             return new Color(r, g, b, 64);
         }
-
-        private int validMax;
 
         private int maxStat() {
             if (validMax == Integer.MIN_VALUE) {
@@ -317,6 +265,53 @@ public class GamePanel extends AbstractGamePanel {
                 return " ";// 1
             }
         }
+    }
+
+    void drawColorString(final Graphics g, final String str, int lastX, final int lastY) {
+        final Graphics2D g2 = (Graphics2D) g;
+        final FontRenderContext context = g2.getFontRenderContext();
+        final Font f = new Font("Serif", Font.PLAIN, 12);
+        g2.setFont(f);
+        Rectangle2D bounds;
+        final StringTokenizer st = new StringTokenizer(str, "#");
+        String token;
+        while (st.hasMoreTokens()) {
+            token = st.nextToken();
+            if (token.equals("^")) {
+                g2.setColor(Color.WHITE);
+                continue;
+            } else if (token.length() <= 2) {
+                g2.setColor(getDefaultStringColor(Integer.parseInt(token)));
+                continue;
+            }
+            drawString(g2, lastX, lastY, token);
+            bounds = f.getStringBounds(token, context);
+            lastX += bounds.getWidth();
+        }
+    }
+
+    @Override
+    public void paintComponent(final Graphics g) {
+        super.paintComponent(g);
+        // if (!BORG) {
+        final Graphics2D g2 = (Graphics2D) g;
+        paintMap(g2, game.getMap());
+        paintLog(g2);
+        if (game.getState() == GameState.GAME_OVER) {
+            final Image img = getImage("gameover");
+            drawImage(g, img,
+                      (WIDTH_IN_TILES * Tile.SIZE_px - img.getWidth(null)) / 2,
+                      (HEIGHT_IN_TILES * Tile.SIZE_px - img.getHeight(null)) / 2);
+        }
+
+        // } else {
+        // TODO BORG RUN PAINTING
+        // }
+    }
+
+    @Override
+    protected void paintGUI(final Graphics2D g2) {
+        guiPainter.paint(g2);
     }
 
     private void paintLog(final Graphics2D g2) {

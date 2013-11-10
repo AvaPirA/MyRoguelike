@@ -8,6 +8,24 @@ import java.util.List;
 
 public class Tile {
 
+    public static enum Type {
+        EMPTY, GRASS, TREE, CLOSED_DOOR, OPENED_DOOR, STAIR_UP, STAIR_DOWN, WALL;
+        static final Tile[] examples = {getDefault(Type.EMPTY), getDefault(GRASS), getDefault(TREE)};
+
+        static Tile getDefault(final Type t) {
+            switch (t) {
+                case EMPTY:
+                    return new Tile(EMPTY, Flag.EMPTY, Flag.PASSABLE, Flag.TRANSPARENT);
+                case GRASS:
+                    return new Tile(GRASS, Flag.GRASS, Flag.PASSABLE, Flag.TRANSPARENT);
+                case TREE:
+                    return new Tile(TREE, Flag.GRASS);
+                default:
+                    return null;
+            }
+        }
+    }
+
     public static final int SIZE_px = 32;
     private final Tile.Type initialType;
     private Mob charHere = null;
@@ -28,14 +46,47 @@ public class Tile {
         }
     }
 
-    public void restoreDefault() {
-        if (initialType != null) {
-            flags = Tile.Type.examples[initialType.ordinal()].flags;
-        }
-    }
+    public static final class Flag {
 
-    private boolean checkFlag(final int flag) {
-        return flag == (flags & flag);
+        public static final int FULL_FLAG     = 0b11111111111111111111111111111111;
+        public static final int EMPTY_FLAG    = 0b00000000000000000000000000000000;
+        /* 0-8 FOV */
+        // public static final int VISIBLE = 1 << 0;
+        // public static final int SEEN = 1 << 1;
+        public static final int LIGHT_ON      = 1 << 2;
+        public static final int TRANSPARENT   = 1 << 3;
+        public static final int F4            = 1 << 4;
+        public static final int F5            = 1 << 5;
+        public static final int F6            = 1 << 6;
+        public static final int F7            = 1 << 7;
+        public static final int F8            = 1 << 8;
+        /* 9-14 terrain and moving */
+        public static final int PASSABLE      = 1 << 9;
+        public static final int EMPTY         = 1 << 10;
+        public static final int GRASS         = 1 << 11;
+        public static final int STONES        = 1 << 12;
+        public static final int ICE           = 1 << 13;
+        /* 14-24 gaining effects */
+        public static final int POISONING     = 1 << 14;
+        public static final int FLAMING       = 1 << 15;
+        public static final int WET           = 1 << 16;
+        public static final int INSTANT_DEATH = 1 << 17;
+        public static final int F18           = 1 << 18;
+        public static final int F19           = 1 << 19;
+        public static final int F20           = 1 << 20;
+        public static final int F21           = 1 << 21;
+        public static final int F22           = 1 << 22;
+        public static final int F23           = 1 << 23;
+        /* 24-31 specials */
+        public static final int F24           = 1 << 24;
+        public static final int F25           = 1 << 25;
+        public static final int F26           = 1 << 26;
+        public static final int F27           = 1 << 27;
+        public static final int OPEN_DOOR     = 1 << 28;
+        public static final int CLOSED_DOOR   = 1 << 29;
+        public static final int UP_LADDER     = 1 << 30;
+        public static final int DOWN_LADDER   = 1 << 31;
+
     }
 
     // private void addFlags(final int newFlag) {
@@ -57,6 +108,16 @@ public class Tile {
     // removeFlags(flag);
     // }
     // }
+
+    public void restoreDefault() {
+        if (initialType != null) {
+            flags = Tile.Type.examples[initialType.ordinal()].flags;
+        }
+    }
+
+    private boolean checkFlag(final int flag) {
+        return flag == (flags & flag);
+    }
 
     public boolean isVisible() {return visible;}
 
@@ -139,66 +200,5 @@ public class Tile {
         final Mob c = charHere;
         charHere = null;
         return c;
-    }
-
-    public static enum Type {
-        EMPTY, GRASS, TREE, CLOSED_DOOR, OPENED_DOOR, STAIR_UP, STAIR_DOWN, WALL;
-        static final Tile[] examples = {getDefault(Type.EMPTY), getDefault(GRASS), getDefault(TREE)};
-
-        static Tile getDefault(final Type t) {
-            switch (t) {
-                case EMPTY:
-                    return new Tile(EMPTY, Flag.EMPTY, Flag.PASSABLE, Flag.TRANSPARENT);
-                case GRASS:
-                    return new Tile(GRASS, Flag.GRASS, Flag.PASSABLE, Flag.TRANSPARENT);
-                case TREE:
-                    return new Tile(TREE, Flag.GRASS);
-                default:
-                    return null;
-            }
-        }
-    }
-
-    public static final class Flag {
-
-        public static final int FULL_FLAG     = 0b11111111111111111111111111111111;
-        public static final int EMPTY_FLAG    = 0b00000000000000000000000000000000;
-        /* 0-8 FOV */
-        // public static final int VISIBLE = 1 << 0;
-        // public static final int SEEN = 1 << 1;
-        public static final int LIGHT_ON      = 1 << 2;
-        public static final int TRANSPARENT   = 1 << 3;
-        public static final int F4            = 1 << 4;
-        public static final int F5            = 1 << 5;
-        public static final int F6            = 1 << 6;
-        public static final int F7            = 1 << 7;
-        public static final int F8            = 1 << 8;
-        /* 9-14 terrain and moving */
-        public static final int PASSABLE      = 1 << 9;
-        public static final int EMPTY         = 1 << 10;
-        public static final int GRASS         = 1 << 11;
-        public static final int STONES        = 1 << 12;
-        public static final int ICE           = 1 << 13;
-        /* 14-24 gaining effects */
-        public static final int POISONING     = 1 << 14;
-        public static final int FLAMING       = 1 << 15;
-        public static final int WET           = 1 << 16;
-        public static final int INSTANT_DEATH = 1 << 17;
-        public static final int F18           = 1 << 18;
-        public static final int F19           = 1 << 19;
-        public static final int F20           = 1 << 20;
-        public static final int F21           = 1 << 21;
-        public static final int F22           = 1 << 22;
-        public static final int F23           = 1 << 23;
-        /* 24-31 specials */
-        public static final int F24           = 1 << 24;
-        public static final int F25           = 1 << 25;
-        public static final int F26           = 1 << 26;
-        public static final int F27           = 1 << 27;
-        public static final int OPEN_DOOR     = 1 << 28;
-        public static final int CLOSED_DOOR   = 1 << 29;
-        public static final int UP_LADDER     = 1 << 30;
-        public static final int DOWN_LADDER   = 1 << 31;
-
     }
 }

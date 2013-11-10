@@ -9,11 +9,11 @@ public class IdleAI extends EasyAI {
         instance = new IdleAI();
     }
 
-    @Override
-    public void computeAI(final Mob m, final Game g) {}
-
     public static EasyAI getNewInstance() {
         return instance;
     }
+
+    @Override
+    public void computeAI(final Mob m, final Game g) {}
 
 }

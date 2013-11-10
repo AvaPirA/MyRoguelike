@@ -1,18 +1,10 @@
 package com.avapir.roguelike.battle;
 
-/**
- * Physical<br>
- * Magic<br>
- * Water<br>
- * Fire<br>
- * Lightning<br>
- * Curse
- */
+/** Physical<br> Magic<br> Water<br> Fire<br> Lightning<br> Curse */
 public class Armor implements Cloneable {
 
-    public static final int TOTAL_DEF_TYPES = 6;
-
-    private final float[] armor = new float[TOTAL_DEF_TYPES];
+    public static final int     TOTAL_DEF_TYPES = 6;
+    private final       float[] armor           = new float[TOTAL_DEF_TYPES];
 
     public Armor(final float... input) {
         if (input.length > TOTAL_DEF_TYPES) {

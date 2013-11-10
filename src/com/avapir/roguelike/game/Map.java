@@ -13,20 +13,71 @@ import java.util.Random;
 
 public class Map implements ILosMap {
 
-    private static final Random random = new Random();
-
-    private static final int DFT_HEIGHT = 100;
-    private static final int DFT_WIDTH  = 100;
-    private static final int DFT_DELTA  = 20;                    // percents
-
+    private static final Random       random     = new Random();
+    private static final int          DFT_HEIGHT = 100;
+    private static final int          DFT_WIDTH  = 100;
+    private static final int          DFT_DELTA  = 20;                    // percents
+    private static final MapGenerator generator  = new MapGenerator();
     private final Game game;
-    private final        IFovAlgorithm permissiveFov = new PermissiveFOV();
-    private static final MapGenerator  generator     = new MapGenerator();
-
+    private final IFovAlgorithm permissiveFov = new PermissiveFOV();
     private final int      HEIGHT_MAP;
     private final int      WIDTH_MAP;
     private final Tile[][] field;
     private final String   title;
+
+    @Deprecated
+    public Map(final Game g, final int height, final int width) {
+        game = g;
+        HEIGHT_MAP = height;
+        WIDTH_MAP = width;
+        field = new Tile[height][width];
+        title = "untitled";
+        generator.generateEmpty(this);
+    }
+
+    public Map(final Game g) {
+        game = g;
+        final int deltaHeight = DFT_HEIGHT * DFT_DELTA / 100;
+        final int deltaWidth = DFT_WIDTH * DFT_DELTA / 100;
+        HEIGHT_MAP = DFT_HEIGHT + random.nextInt(2 * deltaHeight) - deltaHeight;
+        WIDTH_MAP = DFT_WIDTH + random.nextInt(2 * deltaWidth) - deltaWidth;
+        field = new Tile[HEIGHT_MAP][WIDTH_MAP];
+        title = "untitled";
+        generator.generate(this);
+    }
+
+    private static class MapGenerator {
+        final List<Long> usedSeeds = new ArrayList<>();
+
+        void generateEmpty(final Map map) {
+            for (int i = 0; i < map.WIDTH_MAP; i++) {
+                for (int j = 0; j < map.HEIGHT_MAP; j++) {
+                    map.field[j][i] = new Tile(Tile.Type.GRASS);
+                }
+            }
+        }
+
+        void generate(final Map map) {
+            long seed = random.nextLong();
+            while (usedSeeds.contains(seed)) {
+                seed = random.nextLong();
+            }
+            usedSeeds.add(seed);
+            for (int i = 0; i < map.WIDTH_MAP; i++) {
+                for (int j = 0; j < map.HEIGHT_MAP; j++) {
+                    if (random.nextInt(100) > 80) {
+                        map.field[j][i] = new Tile(Tile.Type.TREE);
+                    } else {
+                        map.field[j][i] = new Tile(Tile.Type.GRASS);
+                    }
+                }
+            }
+        }
+    }
+
+    public static float distance(final Point2D.Float p1, final Point2D.Float p2) {
+        return (float) p1.distance(p2);
+    }
 
     public int getHeight() {
         return HEIGHT_MAP;
@@ -94,61 +145,6 @@ public class Map implements ILosMap {
         field[p.y][p.x].dropItems(dropped);
     }
 
-    @Deprecated
-    public Map(final Game g, final int height, final int width) {
-        game = g;
-        HEIGHT_MAP = height;
-        WIDTH_MAP = width;
-        field = new Tile[height][width];
-        title = "untitled";
-        generator.generateEmpty(this);
-    }
-
-    public Map(final Game g) {
-        game = g;
-        final int deltaHeight = DFT_HEIGHT * DFT_DELTA / 100;
-        final int deltaWidth = DFT_WIDTH * DFT_DELTA / 100;
-        HEIGHT_MAP = DFT_HEIGHT + random.nextInt(2 * deltaHeight) - deltaHeight;
-        WIDTH_MAP = DFT_WIDTH + random.nextInt(2 * deltaWidth) - deltaWidth;
-        field = new Tile[HEIGHT_MAP][WIDTH_MAP];
-        title = "untitled";
-        generator.generate(this);
-    }
-
-    private static class MapGenerator {
-        final List<Long> usedSeeds = new ArrayList<>();
-
-        void generateEmpty(final Map map) {
-            for (int i = 0; i < map.WIDTH_MAP; i++) {
-                for (int j = 0; j < map.HEIGHT_MAP; j++) {
-                    map.field[j][i] = new Tile(Tile.Type.GRASS);
-                }
-            }
-        }
-
-        void generate(final Map map) {
-            long seed = random.nextLong();
-            while (usedSeeds.contains(seed)) {
-                seed = random.nextLong();
-            }
-            usedSeeds.add(seed);
-            for (int i = 0; i < map.WIDTH_MAP; i++) {
-                for (int j = 0; j < map.HEIGHT_MAP; j++) {
-                    if (random.nextInt(100) > 80) {
-                        map.field[j][i] = new Tile(Tile.Type.TREE);
-                    } else {
-                        map.field[j][i] = new Tile(Tile.Type.GRASS);
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public boolean hasTile(final int x, final int y) {
-        return x >= 0 && x < WIDTH_MAP && y >= 0 && y < HEIGHT_MAP;
-    }
-
     // /**
     // * Спижжено
     // *
@@ -193,6 +189,11 @@ public class Map implements ILosMap {
     // }
     // }
 
+    @Override
+    public boolean hasTile(final int x, final int y) {
+        return x >= 0 && x < WIDTH_MAP && y >= 0 && y < HEIGHT_MAP;
+    }
+
     public void computeFOV(final Point p, final int radius) {
         for (int i = 0; i < HEIGHT_MAP; i++) {
             for (int j = 0; j < WIDTH_MAP; j++) {
@@ -233,10 +234,6 @@ public class Map implements ILosMap {
         // delta += 2 * (x - y);
         // --y;
         // }
-    }
-
-    public static float distance(final Point2D.Float p1, final Point2D.Float p2) {
-        return (float) p1.distance(p2);
     }
 
     @Override

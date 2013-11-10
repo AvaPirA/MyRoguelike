@@ -5,14 +5,13 @@ import com.avapir.roguelike.locatable.Hero;
 
 public class ChangingStatsHandler extends AbstractStateHandler {
 
+    private final int[] diff;
+    private       int   freeDiff;
+
     public ChangingStatsHandler(final Game g) {
         super(g);
         diff = new int[Hero.PrimaryStats.PRIMARY_STATS_AMOUNT];
     }
-
-    private final int[] diff;
-
-    private int freeDiff;
 
     public int getFreeDiff() {
         return freeDiff;
