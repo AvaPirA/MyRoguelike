@@ -310,7 +310,7 @@ public class Hero extends Mob implements Locatable {
         final int xp = (int) Math.pow(dmg, 6 / 5f);
         final int gainedXP = (int) StatsFormulas.addBonusXp(this, xp);
         XP += gainedXP;
-        g.log(String.format("%s получает %s опыта", getName(), gainedXP));
+        g.logFormat("%s получает %s опыта", getName(), gainedXP);
         while (lvlUp()) {
             gainLvl(g);
         }
@@ -322,7 +322,7 @@ public class Hero extends Mob implements Locatable {
         level++;
         stats.freeStats += PrimaryStats.DEFAULT_STAT_INCREASE;
         restore();
-        g.log(String.format("%s достиг %s уровня!", getName(), level));
+        g.logFormat("%s достиг %s уровня!", getName(), level);
     }
 
     private boolean lvlUp() {

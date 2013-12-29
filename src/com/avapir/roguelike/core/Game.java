@@ -109,6 +109,10 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         gameLog.add(s);
     }
 
+    public void logFormat(final String s, Object... params) {
+        String.format(s, params);
+    }
+
     private void placeMobsAndItems(final int scaler) {
         int i = 320;
         for (int x = 0; x < currentMap.getWidth(); x++) {
@@ -137,7 +141,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     private void move(final Point p) {
         if (isMoved(p)) {
-            log("Перешел в [" + hero.getLoc().x + ", " + hero.getLoc().y + "]");
+            logFormat("Перешел в [%s, %s]", hero.getLoc().x, hero.getLoc().y);
         }
         currentX += p.x;
         currentY += p.y;
@@ -249,7 +253,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     public void createStatsHandler() {
         log("_____________________");
         log("Изменение характеристик:");
-        log("Свободных хар-к: " + hero.getStats().getFree());
+        logFormat("Свободных хар-к: %s", hero.getStats().getFree());
         chs = new ChangingStatsHandler(this);
     }
 
@@ -258,12 +262,12 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         chs.flush();
         log("Характеристики увеличились на:");
         final String[] ss = PrimaryStats.STATS_STRINGS;
-        log(ss[0] + ":" + (hero.getStats().values(0) - chs.getDiff()[0]) + ";              " + ss[1] + ":" +
-                    (hero.getStats().values(1) - chs.getDiff()[1]));
-        log(ss[2] + ":" + (hero.getStats().values(2) - chs.getDiff()[2]) + ";              " + ss[3] + ":" +
-                    (hero.getStats().values(3) - chs.getDiff()[3]));
-        log(ss[4] + ":" + (hero.getStats().values(4) - chs.getDiff()[4]) + ";             " + ss[5] + ":" +
-                    (hero.getStats().values(5) - chs.getDiff()[5]));
+        logFormat("%s:%s;              %s:%s", ss[0], (hero.getStats().values(0) - chs.getDiff()[0]), ss[1], (
+                hero.getStats().values(1) - chs.getDiff()[1]));
+        logFormat("%s:%s;              %s:%s", ss[2], (hero.getStats().values(2) - chs.getDiff()[2]), ss[3], (
+                hero.getStats().values(5) - chs.getDiff()[5]));
+        logFormat("%s:%s;              %s:%s", ss[4], (hero.getStats().values(4) - chs.getDiff()[4]), ss[5], (
+                hero.getStats().values(5) - chs.getDiff()[5]));
         log("__________________________");
         chs = null;
     }

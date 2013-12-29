@@ -142,7 +142,7 @@ public class Mob implements Cloneable, Locatable {
                 if (this == g.getHero()) {
                     switch (t.getItemsAmount()) {
                         case 1:
-                            g.log(String.format("Здесь есть %s.", t.getItemList().get(0).getItem().getName()));
+                            g.logFormat("Здесь есть %s.", t.getItemList().get(0).getItem().getName());
                         case 0:
                             break;
                         default:
@@ -169,9 +169,8 @@ public class Mob implements Cloneable, Locatable {
         float damage = Battle.computeDamage(getAttack(), defender.getArmor());
         defender.receiveDamage(damage, g);
 
-        g.log(String.format("%s наносит %s урона по %s", this.getName(), damage, defender.getName()));
-        g.log(String.format("У %s осталось %s здоровья", defender.getName(), AbstractGamePanel.roundOneDigit(defender
-                                                                                                                     .getHP())));
+        g.logFormat("%s наносит %s урона по %s", this.getName(), damage, defender.getName());
+        g.logFormat("У %s осталось %s здоровья", defender.getName(), AbstractGamePanel.roundOneDigit(defender.getHP()));
 
         if (defender.getHP() <= 0) {
             damage -= defender.getHP() * 2;// bonus XP for Overkills
