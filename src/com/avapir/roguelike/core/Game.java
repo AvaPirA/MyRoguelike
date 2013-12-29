@@ -110,7 +110,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     }
 
     public void logFormat(final String s, Object... params) {
-        String.format(s, params);
+        log(String.format(s, params));
     }
 
     private void placeMobsAndItems(final int scaler) {
