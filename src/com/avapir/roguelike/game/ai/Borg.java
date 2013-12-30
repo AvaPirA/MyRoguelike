@@ -105,12 +105,6 @@ public final class Borg extends SmartAI {
 
     @Override
     public void computeAI(final Mob m, final Game g) {
-        // try {
-        // Thread.sleep(500);
-        // } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
         if (g.getState() != GameState.GAME_OVER) {
             if (m == g.getHero()) {
                 final Hero h = g.getHero();

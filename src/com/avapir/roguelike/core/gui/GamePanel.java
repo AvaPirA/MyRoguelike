@@ -297,16 +297,25 @@ public class GamePanel extends AbstractGamePanel {
         final Graphics2D g2 = (Graphics2D) g;
         paintMap(g2, game.getMap());
         paintLog(g2);
-        if (game.getState() == GameState.GAME_OVER) {
-            final Image img = getImage("gameover");
-            drawImage(g, img,
-                      (WIDTH_IN_TILES * Tile.SIZE_px - img.getWidth(null)) / 2,
-                      (HEIGHT_IN_TILES * Tile.SIZE_px - img.getHeight(null)) / 2);
-        }
+
+        drawDialogs(g);
 
         // } else {
         // TODO BORG RUN PAINTING
         // }
+    }
+
+    private void drawDialogs(Graphics g) {
+        gameOverDialog(g);
+    }
+
+    private void gameOverDialog(Graphics g) {
+        if (game.getState() == GameState.GAME_OVER) {
+            final Image img = getImage("gameover");
+            drawImage(g, img,
+                      (WIDTH_IN_TILES * Tile.SIZE_px - img.getWidth(null)) / 2,
+                      (HEIGHT_IN_TILES * Tile.SIZE_px - img.getHeight(null)) / 4);
+        }
     }
 
     @Override
@@ -399,23 +408,23 @@ public class GamePanel extends AbstractGamePanel {
     }
 
     private void paintMob(final Mob mob, final Graphics2D g2, final int xx, final int yy) {
-        if (mob == game.getHero()) {
-            // TODO рисовать могилку на месте мертвого героя
-            drawImage(g2, getImage("hero"), xx, yy);
-        } else {
-            drawImage(g2, getImage(mob.getName().toLowerCase()), xx, yy);
+        if (mob.isAlive()) {
+            if (mob == game.getHero()) {
+                game.log("hero");
+                drawImage(g2, getImage("hero"), xx, yy);
+                paintColorBar(g2, xx, yy, Tile.SIZE_px, 3, mob.getHP() / mob.getMaxHp(), new Color(0, 255, 0, 128));
+            } else { //if not a hero
+                drawImage(g2, getImage(mob.getName().toLowerCase()), xx, yy);
+                paintColorBar(g2, xx, yy, Tile.SIZE_px, 3, mob.getHP() / mob.getMaxHp(), new Color(255, 0, 0, 128));
+            }
+            //if hero or not
+            paintColorBar(g2, xx, yy + 3, Tile.SIZE_px, 2, mob.getMP() / mob.getMaxMp(), new Color(0, 128, 255, 128));
+        } else { //if dead
+            if (mob == game.getHero()) {
+                game.log("rip");
+                drawImage(g2, getImage("rip"), xx, yy);
+            }
         }
-
-        if (mob == game.getHero()) {
-            g2.setColor(new Color(0, 255, 0, 128));
-        } else {
-            g2.setColor(new Color(255, 0, 0, 128));
-        }
-        paintColorBar(g2, xx, yy, Tile.SIZE_px, 3,
-                      mob.getHP() / mob.getMaxHp(),
-                      mob == game.getHero() ? new Color(0, 255, 0, 128) : new Color(255, 0, 0, 128));
-
-        paintColorBar(g2, xx, yy + 3, Tile.SIZE_px, 2, mob.getMP() / mob.getMaxMp(), new Color(0, 128, 255, 128));
     }
 
     void paintColorBar(final Graphics2D g2,

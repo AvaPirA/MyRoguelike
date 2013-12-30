@@ -24,7 +24,6 @@ public class Mob implements Cloneable, Locatable {
     protected       float      MP;
     protected       float      maxMP;
     protected       float      maxHP;
-    private boolean alive = true;
     private Point location;
 
     protected Mob(String name, float maxHP, float maxMP, Attack attack, Armor armor, Point location, AbstractAI ai) {
@@ -181,18 +180,17 @@ public class Mob implements Cloneable, Locatable {
 
     private void receiveDamage(final float dmg, final Game g) {
         HP -= dmg;
-        if (HP <= 0) {
+        if (!isAlive()) {
             onDeath(g);
         }
     }
 
     void onDeath(final Game g) {
-        alive = false;
-        ai.onDeath(this, g);
+
     }
 
     public boolean isAlive() {
-        return alive;
+        return HP >= 0;
     }
 
     Armor getArmor() {

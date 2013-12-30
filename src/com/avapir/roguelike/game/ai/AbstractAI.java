@@ -21,7 +21,7 @@ public abstract class AbstractAI {
     }
 
     List<Item> getDrop(final Mob mob, final Game g) {
-        //TODO
+        //TODO drop
         return Collections.emptyList();
     }
 

@@ -40,7 +40,7 @@ public class Hero extends Mob implements Locatable {
 
     private static final class DefaultStats {
         /* 	STR 	AGI 	VIT 	INT 	DEX 	LUK */
-        static final int[] PLAYER = {3, 3, 3000, 3, 2, 1};    // 16
+        static final int[] PLAYER = {3, 3, 3, 3, 2, 1};    // 16
         //		static final int[]	PLAYER	= { 280, 	170,	230,	90,		70,		47 };	// 887
         static final int[] NPC    = {50, 100, 100, 50, 50, 10};    // 360
         static final int[] ELDER  = {290, 120, 390, 700, 400, 100};    // 2000
@@ -345,7 +345,6 @@ public class Hero extends Mob implements Locatable {
 
     @Override
     protected void onDeath(final Game g) {
-        HP = 0;
         g.gameOver();
         g.repaint();
     }

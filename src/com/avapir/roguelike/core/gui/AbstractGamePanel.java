@@ -135,6 +135,7 @@ public abstract class AbstractGamePanel extends JPanel {
 
     Image getImage(final String filename) {
 
+
         return tKit.getImage(path.concat(filename.endsWith(".png") ? filename : filename.concat(".png")));
     }
 
