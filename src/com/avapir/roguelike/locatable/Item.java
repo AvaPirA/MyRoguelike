@@ -10,13 +10,16 @@ public class Item implements Cloneable {
     private final Armor   armor;
     private final int     weight;
     private final boolean stackable;
+    private String imageName;
 
     private Item(String name, int weight, Attack attack, Armor armor) {
         this.name = name;
+        imageName = "item_".concat(name.toLowerCase().replace(' ', '_'));
         this.attack = attack == null ? new Attack() : attack;
         this.armor = armor == null ? new Armor() : armor;
         this.weight = weight;
         stackable = false;
+
     }
 
     public static final class ItemBuilder {
@@ -71,5 +74,8 @@ public class Item implements Cloneable {
         }
     }
 
+    public String getImageName() {
+        return imageName;
+    }
 }
 

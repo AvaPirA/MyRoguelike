@@ -11,6 +11,7 @@ import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.game.ai.Borg;
 import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Hero.PrimaryStats;
+import com.avapir.roguelike.locatable.Item;
 import com.avapir.roguelike.locatable.Mob;
 
 import java.awt.*;
@@ -65,12 +66,21 @@ public class GamePanel extends AbstractGamePanel {
         private void heroInventory(final Graphics2D g2, final Hero h) {
             final Point oI = new Point(o.x + 100, 100);// offset Inventory
             final Image itemBg = getImage("inventory_border");
+            int itemBgWidth = itemBg.getWidth(null);
+            int itemBgHeight = itemBg.getHeight(null);
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 4; j++) {
-                    drawImage(g2, itemBg,
-                              oI.x + i * (itemBg.getWidth(null) + 1), oI.y + j * (itemBg.getHeight(null) + 1));
+                    int xx = oI.x + i * (itemBgWidth + 1);
+                    int yy = oI.y + j * (itemBgHeight + 1);
+                    drawImage(g2, itemBg, xx, yy); //draw bg
+                    Item item = h.getInventory().getWeared(i * 3 + j);
+                    if (item != null) {
+                        drawImage(g2, getImage(item.getImageName()), xx, yy); //draw item
+                    }
                 }
             }
+
+
             if (game.getState() == GameState.INVENTORY) {
                 g2.setColor(Color.yellow);
                 final Point cursor = game.getInventoryHandler().getCursor();
@@ -83,8 +93,8 @@ public class GamePanel extends AbstractGamePanel {
         private void heroMainStats(final Graphics2D g2, final Hero hero) {
             g2.setColor(Color.yellow);
             // location
-            drawString(g2, o.x, o.y, "getCurrentX: " + hero.getLoc().x);
-            drawString(g2, o.x, o.y + 15, "getCurrentY: " + hero.getLoc().y);
+            drawString(g2, o.x, o.y, "X: " + hero.getLoc().x);
+            drawString(g2, o.x, o.y + 15, "Y: " + hero.getLoc().y);
 
             // name
             drawString(g2, o.x, o.y + 30, hero.getName());

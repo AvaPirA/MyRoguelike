@@ -1,6 +1,6 @@
 package com.avapir.roguelike.game;
 
-public enum Wear {
+public enum ClothingSlots {
     ARTEFACT_1, HELMET, ARTEFACT_2,
     NECKLACE, VEST, WEAPON_2,
     WEAPON_1, LEGGINS, GLOVES,

@@ -4,7 +4,7 @@ import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Game.GameState;
-import com.avapir.roguelike.game.Wear;
+import com.avapir.roguelike.game.ClothingSlots;
 import com.avapir.roguelike.game.ai.Borg;
 import com.avapir.roguelike.game.ai.IdleAI;
 
@@ -223,8 +223,9 @@ public class Hero extends Mob implements Locatable {
         }
     }
 
-    private static final class Inventory {
+    public static final class Inventory {
 
+        private static final int NO_ITEM = -69;
         public static final  int        MAX_ITEMS_AMOUNT = 50;
         private static final int        SLOTS            = 3 * 4; //12
         private final        List<Item> items            = new ArrayList<>();
@@ -234,29 +235,42 @@ public class Hero extends Mob implements Locatable {
 
         Inventory() {}
 
-        public Item getWeared(Wear wear) {
-            return items.get(wearedItems[wear.ordinal()]);
+        /**
+         * @param slot shows the slot from which you want to get item
+         *
+         * @return item in current slot or
+         */
+        public Item getWeared(ClothingSlots slot) {
+            return getItem(wearedItems[slot.ordinal()]);
+        }
+
+        public Item getWeared(int index) {
+            if (index < 0 || index > SLOTS) {
+                return null;
+            } else {
+                return getItem(index);
+            }
+        }
+
+        public Item getItem(int index) {
+            if (index == NO_ITEM || index < 0 || index >= items.size()) {
+                return null;
+            } else {
+                return items.get(index);
+            }
         }
 
         ListIterator<Item> getIterator() {
             return items.listIterator();
         }
 
-        public Item getArt1() {return items.get(wearedItems[0]);}
-
-        // boolean isWeared(int index) {
-        // boolean b = false;
-        // for (int i = 0; i < SLOTS; i++) {
-        // b |= (index == wearedItems[i]);
-        // }
-        // return b;
-        // }
-
         Attack getAttack() {
             final Attack atk = new Attack();
             for (final int index : wearedItems) {
                 if (index < items.size() - 1) {
-                    atk.addAttack(items.get(index).getAttack());
+                    if (index != NO_ITEM) {
+                        atk.addAttack(items.get(index).getAttack());
+                    }
                 }
             }
             return atk;
@@ -266,7 +280,9 @@ public class Hero extends Mob implements Locatable {
             final Armor def = new Armor();
             for (final int index : wearedItems) {
                 if (index < items.size() - 1) {
-                    def.addArmor(items.get(index).getArmor());
+                    if (index != NO_ITEM) {
+                        def.addArmor(items.get(index).getArmor());
+                    }
                 }
             }
             return def;
@@ -381,7 +397,7 @@ public class Hero extends Mob implements Locatable {
         return level;
     }
 
-    Inventory getInventory() {
+    public Inventory getInventory() {
         return inventory;
     }
 
