@@ -146,60 +146,57 @@ public class KeyboardHandler extends KeyAdapter {
     }
 
     private void movePress(final KeyEvent e) {
-        Point p;
+        Point playerMove;
         switch (e.getKeyCode()) {
             case KeyEvent.VK_NUMPAD1:
-                p = new Point(-1, 1);
+                playerMove = new Point(-1, 1);
                 break;
             case KeyEvent.VK_NUMPAD2:
             case KeyEvent.VK_DOWN:
-                p = new Point(0, 1);
+                playerMove = new Point(0, 1);
                 break;
             case KeyEvent.VK_NUMPAD3:
-                p = new Point(1, 1);
+                playerMove = new Point(1, 1);
                 break;
             case KeyEvent.VK_NUMPAD4:
             case KeyEvent.VK_LEFT:
-                p = new Point(-1, 0);
+                playerMove = new Point(-1, 0);
                 break;
             case KeyEvent.VK_NUMPAD6:
             case KeyEvent.VK_RIGHT:
-                p = new Point(1, 0);
+                playerMove = new Point(1, 0);
                 break;
             case KeyEvent.VK_NUMPAD7:
-                p = new Point(-1, -1);
+                playerMove = new Point(-1, -1);
                 break;
             case KeyEvent.VK_NUMPAD8:
             case KeyEvent.VK_UP:
-                p = new Point(0, -1);
+                playerMove = new Point(0, -1);
                 break;
             case KeyEvent.VK_NUMPAD9:
-                p = new Point(1, -1);
+                playerMove = new Point(1, -1);
                 break;
             case KeyEvent.VK_END:
-                p = new Point(0, 0);
+                playerMove = new Point(0, 0);
+                break;
+            case KeyEvent.VK_EQUALS:
+                Game.zoomIn();
+                game.logFormat("New zoom: %sp", 100 * Game.getZoom());
+                return;
+            case KeyEvent.VK_MINUS:
+                Game.zoomOut();
+                game.logFormat("New zoom: %sp", 100 * Game.getZoom());
+                return;
             default:
                 return;
         }
-        move(p);
+        move(playerMove);
     }
 
     void move(final Point p) {
         if (target == null) {
             final Point resultMove = game.getHero().move(p, game);
             if (resultMove != null) {
-                game.EOT(resultMove);
-            }
-        } else {
-            if (target.x == 0 && target.y == 0) {
-                game.getHero().doAI(game);
-                return;
-            }
-            final Point resultMove = game.getHero().move(target, game);
-            if (resultMove != null) {
-                if (resultMove.x == 0 && resultMove.y == 0) {
-                    game.getHero().doAI(game);
-                }
                 game.EOT(resultMove);
             }
         }

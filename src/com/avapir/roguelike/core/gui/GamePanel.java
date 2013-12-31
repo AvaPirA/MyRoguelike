@@ -6,6 +6,7 @@ import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.KeyboardHandler;
 import com.avapir.roguelike.core.RoguelikeMain;
+import com.avapir.roguelike.core.Viewport;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.game.ai.Borg;
@@ -25,16 +26,16 @@ public class GamePanel extends AbstractGamePanel {
 
     private static final long serialVersionUID = 1L;
     private final Game       game;
-    private final int        WIDTH_IN_TILES;
-    private final int        HEIGHT_IN_TILES;
+    //    private final int        WIDTH_IN_TILES;
+//    private final int        HEIGHT_IN_TILES;
     private final GuiPainter guiPainter;
 
     public GamePanel(final Game g) {
         super();
 
         game = g;
-        WIDTH_IN_TILES = getWidthInTiles();
-        HEIGHT_IN_TILES = getHeightInTiles();
+//        WIDTH_IN_TILES = getWidthInTiles();
+//        HEIGHT_IN_TILES = getHeightInTiles();
         guiPainter = new GuiPainter();
         addKeyListener(new KeyboardHandler(game));
         setFocusable(true);
@@ -46,7 +47,7 @@ public class GamePanel extends AbstractGamePanel {
         private final Point armorOffset  = new Point(150, 0);
         private final Point statsOffset  = new Point(-150, 110);
         private final Point o            = new Point(
-                WIDTH_IN_TILES * Tile.SIZE_px + 15, HEIGHT_IN_TILES * Tile.SIZE_px / 2);
+                getWidthInTiles() * Tile.SIZE_px + 15, getHeightInTiles() * Tile.SIZE_px / 2);
         private final Point offsetDFT    = new Point(o.x, o.y);
         private final Font  defaultFont  = new Font(Font.MONOSPACED, Font.PLAIN, 15);
         private int validMax;
@@ -84,8 +85,7 @@ public class GamePanel extends AbstractGamePanel {
             if (game.getState() == GameState.INVENTORY) {
                 g2.setColor(Color.yellow);
                 final Point cursor = game.getInventoryHandler().getCursor();
-                g2.drawRect(
-                        oI.x + cursor.x * (itemBg.getWidth(null) + 1),
+                g2.drawRect(oI.x + cursor.x * (itemBg.getWidth(null) + 1),
                         oI.y + cursor.y * (itemBg.getHeight(null) + 1), itemBg.getWidth(null), itemBg.getHeight(null));
             }
         }
@@ -195,7 +195,6 @@ public class GamePanel extends AbstractGamePanel {
                     max = max > i ? max : i;
                 }
                 validMax = max;
-                System.out.println(max);
             }
             return validMax;
         }
@@ -323,8 +322,8 @@ public class GamePanel extends AbstractGamePanel {
         if (game.getState() == GameState.GAME_OVER) {
             final Image img = getImage("gameover");
             drawImage(g, img,
-                      (WIDTH_IN_TILES * Tile.SIZE_px - img.getWidth(null)) / 2,
-                      (HEIGHT_IN_TILES * Tile.SIZE_px - img.getHeight(null)) / 4);
+                      (getWidthInTiles() * Tile.SIZE_px - img.getWidth(null)) / 2,
+                      (getHeightInTiles() * Tile.SIZE_px - img.getHeight(null)) / 4);
         }
     }
 
@@ -368,15 +367,16 @@ public class GamePanel extends AbstractGamePanel {
     }
 
     private void paintMap(final Graphics2D g2, final Map map) {
+//        g2.setFont(coordFont);
         final int ox = game.getCurrentX();
         final int oy = game.getCurrentY();
-        for (int i = 0; i < HEIGHT_IN_TILES; i++) {
-            for (int j = 0; j < WIDTH_IN_TILES; j++) {
+        for (int i = 0; i < getHeightInTiles(); i++) {
+            for (int j = 0; j < getWidthInTiles(); j++) {
 
                 // indexes on the Map
-                final int x = ox + j;
-                final int y = oy + i;
-                // pixels where to paint getCurrentY Tile
+                final int x = ox - Viewport.HORIZONTAL_VIEW_LIMIT + j;
+                final int y = oy - Viewport.VERTICAL_VIEW_LIMIT + i;
+                // pixels where to paint Tile
                 final int xx = j * Tile.SIZE_px;
                 final int yy = i * Tile.SIZE_px;
                 final Tile tile = map.getTile(x, y);
@@ -385,11 +385,10 @@ public class GamePanel extends AbstractGamePanel {
                     drawImage(g2, getImage("empty"), xx, yy);
                     if (tile.isVisible()) {
                         paintTile(g2, tile, xx, yy);
-                        // dS(g2, xx, yy, "vis");
+//                        drawString(g2, xx, yy, String.format("%s,%s", x, y));
                     } else if (tile.isSeen()) {
                         paintTile(g2, tile, xx, yy);
                         drawImage(g2, getImage("wFog"), xx, yy);
-                        // dS(g2, xx, yy, "seen");
                     } else {
                         // dS(g2, xx, yy, "invi");
                     }
@@ -403,6 +402,12 @@ public class GamePanel extends AbstractGamePanel {
     private void paintTile(final Graphics2D g2, final Tile tile, final int xx, final int yy) {
         switch (tile.getType()) {
             case GRASS:
+//                String s = "grass";
+//                if (new Random().nextInt(10) > 8) {
+//                    s = s.concat("_rot");
+//                }
+//                Image img = getImage(s);
+//                g2.drawImage(img, xx, yy, img.getWidth(null) * 2, img.getHeight(null) * 2, null);
                 drawImage(g2, getImage("grass"), xx, yy);
                 break;
             case TREE:
@@ -412,9 +417,13 @@ public class GamePanel extends AbstractGamePanel {
                 drawImage(g2, getImage("empty"), xx, yy);
                 break;
         }
-        if (tile.isVisible() && tile.getMob() != null) {
+
+        if (tile.isVisible() && tile.getMob() != null)
+
+        {
             paintMob(tile.getMob(), g2, xx, yy);
         }
+
     }
 
     private void paintMob(final Mob mob, final Graphics2D g2, final int xx, final int yy) {

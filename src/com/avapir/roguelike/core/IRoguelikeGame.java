@@ -27,7 +27,10 @@ public interface IRoguelikeGame {
 
     Mob removeMob(Mob m);
 
-    void setScreenCenterAt(Point p);
-
+    /**
+     * End of turn
+     *
+     * @param mapMove step did by {@link Hero} character
+     */
     void EOT(Point mapMove);
 }

@@ -1,5 +1,6 @@
 package com.avapir.roguelike.core.gui;
 
+import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.game.Tile;
 
 import javax.swing.*;
@@ -10,6 +11,7 @@ import java.awt.image.BufferedImage;
 public abstract class AbstractGamePanel extends JPanel {
 
     static final         Font    logFont          = new Font("Times New Roman", Font.PLAIN, 15);
+    static final         Font    coordFont        = new Font("Monospaced", Font.PLAIN, 10);
     private static final long    serialVersionUID = 1L;
     private static final Toolkit tKit             = Toolkit.getDefaultToolkit();
     private static final int SCREEN_WIDTH;
@@ -115,8 +117,13 @@ public abstract class AbstractGamePanel extends JPanel {
         g2.drawString(s, xx, yy + 8);
     }
 
+    //    void drawImage(final Graphics g2, final Image img, final int xx, final int yy) {
+//        g2.drawImage(img, xx, yy, img.getWidth(null)/2,img.getHeight(null)/2, this);
+//    }
     void drawImage(final Graphics g2, final Image img, final int xx, final int yy) {
-        g2.drawImage(img, xx, yy, this);
+        int h = (int) (Tile.SIZE_px * Game.getZoom());
+        int w = (int) (Tile.SIZE_px * Game.getZoom());
+        g2.drawImage(img, xx, yy, h, w, this);
     }
 
     final void paintBackground(final Graphics2D g2) {
@@ -134,8 +141,6 @@ public abstract class AbstractGamePanel extends JPanel {
     protected abstract void paintGUI(final Graphics2D g2);
 
     Image getImage(final String filename) {
-
-
         return tKit.getImage(path.concat(filename.endsWith(".png") ? filename : filename.concat(".png")));
     }
 

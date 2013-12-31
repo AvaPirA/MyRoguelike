@@ -120,47 +120,79 @@ public class Mob implements Cloneable, Locatable {
         return MP;
     }
 
+    /**
+     * Tries to move in specified direction
+     *
+     * @param dp where to try to go
+     * @param g  {@link Game} instance
+     *
+     * @return resulting move of player. If step was successful it will equal to {@code dp}. Otherwise it checks is it
+     * restricted by rules (e.g. going into wall) or by some state (paralysed). Then method will return {@code null} or
+     * {@code new Point(0,0)} respectively.
+     */
     public Point move(final Point dp, final Game g) {
         if (dp.x == 0 && dp.y == 0) {
             return null;
         }
-        final Map m = g.getMap();
 
-        final int ny = getLoc().y + dp.y;
-        final int nx = getLoc().x + dp.x;
-        final Tile t = g.getMap().getTile(nx, ny);
+        System.out.println("\nloc");
+        System.out.println(getLoc());
+        Point newLoc = new Point(getLoc());
+        newLoc.translate(dp.x, dp.y);
+        System.out.println(newLoc);
+
+
+        Tile t = g.getMap().getTile(newLoc.x, newLoc.y);
         if (t != null) {
             if (t.getMob() != null) {
-                final float dmg = attackMob(new Point(nx, ny), g);
-                if (this == g.getHero()) {
-                    ((Hero) this).gainXpFromDamage(dmg, g);
-                }
-                return new Point(0, 0);
-            } else if (t.isPassable()) {
-                m.putCharacter(this, nx, ny);
-                if (this == g.getHero()) {
-                    switch (t.getItemsAmount()) {
-                        case 1:
-                            g.logFormat("Здесь есть %s.", t.getItemList().get(0).getItem().getName());
-                        case 0:
-                            break;
-                        default:
-                            g.log("Здесь лежит много вещей.");
-                    }
-                }
-            } else if (t.isClosed() && this == g.getHero()) {
-                // g.TryToOpen(ny, nx, true);
+                moveAttack(newLoc, g);
                 return new Point(0, 0);
             } else {
-                return new Point(0, 0);
+                if (t.isPassable()) {
+                    moveTo(newLoc, g);
+                    return dp;
+                } else if (t.isClosed() && this == g.getHero()) {
+                    // g.TryToOpen(ny, nx, true);
+                    return new Point(0, 0);
+                } else {
+                    return new Point(0, 0);
+                }
             }
-            return dp;
-        } else {
+        } else { // if no such tile on the map
             return null;
         }
     }
 
-    float attackMob(final Point dp, final Game g) {
+    private void moveTo(Point newLoc, Game g) {
+        g.getMap().putCharacter(this, newLoc.x, newLoc.y);
+        if (this == g.getHero()) {
+            Tile t = g.getMap().getTile(newLoc.x, newLoc.y);
+            switch (t.getItemsAmount()) {
+                case 1:
+                    g.logFormat("Здесь есть %s.", t.getItemList().get(0).getItem().getName());
+                case 0:
+                    break;
+                default:
+                    g.log("Здесь лежит много вещей.");
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Character tried to go to {@code newLoc} but there is some hostile
+     *
+     * @param newLoc there to go
+     * @param g      {@link Game} instance
+     */
+    private void moveAttack(Point newLoc, Game g) {
+        final float dmg = attackMob(newLoc, g);
+        if (this == g.getHero()) {
+            ((Hero) this).gainXpFromDamage(dmg, g);
+        }
+    }
+
+    private float attackMob(final Point dp, final Game g) {
         final Mob defender = g.getMap().getTile(dp.x, dp.y).getMob();
         if (defender != g.getHero() && this != g.getHero()) {
             return 0;
@@ -185,8 +217,8 @@ public class Mob implements Cloneable, Locatable {
         }
     }
 
-    void onDeath(final Game g) {
-
+    protected void onDeath(final Game g) {
+        ai.onDeath(this, g);
     }
 
     public boolean isAlive() {

@@ -111,7 +111,6 @@ public class Hero extends Mob implements Locatable {
             final float INT = getInt(h);
             final float phy = 1.6f + STR + DEX * 0.4f + INT * 0.2f;
             final float mag = 1.2f + INT + DEX * 0.4f;
-            System.out.println(STR + " " + DEX + " " + INT + " " + phy);
             return new Attack(phy, mag);
         }
 
@@ -347,16 +346,15 @@ public class Hero extends Mob implements Locatable {
 
     @Override
     public Point move(final Point dp, final Game g) {
-        if (!StatsFormulas.isOverweighted(this)) {
-            if (!inventory.hasTooMuchItems()) {
-                return super.move(dp, g);
-            } else {
-                g.log("Вы несете #2#слишком много вещей!#^#");
-            }
-        } else {
+        if (StatsFormulas.isOverweighted(this)) {
             g.log("Вы #2#перегружены!#^#");
+            return new Point(0, 0);
         }
-        return null;
+        if (inventory.hasTooMuchItems()) {
+            g.log("Вы несете #2#слишком много вещей!#^#");
+            return new Point(0, 0);
+        }
+        return super.move(dp, g);
     }
 
     @Override

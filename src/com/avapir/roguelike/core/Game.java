@@ -1,6 +1,5 @@
 package com.avapir.roguelike.core;
 
-import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.core.gui.GameWindow;
 import com.avapir.roguelike.core.statehandlers.ChangingStatsHandler;
 import com.avapir.roguelike.core.statehandlers.InventoryHandler;
@@ -22,14 +21,14 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         MOVE, INVENTORY, CHANGE_STATS, GAME_OVER, DISTANCE_ATTACK, VIEW
     }
 
+    private static int      zoomFactor;//size of tile to scale
     private final Log                  gameLog;
     private final List<Map>            maps;
     private final Hero                 hero;
     private final GameWindow           gameWindow;
     private final List<Mob>            mobs;
     private       Map                  currentMap;
-    private       int                  currentX;
-    private       int                  currentY;
+    private        Viewport viewport;
     private       int                  turnCounter;
     private       GameState            state;
     private       ChangingStatsHandler chs;
@@ -72,7 +71,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     }
 
-    private static boolean isMoved(final Point dp) {
+    private static boolean isActuallyMoved(final Point dp) {
         if (!((dp.x == 1 || dp.x == 0 || dp.x == -1) && (dp.y == 1 || dp.y == 0 || dp.y == -1))) {
             throw new IllegalArgumentException("Wrong step");
         } else {
@@ -82,12 +81,14 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     private static void loadFonts() {
         final Graphics2D g2 = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR).createGraphics();
-        g2.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+        g2.setFont(new Font("Times New Roman", Font.PLAIN, 8));
         g2.drawString("asd", 0, 0);
     }
 
     @Override
-    public void init() {}
+    public void init() {
+        zoomFactor = 32;
+    }
 
     @Override
     public void start() {
@@ -114,14 +115,14 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     }
 
     private void placeMobsAndItems(final int scaler) {
-        int i = 320;
+//        int i = 320;
         for (int x = 0; x < currentMap.getWidth(); x++) {
             for (int y = 0; y < currentMap.getHeight(); y++) {
-                if (i > 0) {
-                    mobs.add(Mob.MobSet.getSlime());
-                    currentMap.putCharacter(mobs.get(mobs.size() - 1), x, y);
-                    i--;
-                }
+//                if (i > 0) {
+//                    mobs.add(Mob.MobSet.getSlime());
+//                    currentMap.putCharacter(mobs.get(mobs.size() - 1), x, y);
+//                    i--;
+//                }
             }
         }
     }
@@ -133,18 +134,17 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         } else {
             currentMap = maps.get(index);
         }
-        setScreenCenterAt(currentMap.putCharacter(hero));
+        viewport = new Viewport(currentMap.putCharacter(hero), this);
         placeMobsAndItems(index);
 
         EOT(new Point(0, 0));
     }
 
     private void move(final Point p) {
-        if (isMoved(p)) {
+        if (isActuallyMoved(p)) {
             logFormat("Перешел в [%s, %s]", hero.getLoc().x, hero.getLoc().y);
+            viewport.move(p);
         }
-        currentX += p.x;
-        currentY += p.y;
     }
 
     private void doUnlimitedAiWorks() {
@@ -177,12 +177,12 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     @Override
     public int getCurrentX() {
-        return currentX;
+        return viewport.getX();
     }
 
     @Override
     public int getCurrentY() {
-        return currentY;
+        return viewport.getY();
     }
 
     @Override
@@ -192,15 +192,8 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     }
 
     @Override
-    public void setScreenCenterAt(final Point p) {
-        currentX = p.x - AbstractGamePanel.getWidthInTiles() / 2;
-        currentY = p.y - AbstractGamePanel.getHeightInTiles() / 2;
-        repaint();
-    }
-
-    @Override
-    public void EOT(final Point mapMove) {
-        move(mapMove);
+    public void EOT(final Point playerStep) {
+        move(playerStep);
         // TODO SET GAME.BUSY
         currentMap.computeFOV(hero.getLoc(), Hero.StatsFormulas.getFOVR(hero));
         doUnlimitedAiWorks();
@@ -288,5 +281,19 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     public Log getLog() {
         return gameLog;
+    }
+
+    public static void zoomIn() {
+        zoomFactor += 1;
+//        Tile.SIZE_px+=1;
+    }
+
+    public static void zoomOut() {
+        zoomFactor -= 1;
+//        Tile.SIZE_px-=1;
+    }
+
+    public static float getZoom() {
+        return zoomFactor / 32f;
     }
 }

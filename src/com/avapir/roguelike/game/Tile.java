@@ -26,7 +26,7 @@ public class Tile {
         }
     }
 
-    public static final int SIZE_px = 32;
+    public static int SIZE_px = 32;
     private final Tile.Type initialType;
     private Mob charHere = null;
     private List<DroppedItem> itemsHere;
