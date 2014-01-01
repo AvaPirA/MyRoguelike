@@ -7,17 +7,30 @@ import java.awt.*;
 public class Viewport {
 
     private Game game;
-
-    public static final int HORIZONTAL_VIEW_LIMIT = AbstractGamePanel.getWidthInTiles() / 2;
-    public static final int VERTICAL_VIEW_LIMIT   = AbstractGamePanel.getHeightInTiles() / 2;
-    private int   horizontalDistance;
-    private int   verticalDistance;
     private Point currentLocation;
+
+    public static int horizViewDistance() {
+        return AbstractGamePanel.getWidthInTiles() / 2;
+    }
+
+    public static int verticalViewDistance() {
+        return AbstractGamePanel.getHeightInTiles() / 2;
+    }
+
+    public static int horizontalBoxDistance() {
+        return AbstractGamePanel.getWidthInTiles() / 5;
+    }
+
+    public static int verticalBoxDistance() {
+        return AbstractGamePanel.getHeightInTiles() / 5;
+    }
+
+    public void setCenter(int x, int y) {
+        currentLocation = new Point(x, y);
+    }
 
     public Viewport(Point screenCenter, Game game) {
         this.game = game;
-        horizontalDistance = AbstractGamePanel.getWidthInTiles() / 5;
-        verticalDistance = AbstractGamePanel.getHeightInTiles() / 5;
         currentLocation = new Point(screenCenter.x, screenCenter.y);
     }
 
@@ -43,12 +56,12 @@ public class Viewport {
 
     private boolean goesOutOfHorizontal(int distX) {
         int heroX = game.getHero().getLoc().x;
-        return Math.abs(heroX + distX - currentLocation.x) > horizontalDistance;
+        return Math.abs(heroX + distX - currentLocation.x) > horizontalBoxDistance();
     }
 
     private boolean goesOutOfVertical(int distY) {
         int heroY = game.getHero().getLoc().y;
-        return Math.abs(heroY + distY - currentLocation.y) > verticalDistance;
+        return Math.abs(heroY + distY - currentLocation.y) > verticalBoxDistance();
     }
 
     private void moveVertical(int distY) {
@@ -59,9 +72,9 @@ public class Viewport {
 
     public String toString() {
         return String.format("Viewport at %s. Box corners: \n%s    %s\n%s    %s", currentLocation, new Point(
-                currentLocation.x - horizontalDistance, currentLocation.y - verticalDistance), new Point(
-                currentLocation.x + horizontalDistance, currentLocation.y - verticalDistance), new Point(
-                currentLocation.x - horizontalDistance, currentLocation.y + verticalDistance), new Point(
-                currentLocation.x + horizontalDistance, currentLocation.y + verticalDistance));
+                currentLocation.x - horizontalBoxDistance(), currentLocation.y - verticalBoxDistance()), new Point(
+                currentLocation.x + horizontalBoxDistance(), currentLocation.y - verticalBoxDistance()), new Point(
+                currentLocation.x - horizontalBoxDistance(), currentLocation.y + verticalBoxDistance()), new Point(
+                currentLocation.x + horizontalBoxDistance(), currentLocation.y + verticalBoxDistance()));
     }
 }

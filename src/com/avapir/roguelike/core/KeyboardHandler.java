@@ -2,6 +2,7 @@ package com.avapir.roguelike.core;
 
 import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.statehandlers.StateHandler;
+import com.avapir.roguelike.game.Tile;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -181,11 +182,15 @@ public class KeyboardHandler extends KeyAdapter {
                 break;
             case KeyEvent.VK_EQUALS:
                 Game.zoomIn();
-                game.logFormat("New zoom: %sp", 100 * Game.getZoom());
+                game.resetViewport();
+                game.logFormat("New zoom: %sp", 100 * Tile.SIZE_px / 32f);
                 return;
             case KeyEvent.VK_MINUS:
-                Game.zoomOut();
-                game.logFormat("New zoom: %sp", 100 * Game.getZoom());
+                if (Tile.SIZE_px > 1) {
+                    Game.zoomOut();
+                    game.resetViewport();
+                    game.logFormat("New zoom: %sp", 100 * Tile.SIZE_px / 32f);
+                }
                 return;
             default:
                 return;

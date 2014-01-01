@@ -73,10 +73,10 @@ public class GamePanel extends AbstractGamePanel {
                 for (int j = 0; j < 4; j++) {
                     int xx = oI.x + i * (itemBgWidth + 1);
                     int yy = oI.y + j * (itemBgHeight + 1);
-                    drawImage(g2, itemBg, xx, yy); //draw bg
+                    drawTile(g2, itemBg, xx, yy); //draw bg
                     Item item = h.getInventory().getWeared(i * 3 + j);
                     if (item != null) {
-                        drawImage(g2, getImage(item.getImageName()), xx, yy); //draw item
+                        drawTile(g2, getImage(item.getImageName()), xx, yy); //draw item
                     }
                 }
             }
@@ -322,9 +322,9 @@ public class GamePanel extends AbstractGamePanel {
     private void gameOverDialog(Graphics g) {
         if (game.getState() == GameState.GAME_OVER) {
             final Image img = getImage("gameover");
-            drawImage(g, img,
-                      (getWidthInTiles() * Tile.SIZE_px - img.getWidth(null)) / 2,
-                      (getHeightInTiles() * Tile.SIZE_px - img.getHeight(null)) / 4);
+            drawTile(g, img,
+                     (getWidthInTiles() * Tile.SIZE_px - img.getWidth(null)) / 2,
+                     (getHeightInTiles() * Tile.SIZE_px - img.getHeight(null)) / 4);
         }
     }
 
@@ -375,21 +375,21 @@ public class GamePanel extends AbstractGamePanel {
             for (int j = 0; j < getWidthInTiles(); j++) {
 
                 // indexes on the Map
-                final int x = ox - Viewport.HORIZONTAL_VIEW_LIMIT + j;
-                final int y = oy - Viewport.VERTICAL_VIEW_LIMIT + i;
+                final int x = ox - Viewport.horizViewDistance() + j;
+                final int y = oy - Viewport.verticalViewDistance() + i;
                 // pixels where to paint Tile
                 final int xx = j * Tile.SIZE_px;
                 final int yy = i * Tile.SIZE_px;
                 final Tile tile = map.getTile(x, y);
                 g2.setColor(Color.red);
                 if (map.hasTile(x, y)) {
-                    drawImage(g2, getImage("empty"), xx, yy);
+                    drawTile(g2, getImage("empty"), xx, yy);
                     if (tile.isVisible()) {
                         paintTile(g2, tile, xx, yy);
 //                        drawString(g2, xx, yy, String.format("%s,%s", x, y));
                     } else if (tile.isSeen()) {
                         paintTile(g2, tile, xx, yy);
-                        drawImage(g2, getImage("wFog"), xx, yy);
+                        drawTile(g2, getImage("wFog"), xx, yy);
                     } else {
                         // dS(g2, xx, yy, "invi");
                     }
@@ -408,14 +408,14 @@ public class GamePanel extends AbstractGamePanel {
 //                    s = s.concat("_rot");
 //                }
 //                Image img = getImage(s);
-//                g2.drawImage(img, xx, yy, img.getWidth(null) * 2, img.getHeight(null) * 2, null);
-                drawImage(g2, getImage("grass"), xx, yy);
+//                g2.drawTile(img, xx, yy, img.getWidth(null) * 2, img.getHeight(null) * 2, null);
+                drawTile(g2, getImage("grass"), xx, yy);
                 break;
             case TREE:
-                drawImage(g2, getImage("tree"), xx, yy);
+                drawTile(g2, getImage("tree"), xx, yy);
                 break;
             default:
-                drawImage(g2, getImage("empty"), xx, yy);
+                drawTile(g2, getImage("empty"), xx, yy);
                 break;
         }
 
@@ -430,10 +430,10 @@ public class GamePanel extends AbstractGamePanel {
     private void paintMob(final Mob mob, final Graphics2D g2, final int xx, final int yy) {
         if (mob.isAlive()) {
             if (mob == game.getHero()) {
-                drawImage(g2, getImage("hero"), xx, yy);
+                drawTile(g2, getImage("hero"), xx, yy);
                 paintColorBar(g2, xx, yy, Tile.SIZE_px, 3, mob.getHP() / mob.getMaxHp(), new Color(0, 255, 0, 128));
             } else { //if not a hero
-                drawImage(g2, getImage(mob.getName().toLowerCase()), xx, yy);
+                drawTile(g2, getImage(mob.getName().toLowerCase()), xx, yy);
                 paintColorBar(g2, xx, yy, Tile.SIZE_px, 3, mob.getHP() / mob.getMaxHp(), new Color(255, 0, 0, 128));
             }
             //if hero or not
@@ -441,7 +441,7 @@ public class GamePanel extends AbstractGamePanel {
         } else { //if dead
             if (mob == game.getHero()) {
                 game.log("rip");
-                drawImage(g2, getImage("rip"), xx, yy);
+                drawTile(g2, getImage("rip"), xx, yy);
             }
         }
     }

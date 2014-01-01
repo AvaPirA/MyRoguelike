@@ -1,6 +1,5 @@
 package com.avapir.roguelike.core.gui;
 
-import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.game.Tile;
 
 import javax.swing.*;
@@ -35,11 +34,11 @@ public abstract class AbstractGamePanel extends JPanel {
     }
 
     public static int getWidthInTiles() {
-        return SCREEN_WIDTH / Tile.SIZE_px - 1 - 10;
+        return (SCREEN_WIDTH - 330) / Tile.SIZE_px;
     }
 
     public static int getHeightInTiles() {
-        return SCREEN_HEIGHT / Tile.SIZE_px - 1;
+        return SCREEN_HEIGHT / Tile.SIZE_px;
     }
 
     public static int getScreenWidth() {
@@ -117,13 +116,11 @@ public abstract class AbstractGamePanel extends JPanel {
         g2.drawString(s, xx, yy + 8);
     }
 
-    //    void drawImage(final Graphics g2, final Image img, final int xx, final int yy) {
-//        g2.drawImage(img, xx, yy, img.getWidth(null)/2,img.getHeight(null)/2, this);
+    //    void drawTile(final Graphics g2, final Image img, final int xx, final int yy) {
+//        g2.drawTile(img, xx, yy, img.getWidth(null)/2,img.getHeight(null)/2, this);
 //    }
-    void drawImage(final Graphics g2, final Image img, final int xx, final int yy) {
-        int h = (int) (Tile.SIZE_px * Game.getZoom());
-        int w = (int) (Tile.SIZE_px * Game.getZoom());
-        g2.drawImage(img, xx, yy, h, w, this);
+    void drawTile(final Graphics g2, final Image img, final int xx, final int yy) {
+        g2.drawImage(img, xx, yy, Tile.SIZE_px, Tile.SIZE_px, this);
     }
 
     final void paintBackground(final Graphics2D g2) {

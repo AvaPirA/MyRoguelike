@@ -4,6 +4,7 @@ import com.avapir.roguelike.core.gui.GameWindow;
 import com.avapir.roguelike.core.statehandlers.ChangingStatsHandler;
 import com.avapir.roguelike.core.statehandlers.InventoryHandler;
 import com.avapir.roguelike.game.Map;
+import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Hero.PrimaryStats;
 import com.avapir.roguelike.locatable.Mob;
@@ -21,14 +22,13 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         MOVE, INVENTORY, CHANGE_STATS, GAME_OVER, DISTANCE_ATTACK, VIEW
     }
 
-    private static int      zoomFactor;//size of tile to scale
     private final Log                  gameLog;
     private final List<Map>            maps;
     private final Hero                 hero;
     private final GameWindow           gameWindow;
     private final List<Mob>            mobs;
     private       Map                  currentMap;
-    private        Viewport viewport;
+    private       Viewport             viewport;
     private       int                  turnCounter;
     private       GameState            state;
     private       ChangingStatsHandler chs;
@@ -87,7 +87,6 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     @Override
     public void init() {
-        zoomFactor = 32;
     }
 
     @Override
@@ -284,16 +283,16 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     }
 
     public static void zoomIn() {
-        zoomFactor += 1;
-//        Tile.SIZE_px+=1;
+//        zoomFactor += 1;
+        Tile.SIZE_px += 1;
     }
 
     public static void zoomOut() {
-        zoomFactor -= 1;
-//        Tile.SIZE_px-=1;
+//        zoomFactor -= 1;
+        Tile.SIZE_px -= 1;
     }
 
-    public static float getZoom() {
-        return zoomFactor / 32f;
+    public void resetViewport() {
+        viewport.setCenter(hero.getLoc().x, hero.getLoc().y);
     }
 }
