@@ -18,8 +18,6 @@ public class Viewport {
         this.game = game;
         horizontalDistance = AbstractGamePanel.getWidthInTiles() / 5;
         verticalDistance = AbstractGamePanel.getHeightInTiles() / 5;
-        System.out.println(horizontalDistance);
-        System.out.println(verticalDistance);
         currentLocation = new Point(screenCenter.x, screenCenter.y);
     }
 
@@ -32,16 +30,31 @@ public class Viewport {
     }
 
     public void move(Point p) {
-        if (goesOutOfBox(p)) {
-            currentLocation.translate(p.x, p.y);
+        moveHorizontal(p.x);
+        moveVertical(p.y);
+    }
+
+
+    private void moveHorizontal(int distX) {
+        if (distX != 0 && goesOutOfHorizontal(distX)) {
+            currentLocation.translate(distX, 0);
         }
     }
 
-    private boolean goesOutOfBox(Point dp) {
-        Point newHeroLoc = new Point(game.getHero().getLoc());
-        newHeroLoc.translate(dp.x, dp.y);
-        return Math.abs(newHeroLoc.x - currentLocation.x) > horizontalDistance ||
-                Math.abs(newHeroLoc.y - currentLocation.y) > verticalDistance;
+    private boolean goesOutOfHorizontal(int distX) {
+        int heroX = game.getHero().getLoc().x;
+        return Math.abs(heroX + distX - currentLocation.x) > horizontalDistance;
+    }
+
+    private boolean goesOutOfVertical(int distY) {
+        int heroY = game.getHero().getLoc().y;
+        return Math.abs(heroY + distY - currentLocation.y) > verticalDistance;
+    }
+
+    private void moveVertical(int distY) {
+        if (distY != 0 && goesOutOfVertical(distY)) {
+            currentLocation.translate(0, distY);
+        }
     }
 
     public String toString() {

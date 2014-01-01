@@ -24,7 +24,7 @@ public class Mob implements Cloneable, Locatable {
     protected       float      MP;
     protected       float      maxMP;
     protected       float      maxHP;
-    private Point location;
+    private         Point      location;
 
     protected Mob(String name, float maxHP, float maxMP, Attack attack, Armor armor, Point location, AbstractAI ai) {
         this.name = name;
@@ -135,11 +135,8 @@ public class Mob implements Cloneable, Locatable {
             return null;
         }
 
-        System.out.println("\nloc");
-        System.out.println(getLoc());
         Point newLoc = new Point(getLoc());
         newLoc.translate(dp.x, dp.y);
-        System.out.println(newLoc);
 
 
         Tile t = g.getMap().getTile(newLoc.x, newLoc.y);

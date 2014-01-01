@@ -85,7 +85,8 @@ public class GamePanel extends AbstractGamePanel {
             if (game.getState() == GameState.INVENTORY) {
                 g2.setColor(Color.yellow);
                 final Point cursor = game.getInventoryHandler().getCursor();
-                g2.drawRect(oI.x + cursor.x * (itemBg.getWidth(null) + 1),
+                g2.drawRect(
+                        oI.x + cursor.x * (itemBg.getWidth(null) + 1),
                         oI.y + cursor.y * (itemBg.getHeight(null) + 1), itemBg.getWidth(null), itemBg.getHeight(null));
             }
         }
@@ -429,7 +430,6 @@ public class GamePanel extends AbstractGamePanel {
     private void paintMob(final Mob mob, final Graphics2D g2, final int xx, final int yy) {
         if (mob.isAlive()) {
             if (mob == game.getHero()) {
-                game.log("hero");
                 drawImage(g2, getImage("hero"), xx, yy);
                 paintColorBar(g2, xx, yy, Tile.SIZE_px, 3, mob.getHP() / mob.getMaxHp(), new Color(0, 255, 0, 128));
             } else { //if not a hero
