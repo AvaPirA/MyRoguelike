@@ -9,36 +9,42 @@ import java.awt.image.BufferedImage;
 
 public abstract class AbstractGamePanel extends JPanel {
 
-    static final         Font    logFont          = new Font("Times New Roman", Font.PLAIN, 15);
-    static final         Font    coordFont        = new Font("Monospaced", Font.PLAIN, 10);
     private static final long    serialVersionUID = 1L;
     private static final Toolkit tKit             = Toolkit.getDefaultToolkit();
-    private static final int SCREEN_WIDTH;
-    private static final int SCREEN_HEIGHT;
+    protected static final int SCREEN_WIDTH;
+    protected static final int SCREEN_HEIGHT;
     private static final Color[] COLOR_SET = {Color.BLACK, Color.WHITE, Color.RED, Color.GREEN, Color.BLUE,
             Color.CYAN, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.PINK};
     private static final String  path      = "res/sprite/";
 
-    static Color getDefaultStringColor(final int index) {
+    static {
+        final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        SCREEN_HEIGHT = dim.height;
+        SCREEN_WIDTH = dim.width;
+    }
+
+    protected static Color getDefaultStringColor(final int index) {
         if (index < 0 || index > 9) {
-            throw new IllegalArgumentException(
-                    "Wrong default string color index: " + index + "while have only " + COLOR_SET.length + " color");
+            throw new IllegalArgumentException(String.format(
+                    "Wrong default string color index: %s while have only %s" + " colors", index, COLOR_SET.length));
         }
         return COLOR_SET[index];
     }
 
-    static {
-        final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        SCREEN_HEIGHT = (int) dim.getHeight();
-        SCREEN_WIDTH = (int) dim.getWidth();
+    public static int getMapWidth() {
+        return SCREEN_WIDTH - 330;
     }
 
     public static int getWidthInTiles() {
-        return (SCREEN_WIDTH - 330) / Tile.SIZE_px;
+        return getMapWidth() / Tile.SIZE_px;
+    }
+
+    public static int getMapHeight() {
+        return SCREEN_HEIGHT;
     }
 
     public static int getHeightInTiles() {
-        return SCREEN_HEIGHT / Tile.SIZE_px;
+        return getMapHeight() / Tile.SIZE_px;
     }
 
     public static int getScreenWidth() {
@@ -59,40 +65,26 @@ public abstract class AbstractGamePanel extends JPanel {
         }
         // This code ensures that all the pixels in the image are loaded
         image = new ImageIcon(image).getImage();
-        // Determine if the image has transparent pixels; for this method's
-        // implementation, see e661 Determining If an Image Has Transparent Pixels
-        // boolean hasAlpha = hasAlpha(image);
-        // Create a buffered image with a format that's compatible with the screen
+        /*
+         * Determine if the image has transparent pixels; for this method's
+         * implementation, see e661 Determining If an Image Has Transparent Pixels
+         * boolean hasAlpha = hasAlpha(image);
+         * Create a buffered image with a format that's compatible with the screen
+         */
         BufferedImage bimage = null;
-        final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+        // Create the buffered image
         try {
-            // Determine the type of transparency of the new buffered image
             final int transparency = Transparency.OPAQUE;
-            /*
-             * if (hasAlpha) {
-			 *
-			 * transparency = Transparency.BITMASK;
-			 *
-			 * }
-			 */
-            // Create the buffered image
-            final GraphicsDevice gs = ge.getDefaultScreenDevice();
-            final GraphicsConfiguration gc = gs.getDefaultConfiguration();
+            final GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment()
+                                                                .getDefaultScreenDevice()
+                                                                .getDefaultConfiguration();
             bimage = gc.createCompatibleImage(image.getWidth(null), image.getHeight(null), transparency);
         } catch (final HeadlessException e) {
             // The system does not have a screen
         }
         if (bimage == null) {
-            // Create a buffered image using the default color model
             final int type = BufferedImage.TYPE_INT_RGB;
-            // int type = BufferedImage.TYPE_3BYTE_BGR;//by wang
-            /*
-             * if (hasAlpha) {
-			 *
-			 * type = BufferedImage.TYPE_INT_ARGB;
-			 *
-			 * }
-			 */
             bimage = new BufferedImage(image.getWidth(null), image.getHeight(null), type);
         }
         // Copy image to buffered image
@@ -112,18 +104,11 @@ public abstract class AbstractGamePanel extends JPanel {
         paintGUI(g2);
     }
 
-    void drawString(final Graphics2D g2, final int xx, final int yy, final String s) {
-        g2.drawString(s, xx, yy + 8);
+    protected void drawToCell(final Graphics g2, final Image img, final int j, final int i) {
+        g2.drawImage(img, j * Tile.SIZE_px, i * Tile.SIZE_px, Tile.SIZE_px, Tile.SIZE_px, this);
     }
 
-    //    void drawTile(final Graphics g2, final Image img, final int xx, final int yy) {
-//        g2.drawTile(img, xx, yy, img.getWidth(null)/2,img.getHeight(null)/2, this);
-//    }
-    void drawTile(final Graphics g2, final Image img, final int xx, final int yy) {
-        g2.drawImage(img, xx, yy, Tile.SIZE_px, Tile.SIZE_px, this);
-    }
-
-    final void paintBackground(final Graphics2D g2) {
+    private void paintBackground(final Graphics2D g2) {
         final BufferedImage bgTex = toBufferedImage(getImage("background"));
         final Rectangle2D canvas = new Rectangle2D.Double(0, 0, getWidth(), getHeight());
         final Rectangle2D tr = new Rectangle2D.Double(0, 0, bgTex.getWidth(), bgTex.getHeight());
@@ -137,8 +122,8 @@ public abstract class AbstractGamePanel extends JPanel {
 
     protected abstract void paintGUI(final Graphics2D g2);
 
-    Image getImage(final String filename) {
-        return tKit.getImage(path.concat(filename.endsWith(".png") ? filename : filename.concat(".png")));
+    protected Image getImage(final String filename) {
+        String file = path.concat(filename.endsWith(".png") ? filename : filename.concat(".png"));
+        return tKit.getImage(file);
     }
-
 }

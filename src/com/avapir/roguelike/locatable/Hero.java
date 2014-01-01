@@ -149,7 +149,7 @@ public class Hero extends Mob implements Locatable {
         public static final int      DEFAULT_STAT_INCREASE = 5;
         public static final int      MAX_STAT_VALUE        = 300;
         private final       int[]    values                = new int[PRIMARY_STATS_AMOUNT];
-        private             int      freeStats             = 0;
+        private int freeStats = 100000;
 
         //@formatter:off
         public PrimaryStats(final String name) {

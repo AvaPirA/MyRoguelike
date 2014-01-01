@@ -5,78 +5,70 @@ import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.KeyboardHandler;
-import com.avapir.roguelike.core.RoguelikeMain;
 import com.avapir.roguelike.core.Viewport;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
-import com.avapir.roguelike.game.ai.Borg;
+import com.avapir.roguelike.locatable.DroppedItem;
 import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Hero.PrimaryStats;
 import com.avapir.roguelike.locatable.Item;
 import com.avapir.roguelike.locatable.Mob;
 
 import java.awt.*;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 public class GamePanel extends AbstractGamePanel {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID   = 1L;
+    private static final int  STAT_BAR_HEIGHT_PX = 3;
+    static final         Font logFont            = new Font("Times New Roman", Font.PLAIN, 15);
+    static final         Font coordFont          = new Font("Monospaced", Font.PLAIN, 10);
     private final Game       game;
-    //    private final int        WIDTH_IN_TILES;
-//    private final int        HEIGHT_IN_TILES;
     private final GuiPainter guiPainter;
 
     public GamePanel(final Game g) {
         super();
-
         game = g;
-//        WIDTH_IN_TILES = getWidthInTiles();
-//        HEIGHT_IN_TILES = getHeightInTiles();
         guiPainter = new GuiPainter();
         addKeyListener(new KeyboardHandler(game));
         setFocusable(true);
     }
 
     private class GuiPainter {
-
-        private final Point attackOffset = new Point(0, 90);
-        private final Point armorOffset  = new Point(150, 0);
-        private final Point statsOffset  = new Point(-150, 110);
-        private final Point o            = new Point(
-                getWidthInTiles() * Tile.SIZE_px + 15, getHeightInTiles() * Tile.SIZE_px / 2);
-        private final Point offsetDFT    = new Point(o.x, o.y);
-        private final Font  defaultFont  = new Font(Font.MONOSPACED, Font.PLAIN, 15);
+        private final Point o            = new Point(getMapWidth() + 15, getMapHeight() / 2);
+        private final Point attackOffset = new Point(o.x, o.y + 90);
+        private final Point armorOffset  = new Point(o.x + 150, o.y + 90);
+        private final Point statsOffset  = new Point(o.x, o.y + 200);
+        private final Point invenOffset  = new Point(o.x + 100, 100);
+        private final Font  guiFont      = new Font(Font.MONOSPACED, Font.PLAIN, 15);
         private int validMax;
 
         public void paint(final Graphics2D g2) {
             invalidateMax();
             final Hero h = game.getHero();
-            o.move(offsetDFT.x, offsetDFT.y);
-            heroInventory(g2, h);
-            g2.setFont(defaultFont);
-            heroMainStats(g2, h);
-            heroAttack(g2, h);
-            heroArmor(g2, h);
-            heroStats(g2, h);
+            heroInventory(h, g2);
+            heroMainStats(h, g2);
+            heroAttack(h, g2);
+            heroArmor(h, g2);
+            heroStats(h, g2);
         }
 
-        private void heroInventory(final Graphics2D g2, final Hero h) {
-            final Point oI = new Point(o.x + 100, 100);// offset Inventory
-            final Image itemBg = getImage("inventory_border");
+        private void heroInventory(final Hero h, final Graphics2D g2) {
+            final Image itemBg = getImage("inventory_bg");
             int itemBgWidth = itemBg.getWidth(null);
             int itemBgHeight = itemBg.getHeight(null);
+
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 4; j++) {
-                    int xx = oI.x + i * (itemBgWidth + 1);
-                    int yy = oI.y + j * (itemBgHeight + 1);
-                    drawTile(g2, itemBg, xx, yy); //draw bg
+                    int xx = invenOffset.x + i * (itemBgWidth + 1);
+                    int yy = invenOffset.y + j * (itemBgHeight + 1);
+
+                    g2.drawImage(itemBg, xx, yy, null);
+
                     Item item = h.getInventory().getWeared(i * 3 + j);
                     if (item != null) {
-                        drawTile(g2, getImage(item.getImageName()), xx, yy); //draw item
+                        g2.drawImage(getImage(item.getImageName()), xx, yy, null);
                     }
                 }
             }
@@ -86,68 +78,62 @@ public class GamePanel extends AbstractGamePanel {
                 g2.setColor(Color.yellow);
                 final Point cursor = game.getInventoryHandler().getCursor();
                 g2.drawRect(
-                        oI.x + cursor.x * (itemBg.getWidth(null) + 1),
-                        oI.y + cursor.y * (itemBg.getHeight(null) + 1), itemBg.getWidth(null), itemBg.getHeight(null));
+                        invenOffset.x + cursor.x * (itemBgWidth + 1),
+                        invenOffset.y + cursor.y * (itemBgHeight + 1), itemBgWidth, itemBgHeight);
             }
         }
 
-        private void heroMainStats(final Graphics2D g2, final Hero hero) {
+        private void heroMainStats(final Hero hero, final Graphics2D g2) {
+            g2.setFont(guiFont);
             g2.setColor(Color.yellow);
-            // location
-            drawString(g2, o.x, o.y, "X: " + hero.getLoc().x);
-            drawString(g2, o.x, o.y + 15, "Y: " + hero.getLoc().y);
+            g2.drawString("X: " + hero.getLoc().x, o.x, o.y);
+            g2.drawString("Y: " + hero.getLoc().y, o.x, o.y + 15);
+            g2.drawString(hero.getName(), o.x, o.y + 30);
+            g2.drawString(String.format("Level [%d] (%d/%d)", hero.getLevel(), hero.getXP(), hero.getAdvanceXP()),
+                          o.x + 80, o.y);
 
-            // name
-            drawString(g2, o.x, o.y + 30, hero.getName());
-            if (RoguelikeMain.BORG) {
-                drawString(g2, o.x + 100, o.y + 30, ((Borg) hero.getAi()).getTargetString());
-            }
-
-            // level xp/XP
-            drawString(g2, o.x +
-                    80, o.y, String.format("Level [%s] (%s/%s)", hero.getLevel(), hero.getXP(), hero.getAdvanceXP()));
-
-            // HP
             g2.setColor(Color.green);
-            drawString(g2, o.x, o.y + 50, String.format("%s/%s", roundOneDigit(hero.getHP()), Hero.StatsFormulas
-                                                                                                  .getMaxHP(hero)));
+            g2.drawString(String.format("%s/%s", roundOneDigit(hero.getHP()), Hero.StatsFormulas.getMaxHP(hero)), o.x,
+                          o.y + 50);
 
-            // MP
             g2.setColor(Color.blue);
-            drawString(g2, o.x, o.y + 65, String.format("%s/%s", roundOneDigit(hero.getMP()), Hero.StatsFormulas
-                                                                                                  .getMaxMP(hero)));
+            g2.drawString(String.format("%s/%s", roundOneDigit(hero.getMP()), Hero.StatsFormulas.getMaxMP(hero)), o.x,
+                          o.y + 65);
         }
 
-        private void heroAttack(final Graphics2D g2, final Hero hero) {
+        private void heroAttack(final Hero hero, final Graphics2D g2) {
             g2.setColor(Color.red);
-
-            o.translate(attackOffset.x, attackOffset.y);
-
             for (int i = 0; i < Attack.TOTAL_DMG_TYPES; i++) {
                 final float heroDmg = roundOneDigit(hero.getAttack(i));
-                drawString(g2, o.x, o.y + i * 15, Float.toString(heroDmg));
+                g2.drawString(Float.toString(heroDmg), attackOffset.x, attackOffset.y + i * 15);
             }
         }
 
-        private void heroArmor(final Graphics2D g2, final Hero hero) {
+        private void heroArmor(final Hero hero, final Graphics2D g2) {
             g2.setColor(Color.orange);
-            o.translate(armorOffset.x, armorOffset.y);
-
             for (int i = 0; i < Armor.TOTAL_DEF_TYPES; i++) {
                 final float heroDef = roundOneDigit(hero.getArmor(i));
-                drawString(g2, o.x, o.y + i * 15, Float.toString(heroDef));
+                g2.drawString(Float.toString(heroDef), armorOffset.x, armorOffset.y + i * 15);
             }
         }
 
         /**
-         * 255\0->255\0 0-74 ::: case 0 255->0\255\0 75-149 ::: case 1 0\255\0->255 150-224 ::: case 2 0\255->0\255
-         * 255-299 ::: case 3 300 ::: case 4
+         * SP: 0-74 === case 0 === 255\0\0 -> 255\252\0
+         * <p/>
+         * SP: 75-149 === case 1 === 255\0\0 -> 0\255\0
+         * <p/>
+         * SP: 150-224 === case 2 === 0\255\0 -> 0\252\255
+         * <p/>
+         * SP: 225-299 === case 3 === 0\255\255 -> 0\3\255
+         * <p/>
+         * SP: 300 === case 4 === 0\0\255
          *
-         * @param stat
+         * @param stat specified hero`s stat
          *
-         * @return
+         * @return color from red to blue, through all spectre, which represents that stat-value from 0 to {@value
+         * com.avapir.roguelike.locatable.Hero.PrimaryStats#MAX_STAT_VALUE}
          */
-        private Color getStatColor(final int stat) {
+        private Color getStatToColor(final int stat) {
             if (stat < 0) {
                 return Color.black;
             }
@@ -204,11 +190,10 @@ public class GamePanel extends AbstractGamePanel {
             validMax = Integer.MIN_VALUE;
         }
 
-        private void heroStats(final Graphics2D g2, final Hero hero) {
+        private void heroStats(final Hero hero, final Graphics2D g2) {
             g2.setColor(Color.yellow);
-            o.translate(statsOffset.x, statsOffset.y); // o == offset
-            final int dFS = defaultFont.getSize(); // defaultFontSize
-            final int oY = o.y - 4;// экспериментально полученное визуально лучшее значение
+            final int lineHeight = guiFont.getSize();
+            final int oY = statsOffset.y - lineHeight + 3;// экспериментально полученное визуально лучшее значение
             final boolean isChangingStats = game.getState() == GameState.CHANGE_STATS;
 
             for (int i = 0; i < PrimaryStats.STATS_STRINGS.length; i++) {
@@ -218,28 +203,26 @@ public class GamePanel extends AbstractGamePanel {
                 // rectangles
                 if (curStat + diff <= 0) {
                     g2.setColor(Color.black);
-                    g2.fillRect(o.x, oY + i * dFS, 75 - 75 * (curStat + diff) / maxStat(), dFS);
+                    g2.fillRect(statsOffset.x, oY + i * lineHeight, 75 - 75 * (curStat + diff) / maxStat(), lineHeight);
                 } else {
-                    g2.setColor(getStatColor(curStat + diff));
-                    g2.fillRect(o.x, oY + i * dFS, 75, dFS);
+                    g2.setColor(getStatToColor(curStat + diff));
+                    g2.fillRect(statsOffset.x, oY + i * lineHeight, 75, lineHeight);
                     if (curStat > 0) {
-                        g2.fillRect(o.x,
-                                    oY + i * dFS, (int) (75 + Math.signum(curStat) * 75 * curStat / maxStat()), dFS);
+                        g2.fillRect(statsOffset.x, oY + i * lineHeight, (int) (75 +
+                                Math.signum(curStat) * 75 * curStat / maxStat()), lineHeight);
                     }
-                    g2.fillRect(o.x, oY + i * dFS, 75 + 75 * (curStat + diff) / maxStat(), dFS);
+                    g2.fillRect(statsOffset.x, oY + i * lineHeight, 75 + 75 * (curStat + diff) / maxStat(), lineHeight);
                 }
 
                 if (isChangingStats) {
                     // difference
                     g2.setColor(new Color(255, 255, 255, 128));
-                    drawString(g2, o.x + 75, o.y + i * 15, (diff >= 0 ? "+" : "") + diff);
+                    g2.drawString((diff >= 0 ? "+" : "") + diff, statsOffset.x + 75, statsOffset.y + i * 15);
                 }
 
-                // "STR  239"
                 g2.setColor(Color.yellow);
-                drawString(g2, o.x,
-                           o.y + i * 15, PrimaryStats.STATS_STRINGS[i] + getStatDelimeter(hero.getStats().values(i)) +
-                        hero.getStats().values(i));
+                g2.drawString(PrimaryStats.STATS_STRINGS[i] + getStatDelimiter(hero.getStats().values(i)) +
+                                      hero.getStats().values(i), statsOffset.x, statsOffset.y + i * 15);
 
             }
 
@@ -248,7 +231,7 @@ public class GamePanel extends AbstractGamePanel {
                 if (isChangingStats) {
                     free += game.getStatsHandler().getFreeDiff();
                 }
-                drawString(g2, o.x, o.y + 6 * 15, "Не распределено: " + free);
+                g2.drawString("Не распределено: " + free, statsOffset.x, statsOffset.y + 6 * 15);
             }
 
             if (game.getState() == GameState.CHANGE_STATS) {
@@ -257,14 +240,14 @@ public class GamePanel extends AbstractGamePanel {
                 final int cursor = game.getStatsHandler().getCursor().y;
                 game.getHero().getStats().values(cursor);
 
-                g2.drawRect(o.x, oY + cursor * 15, 75 * 2, dFS);
+                g2.drawRect(statsOffset.x, oY + cursor * 15, 75 * 2, lineHeight);
 
             }
         }
 
-        private String getStatDelimeter(final int stat) {
+        private String getStatDelimiter(final int stat) {
             if (stat < 0) {
-                return getStatDelimeter(-stat).substring(1);// one space less cos we have '-'
+                return getStatDelimiter(-stat).substring(1);// one space less cos we have '-'
             } else if (stat < 10) {
                 return "    ";// 4
             } else if (stat < 100) {
@@ -277,54 +260,26 @@ public class GamePanel extends AbstractGamePanel {
         }
     }
 
-    void drawColorString(final Graphics g, final String str, int lastX, final int lastY) {
-        final Graphics2D g2 = (Graphics2D) g;
-        final FontRenderContext context = g2.getFontRenderContext();
-        final Font f = new Font("Serif", Font.PLAIN, 12);
-        g2.setFont(f);
-        Rectangle2D bounds;
-        final StringTokenizer st = new StringTokenizer(str, "#");
-        String token;
-        while (st.hasMoreTokens()) {
-            token = st.nextToken();
-            if (token.equals("^")) {
-                g2.setColor(Color.WHITE);
-                continue;
-            } else if (token.length() <= 2) {
-                g2.setColor(getDefaultStringColor(Integer.parseInt(token)));
-                continue;
-            }
-            drawString(g2, lastX, lastY, token);
-            bounds = f.getStringBounds(token, context);
-            lastX += bounds.getWidth();
-        }
-    }
-
     @Override
     public void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        // if (!BORG) {
         final Graphics2D g2 = (Graphics2D) g;
-        paintMap(g2, game.getMap());
+        paintMap(game.getMap(), g2);
         paintLog(g2);
-
-        drawDialogs(g);
-
-        // } else {
-        // TODO BORG RUN PAINTING
-        // }
+        drawDialogs(g2);
+        debugShowMiniMap(game.getMap(), g2);
     }
 
-    private void drawDialogs(Graphics g) {
-        gameOverDialog(g);
+    private void drawDialogs(Graphics2D g2) {
+        gameOverDialog(g2);
     }
 
-    private void gameOverDialog(Graphics g) {
+    private void gameOverDialog(Graphics2D g2) {
         if (game.getState() == GameState.GAME_OVER) {
             final Image img = getImage("gameover");
-            drawTile(g, img,
-                     (getWidthInTiles() * Tile.SIZE_px - img.getWidth(null)) / 2,
-                     (getHeightInTiles() * Tile.SIZE_px - img.getHeight(null)) / 4);
+            g2.drawImage(img,
+                         (getWidthInTiles() * Tile.SIZE_px - img.getWidth(null)) / 2,
+                         (getHeightInTiles() * Tile.SIZE_px - img.getHeight(null)) / 4, null);
         }
     }
 
@@ -336,24 +291,25 @@ public class GamePanel extends AbstractGamePanel {
     private void paintLog(final Graphics2D g2) {
         final Point offset = new Point(15, 15);
         g2.setFont(logFont);
+        g2.setColor(Color.white);
         for (int i = 0; i < game.getLog().size(); i++) {
-            g2.setColor(Color.white);
-            drawString(g2, offset.x, offset.y + i * logFont.getSize() + 3, game.getLog().get(i));
+            g2.drawString(game.getLog().get(i), offset.x, offset.y + i * logFont.getSize() + 3);
         }
     }
 
-    private void debugShowMinimap(final Graphics2D g2, final Map map) {
-        final int ox = 300;
-        final int oy = 100;
-        final int z = 15;
+    private void debugShowMiniMap(final Map map, final Graphics2D g2) {
+        final int z = 2;
+        final int ox = z;
+        final int oy = SCREEN_HEIGHT - map.getHeight() * z - 30;
 
         for (int i = 0; i < map.getHeight(); i++) {
             for (int j = 0; j < map.getWidth(); j++) {
                 Color c = Color.black;
-                if (map.getTile(i, j).isPassable()) {
+                Tile t = map.getTile(i, j);
+                if (t.isPassable()) {
                     c = Color.yellow;
-                    if (map.getTile(i, j).getMob() != null) {
-                        final String name = map.getTile(i, j).getMob().getName();
+                    if (t.getMob() != null) {
+                        final String name = t.getMob().getName();
                         if (name.equals("Slime")) {
                             c = Color.green;
                         } else if (name.equals("Hero")) {
@@ -361,110 +317,106 @@ public class GamePanel extends AbstractGamePanel {
                         }
                     }
                 }
+                if (!t.isVisible()) {
+                    c = c.darker();
+                }
+                if (!t.isSeen()) {
+                    c = c.darker();
+                }
                 g2.setColor(c);
                 g2.fillRect(ox + z * i, oy + z * j, z, z);
             }
         }
     }
 
-    private void paintMap(final Graphics2D g2, final Map map) {
-//        g2.setFont(coordFont);
-        final int ox = game.getCurrentX();
-        final int oy = game.getCurrentY();
+    private void paintMap(final Map map, final Graphics2D g2) {
+        final int offsetX = game.getCurrentX();
+        final int offsetY = game.getCurrentY();
         for (int i = 0; i < getHeightInTiles(); i++) {
             for (int j = 0; j < getWidthInTiles(); j++) {
-
                 // indexes on the Map
-                final int x = ox - Viewport.horizViewDistance() + j;
-                final int y = oy - Viewport.verticalViewDistance() + i;
-                // pixels where to paint Tile
-                final int xx = j * Tile.SIZE_px;
-                final int yy = i * Tile.SIZE_px;
+                final int x = offsetX - Viewport.horizViewDistance() + j;
+                final int y = offsetY - Viewport.verticalViewDistance() + i;
                 final Tile tile = map.getTile(x, y);
-                g2.setColor(Color.red);
-                if (map.hasTile(x, y)) {
-                    drawTile(g2, getImage("empty"), xx, yy);
-                    if (tile.isVisible()) {
-                        paintTile(g2, tile, xx, yy);
-//                        drawString(g2, xx, yy, String.format("%s,%s", x, y));
-                    } else if (tile.isSeen()) {
-                        paintTile(g2, tile, xx, yy);
-                        drawTile(g2, getImage("wFog"), xx, yy);
-                    } else {
-                        // dS(g2, xx, yy, "invi");
-                    }
-                } else {
-                    // dS(g2, xx, yy, "notile");
+                if (tile != null) {
+                    paintTile(tile, j, i, g2);
+                }
+            }
+        }
+
+    }
+
+    private void paintTile(final Tile tile, final int j, final int i, final Graphics2D g2) {
+        drawToCell(g2, getImage("empty"), j, i);
+
+        if (tile.isSeen()) {
+            String imageName;
+            switch (tile.getType()) {
+                case GRASS:
+                    imageName = "grass";
+                    break;
+                case TREE:
+                    imageName = "tree";
+                    break;
+                default:
+                    throw new RuntimeException("Unresolved tile type");
+            }
+            drawToCell(g2, getImage(imageName), j, i);
+
+            if (tile.isVisible()) {
+                if (tile.getMob() != null) {
+                    paintMob(tile.getMob(), j, i, g2);
+                }
+                if (tile.getItemsAmount() > 0) {
+                    paintItemsOnTile(tile.getItemList(), j, i, g2);
+                }
+            } else {
+                if (tile.isSeen()) {
+                    drawToCell(g2, getImage("wFog"), j, i);
                 }
             }
         }
     }
 
-    private void paintTile(final Graphics2D g2, final Tile tile, final int xx, final int yy) {
-        switch (tile.getType()) {
-            case GRASS:
-//                String s = "grass";
-//                if (new Random().nextInt(10) > 8) {
-//                    s = s.concat("_rot");
-//                }
-//                Image img = getImage(s);
-//                g2.drawTile(img, xx, yy, img.getWidth(null) * 2, img.getHeight(null) * 2, null);
-                drawTile(g2, getImage("grass"), xx, yy);
-                break;
-            case TREE:
-                drawTile(g2, getImage("tree"), xx, yy);
-                break;
-            default:
-                drawTile(g2, getImage("empty"), xx, yy);
-                break;
-        }
-
-        if (tile.isVisible() && tile.getMob() != null)
-
-        {
-            paintMob(tile.getMob(), g2, xx, yy);
-        }
-
+    private void paintItemsOnTile(List<DroppedItem> itemList, int j, int i, Graphics2D g2) {
+        drawToCell(g2, getImage(itemList.size() > 1 ? "many_items" : itemList.get(0).getItem().getImageName()), j, i);
     }
 
-    private void paintMob(final Mob mob, final Graphics2D g2, final int xx, final int yy) {
+    private void paintMob(final Mob mob, final int j, final int i, final Graphics2D g2) {
         if (mob.isAlive()) {
             if (mob == game.getHero()) {
-                drawTile(g2, getImage("hero"), xx, yy);
-                paintColorBar(g2, xx, yy, Tile.SIZE_px, 3, mob.getHP() / mob.getMaxHp(), new Color(0, 255, 0, 128));
+                drawToCell(g2, getImage("hero"), j, i);
+                paintColorBar(mob.getHP() / mob.getMaxHp(), new Color(0, 255, 0, 128), 0, j, i, g2);
             } else { //if not a hero
-                drawTile(g2, getImage(mob.getName().toLowerCase()), xx, yy);
-                paintColorBar(g2, xx, yy, Tile.SIZE_px, 3, mob.getHP() / mob.getMaxHp(), new Color(255, 0, 0, 128));
+                drawToCell(g2, getImage(mob.getName().toLowerCase()), j, i);
+                paintColorBar(mob.getHP() / mob.getMaxHp(), new Color(255, 0, 0, 128), 0, j, i, g2);
             }
             //if hero or not
-            paintColorBar(g2, xx, yy + 3, Tile.SIZE_px, 2, mob.getMP() / mob.getMaxMp(), new Color(0, 128, 255, 128));
+            if (mob.getMaxMp() > 0) {
+                paintColorBar(mob.getMP() / mob.getMaxMp(), new Color(0, 128, 255, 128), 1, j, i, g2);
+            }
         } else { //if dead
             if (mob == game.getHero()) {
-                game.log("rip");
-                drawTile(g2, getImage("rip"), xx, yy);
+                drawToCell(g2, getImage("rip"), j, i);
             }
         }
     }
 
-    void paintColorBar(final Graphics2D g2,
-                       final int x,
-                       final int y,
-                       final int width,
-                       final int height,
-                       final float value,
-                       final Color transparentColor) {
-        if (value > 1 || value < 0) {
+    void paintColorBar(final float value,
+                       final Color transparentColor,
+                       final int line,
+                       final int j,
+                       final int i,
+                       final Graphics2D g2) {
+        if (value < 0 || value > 1) {
             throw new IllegalArgumentException();
         }
         g2.setColor(transparentColor);
 
-        g2.fillRect(x, y, width, height);
-        g2.fillRect(x, y, (int) (value * width), height);
+        int x = j * Tile.SIZE_px;
+        int y = i * Tile.SIZE_px + line * STAT_BAR_HEIGHT_PX;
+
+        g2.fillRect(x, y, Tile.SIZE_px, STAT_BAR_HEIGHT_PX);
+        g2.fillRect(x, y, (int) (value * Tile.SIZE_px), STAT_BAR_HEIGHT_PX);
     }
-
-    // private boolean hasTileOnScreen(final int y, final int x) {
-    // return y >= game.getCurrentY() && y < HEIGHT_IN_TILES + game.getCurrentY() && x >= game.getCurrentX()
-    // && x < WIDTH_IN_TILES + game.getCurrentX();
-    // }
-
 }

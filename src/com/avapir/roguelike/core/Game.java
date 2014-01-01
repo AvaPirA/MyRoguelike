@@ -87,6 +87,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     @Override
     public void init() {
+        System.out.println(System.getProperty("awt.toolkit"));
     }
 
     @Override
