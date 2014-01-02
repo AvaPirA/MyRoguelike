@@ -13,7 +13,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
@@ -22,7 +21,6 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         MOVE, INVENTORY, CHANGE_STATS, GAME_OVER, DISTANCE_ATTACK, VIEW
     }
 
-    private final Log                  gameLog;
     private final List<Map>            maps;
     private final Hero                 hero;
     private final GameWindow           gameWindow;
@@ -40,34 +38,9 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         gameWindow = new GameWindow(title, this);
         gameWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         hero = new Hero("Hero", this);
-        gameLog = new Log();
         maps = new ArrayList<>();
         mobs = new ArrayList<>();
 
-
-    }
-
-    public class Log extends LinkedList<String> {
-
-        private static final long serialVersionUID = 1L;
-        private int oneTurnCounter;
-
-        @Override
-        public boolean add(final String s) {
-            super.add("[" + oneTurnCounter + ":" + (turnCounter) + "] " + s);
-            oneTurnCounter++;
-            if (size() > 15 && oneTurnCounter <= 15) {
-                poll();
-            }
-            return true;// so as super.add()
-        }
-
-        public void refresh() {
-            oneTurnCounter = 0;
-            while (size() > 15) {
-                poll();
-            }
-        }
 
     }
 
@@ -87,6 +60,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     @Override
     public void init() {
+        Log.connect(this);
         System.out.println(System.getProperty("awt.toolkit"));
     }
 
@@ -104,14 +78,6 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     public void done() {
         loadFonts();
         gameWindow.setVisible(true);
-    }
-
-    public void log(final String s) {
-        gameLog.add(s);
-    }
-
-    public void logFormat(final String s, Object... params) {
-        log(String.format(s, params));
     }
 
     private void placeMobsAndItems(final int scaler) {
@@ -142,7 +108,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     private void move(final Point p) {
         if (isActuallyMoved(p)) {
-            logFormat("Перешел в [%s, %s]", hero.getLoc().x, hero.getLoc().y);
+            Log.g("Перешел в [%s, %s]", hero.getLoc().x, hero.getLoc().y);
             viewport.move(p);
         }
     }
@@ -199,7 +165,6 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         doUnlimitedAiWorks();
 
         turnCounter++;
-        gameLog.refresh();
         repaint();
     }
 
@@ -244,43 +209,39 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     @Override
     public void createStatsHandler() {
-        log("_____________________");
-        log("Изменение характеристик:");
-        logFormat("Свободных хар-к: %s", hero.getStats().getFree());
+        Log.g("_____________________");
+        Log.g("Изменение характеристик:");
+        Log.g("Свободных хар-к: %s", hero.getStats().getFree());
         chs = new ChangingStatsHandler(this);
     }
 
     @Override
     public void removeStatsHandler() {
         chs.flush();
-        log("Характеристики увеличились на:");
+        Log.g("Характеристики увеличились на:");
         final String[] ss = PrimaryStats.STATS_STRINGS;
-        logFormat("%s:%s;              %s:%s", ss[0], (hero.getStats().values(0) - chs.getDiff()[0]), ss[1], (
-                hero.getStats().values(1) - chs.getDiff()[1]));
-        logFormat("%s:%s;              %s:%s", ss[2], (hero.getStats().values(2) - chs.getDiff()[2]), ss[3], (
-                hero.getStats().values(5) - chs.getDiff()[5]));
-        logFormat("%s:%s;              %s:%s", ss[4], (hero.getStats().values(4) - chs.getDiff()[4]), ss[5], (
-                hero.getStats().values(5) - chs.getDiff()[5]));
-        log("__________________________");
+        Log.g("%s:%s;              %s:%s", ss[0], (hero.getStats().values(0) -
+                chs.getDiff()[0]), ss[1], (hero.getStats().values(1) - chs.getDiff()[1]));
+        Log.g("%s:%s;              %s:%s", ss[2], (hero.getStats().values(2) -
+                chs.getDiff()[2]), ss[3], (hero.getStats().values(5) - chs.getDiff()[5]));
+        Log.g("%s:%s;              %s:%s", ss[4], (hero.getStats().values(4) -
+                chs.getDiff()[4]), ss[5], (hero.getStats().values(5) - chs.getDiff()[5]));
+        Log.g("__________________________");
         chs = null;
     }
 
     @Override
     public void createInventoryHandler() {
-        log("_____________________");
-        log("Открыт инвентарь!");
+        Log.g("_____________________");
+        Log.g("Открыт инвентарь!");
         ih = new InventoryHandler(this);
     }
 
     @Override
     public void removeInventoryHandler() {
-        log("Инвентарь закрыт");
-        log("_____________________");
+        Log.g("Инвентарь закрыт");
+        Log.g("_____________________");
         ih = null;
-    }
-
-    public Log getLog() {
-        return gameLog;
     }
 
     public static void zoomIn() {

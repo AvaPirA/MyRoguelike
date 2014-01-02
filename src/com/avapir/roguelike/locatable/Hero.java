@@ -4,6 +4,7 @@ import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Game.GameState;
+import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.game.ClothingSlots;
 import com.avapir.roguelike.game.ai.Borg;
 import com.avapir.roguelike.game.ai.IdleAI;
@@ -149,7 +150,7 @@ public class Hero extends Mob implements Locatable {
         public static final int      DEFAULT_STAT_INCREASE = 5;
         public static final int      MAX_STAT_VALUE        = 300;
         private final       int[]    values                = new int[PRIMARY_STATS_AMOUNT];
-        private int freeStats = 100000;
+        private             int      freeStats             = 100000;
 
         //@formatter:off
         public PrimaryStats(final String name) {
@@ -224,7 +225,7 @@ public class Hero extends Mob implements Locatable {
 
     public static final class Inventory {
 
-        private static final int NO_ITEM = -69;
+        private static final int        NO_ITEM          = -69;
         public static final  int        MAX_ITEMS_AMOUNT = 50;
         private static final int        SLOTS            = 3 * 4; //12
         private final        List<Item> items            = new ArrayList<>();
@@ -325,7 +326,7 @@ public class Hero extends Mob implements Locatable {
         final int xp = (int) Math.pow(dmg, 6 / 5f);
         final int gainedXP = (int) StatsFormulas.addBonusXp(this, xp);
         XP += gainedXP;
-        g.logFormat("%s получает %s опыта", getName(), gainedXP);
+        Log.g("%s получает %s опыта", getName(), gainedXP);
         while (lvlUp()) {
             gainLvl(g);
         }
@@ -337,7 +338,7 @@ public class Hero extends Mob implements Locatable {
         level++;
         stats.freeStats += PrimaryStats.DEFAULT_STAT_INCREASE;
         restore();
-        g.logFormat("%s достиг %s уровня!", getName(), level);
+        Log.g("%s достиг %s уровня!", getName(), level);
     }
 
     private boolean lvlUp() {
@@ -347,11 +348,11 @@ public class Hero extends Mob implements Locatable {
     @Override
     public Point move(final Point dp, final Game g) {
         if (StatsFormulas.isOverweighted(this)) {
-            g.log("Вы #2#перегружены!#^#");
+            Log.g("Вы #2#перегружены!#^#");
             return new Point(0, 0);
         }
         if (inventory.hasTooMuchItems()) {
-            g.log("Вы несете #2#слишком много вещей!#^#");
+            Log.g("Вы несете #2#слишком много вещей!#^#");
             return new Point(0, 0);
         }
         return super.move(dp, g);

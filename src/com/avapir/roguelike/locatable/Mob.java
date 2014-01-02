@@ -4,6 +4,7 @@ import com.avapir.roguelike.battle.Armor;
 import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.battle.Battle;
 import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
@@ -166,11 +167,11 @@ public class Mob implements Cloneable, Locatable {
             Tile t = g.getMap().getTile(newLoc.x, newLoc.y);
             switch (t.getItemsAmount()) {
                 case 1:
-                    g.logFormat("Здесь есть %s.", t.getItemList().get(0).getItem().getName());
+                    Log.g("Здесь есть %s.", t.getItemList().get(0).getItem().getName());
                 case 0:
                     break;
                 default:
-                    g.log("Здесь лежит много вещей.");
+                    Log.g("Здесь лежит много вещей.");
                     break;
             }
         }
@@ -197,8 +198,8 @@ public class Mob implements Cloneable, Locatable {
         float damage = Battle.computeDamage(getAttack(), defender.getArmor());
         defender.receiveDamage(damage, g);
 
-        g.logFormat("%s наносит %s урона по %s", this.getName(), damage, defender.getName());
-        g.logFormat("У %s осталось %s здоровья", defender.getName(), AbstractGamePanel.roundOneDigit(defender.getHP()));
+        Log.g("%s наносит %s урона по %s", this.getName(), damage, defender.getName());
+        Log.g("У %s осталось %s здоровья", defender.getName(), AbstractGamePanel.roundOneDigit(defender.getHP()));
 
         if (defender.getHP() <= 0) {
             damage -= defender.getHP() * 2;// bonus XP for Overkills

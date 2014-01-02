@@ -5,6 +5,7 @@ import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.KeyboardHandler;
+import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.Viewport;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
@@ -292,9 +293,8 @@ public class GamePanel extends AbstractGamePanel {
         final Point offset = new Point(15, 15);
         g2.setFont(logFont);
         g2.setColor(Color.white);
-        for (int i = 0; i < game.getLog().size(); i++) {
-            g2.drawString(game.getLog().get(i), offset.x, offset.y + i * logFont.getSize() + 3);
-        }
+        for (int i = 0; i < Log.getSize(); i++)
+            g2.drawString(Log.get(i), offset.x, offset.y + i * logFont.getSize() + 3);
     }
 
     private void debugShowMiniMap(final Map map, final Graphics2D g2) {

@@ -183,13 +183,13 @@ public class KeyboardHandler extends KeyAdapter {
             case KeyEvent.VK_EQUALS:
                 Game.zoomIn();
                 game.resetViewport();
-                game.logFormat("New zoom: %s%%", 100 * Tile.SIZE_px / 32f);
+                Log.g("New zoom: %s%%", 100 * Tile.SIZE_px / 32f);
                 return;
             case KeyEvent.VK_MINUS:
                 if (Tile.SIZE_px > 1) {
                     Game.zoomOut();
                     game.resetViewport();
-                    game.logFormat("New zoom: %s%%", 100 * Tile.SIZE_px / 32f);
+                    Log.g("New zoom: %s%%", 100 * Tile.SIZE_px / 32f);
                 }
                 return;
             default:
