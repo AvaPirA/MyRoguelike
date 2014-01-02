@@ -7,6 +7,15 @@
 *.o
 *.so
 
+# IDE files #
+############
+.idea/
+.settings/
+*.classpath
+*.project
+*.iml
+
+
 # Folders #
 ###########
 bin/
