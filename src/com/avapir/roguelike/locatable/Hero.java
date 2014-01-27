@@ -9,10 +9,8 @@ import com.avapir.roguelike.game.ClothingSlots;
 import com.avapir.roguelike.game.ai.IdleAI;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Random;
 
 public class Hero extends Mob implements Locatable {
 
@@ -220,6 +218,297 @@ public class Hero extends Mob implements Locatable {
         }
     }
 
+    public final class InventoryHandler {
+
+        private Item[] storage;
+        private int    occupied;
+
+        /**
+         * Puts new item to inventory. If there is no items of that, the new ones will be placed in first occured empty
+         * cell. Either they will be stacked.
+         *
+         * @param item acquired item(s)
+         * @throws IllegalArgumentException if there is no applicable cell
+         */
+        public synchronized void put(Item item) {
+            int index = find(item);
+            if (index < 0) {
+                int firstEmpty = find(null);
+                if (firstEmpty < 0) { throw new IllegalArgumentException("No empty space"); }
+                storage[firstEmpty] = item;
+                occupied++;
+            } else {
+                storage[index].increase(item.getAmount());
+            }
+        }
+
+        /**
+         * @param index index of cell for item to return
+         *
+         * @return item from specified cell
+         */
+        public Item get(int index) {
+            return storage[index];
+        }
+
+        /**
+         * @param item type of items
+         *
+         * @return amount of items of specified type
+         */
+        public synchronized int getAmount(Item item) {
+            if (item == null) {
+                return 0;
+            }
+            int sum = 0;
+            for (Item i : storage) {
+                if (item.equals(i)) {
+                    sum += i.getAmount();
+                }
+            }
+            return sum;
+        }
+
+        /**
+         * @param index index of cell to explore
+         *
+         * @return amount of items into the specified cell
+         */
+        public synchronized int getAmount(int index) {
+            checkIndex(index);
+            return storage[index] == null ? 0 : storage[index].getAmount();
+        }
+
+        /**
+         * @param index any number
+         * @throws IllegalArgumentException if specified number is not a suitable index for
+         *              storage array. Actually it means <br>{@code index < 0 || index >= size()}</br>
+         */
+        private void checkIndex(int index) {
+            if (index < 0 || index >= size()) {
+                throw new IllegalArgumentException("Wrong index");
+            }
+        }
+
+        /**
+         * @param item type of item
+         * @return index of first occurrence of item of specified type
+         */
+        public synchronized int find(Item item) {
+            return find(item, 0);
+        }
+
+        /**
+         * @param item type of item
+         * @param skip how much occurrences must be skipped
+         * @return index of {@code skip+1} occurrence of item of specified type
+         */
+        private int find(Item item, int skip) {
+            if (item == null) {
+                if (free() < 1) {
+                    return -1; //no empty space
+                }
+                for (int i = 0; i < size(); i++) {
+                    if (storage[i] == null && skip-- == 0) {
+                        return i;
+                    }
+                }
+            } else {
+                for (int i = 0; i < size(); i++) {
+                    if (item.equals(storage[i]) && skip-- == 0) {
+                        return i;
+                    }
+                }
+            }
+            return -1;
+        }
+
+        /**
+         * Removes all items of specified type from storage
+         * @param item type of item
+         * @return type and total amount of removed items
+         */
+        public synchronized Item remove(Item item) {
+            if (item == null) {return null;}
+            Item tmp = new Item(item);
+            for(int i : findAll(item)) {
+                tmp.increase(remove(i).getAmount());
+            }
+            return tmp;
+        }
+
+        /**
+         * Clears cell specified by index
+         * @param index index of cell
+         * @return removed items
+         */
+        public synchronized Item remove(int index) {
+            checkIndex(index);
+            Item tmp = storage[index];
+            if (tmp == null) { return null; }
+            storage[index] = null;
+            occupied--;
+            return tmp;
+        }
+
+        /**
+         * Removes {@code amount} items of {@code item} type from storage
+         * @param item type of item
+         * @param amount how much items must be removed
+         * @return type and total amount of removed items
+         * @throws IllegalArgumentException if amount of stored items less than {@code amount}
+         */
+        public synchronized Item remove(Item item, int amount) {
+            if (item == null) { return null; }
+            int nominalAmount = getAmount(item);
+            if (nominalAmount == amount) { return remove(item); }
+            if (nominalAmount < amount) { throw new IllegalArgumentException("Not enough items");}
+
+            Iterator<Integer> iter = findAll(item).iterator();
+            while (amount > 0) {
+                int index = iter.next();
+                int localNominalAmount = getAmount(index);
+                if (localNominalAmount > amount) {
+                    remove(index, amount);
+                    break;
+                } else {
+                    remove(index);
+                    amount -= localNominalAmount;
+                }
+            }
+            return new Item(item, amount);
+        }
+
+        /**
+         * @param item type of items
+         * @return all occurrences of cells with items of specified type
+         */
+        public List<Integer> findAll(Item item) {
+            List<Integer> indexes = new ArrayList<>();
+            if (item == null) {
+                for (int i = 0; i < size(); i++) {
+                    if (storage[i] == null) {
+                        indexes.add(i);
+                    }
+                }
+            } else {
+                for (int i = 0; i < size(); i++) {
+                    if (item.equals(storage[i])) {
+                        indexes.add(i);
+                    }
+                }
+            }
+           return indexes;
+        }
+
+        /**
+         * Decreases amount of items in specified cell
+         * @param index index of cell
+         * @param amount amount of items to remove
+         * @return type and total amount of removed items
+         */
+        public synchronized Item remove(int index, int amount) {
+            checkIndex(index);
+            if (storage[index] == null) { return null; }
+            if (storage[index].getAmount() == amount) {
+                return remove(index);
+            } else {
+                Item divided = storage[index];
+                divided.decrease(amount);
+                return new Item(divided, amount);
+            }
+        }
+
+        public synchronized boolean contains(Item index) {
+            if (index == null) {
+                return free() > 0;
+            } else {
+                for (Item i : storage) {
+                    if (index.equals(i)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Unites items of similar type from cells {@code from} and {@code to} into cell {@code to}
+         *
+         * @param from cell, where to get
+         * @param to cell, where to put the union
+         */
+        public synchronized void unite(int from, int to) {
+            if (storage[to] == null) {
+                if (storage[from] != null) {
+                    storage[to] = storage[from];
+                } // else both are null
+            } else {
+                if (storage[from] != null) {
+                    if (storage[from].equals(storage[to])) {
+                        storage[to].increase(storage[from].getAmount());
+                        storage[from] = null; //decrease(getAmount)
+                    }
+                }
+            }
+        }
+
+        public synchronized void move(int from, int to) {
+            if (storage[to] != null) {
+                if (storage[from] != null) {
+                    // non-null
+                    storage[from].swap(storage[to]);
+                } else {
+                    // from -> null; to -> Item
+                    storage[from] = storage[to];
+                    storage[to] = null;
+                }
+            } else {
+                // to -> null;
+                if (storage[from] != null) {
+                    // from -> Item
+                    storage[to] = storage[from];
+                    storage[from] = null;
+                }
+            }
+        }
+
+        /**
+         * Move some items from cell {@code from} to cell {@code to}.
+         * @param from cell, where to get
+         * @param to cell, where to put gathered items
+         * @param amount how much items to transfer
+         */
+        public synchronized void split(int from, int to, int amount) {
+            if (amount < 1) { throw new IllegalArgumentException("You must move more than one item"); }
+            if (storage[from] != null) {
+                if (storage[to] == null) {
+                    Item divided = storage[from];
+                    divided.decrease(amount);
+                    storage[to] = new Item(divided, amount);
+                } else if (storage[from].equals(storage[to])) {
+                    storage[from].decrease(amount);
+                    storage[to].increase(amount);
+                }
+            }
+        }
+
+        /**
+         * @return maximum possible number of stored items
+         */
+        public int size() {
+            return storage.length;
+        }
+
+        /**
+         * @return amount of free cells in storage
+         */
+        public int free() {
+            return size() - occupied;
+        }
+
+    }
+
     public static final class Inventory {
 
         public static final  int        MAX_ITEMS_AMOUNT = 50;
@@ -261,7 +550,7 @@ public class Hero extends Mob implements Locatable {
             for (final int index : dressedItems) {
                 if (index < items.size() - 1) {
                     if (index != ClothingSlots.NOT_DRESSED) {
-                        atk.addAttack(items.get(index).getAttack());
+                        atk.addAttack(items.get(index).getData().getAttack());
                     }
                 }
             }
@@ -273,7 +562,7 @@ public class Hero extends Mob implements Locatable {
             for (final int index : dressedItems) {
                 if (index < items.size() - 1) {
                     if (index != ClothingSlots.NOT_DRESSED) {
-                        def.addArmor(items.get(index).getArmor());
+                        def.addArmor(items.get(index).getData().getArmor());
                     }
                 }
             }
@@ -290,7 +579,7 @@ public class Hero extends Mob implements Locatable {
 
         public void put(Item item) {
             items.add(item);
-            storageWeight += item.getWeight();
+            storageWeight += item.getData().getWeight();
         }
 
         public void dress(int index, ClothingSlots slot) {
@@ -312,7 +601,7 @@ public class Hero extends Mob implements Locatable {
         }
 
         public void dropItem(int index) {
-            ClothingSlots slot = isDressed();
+            ClothingSlots slot = isDressed(index);
             if (slot != null) {
                 takeOff(slot);
             }

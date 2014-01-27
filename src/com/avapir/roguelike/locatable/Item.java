@@ -1,81 +1,68 @@
 package com.avapir.roguelike.locatable;
 
-import com.avapir.roguelike.battle.Armor;
-import com.avapir.roguelike.battle.Attack;
+/**
+ * User: Alpen Ditrix Date: 27.01.14 Time: 20:36
+ */
+public class Item {
+    private int ID;
+    private int amount;
 
-public class Item implements Cloneable {
-
-    private final String  name;
-    private final Attack  attack;
-    private final Armor   armor;
-    private final int     weight;
-    private final boolean stackable;
-    private String imageName;
-
-    private Item(String name, int weight, Attack attack, Armor armor) {
-        this.name = name;
-        imageName = "item_".concat(name.toLowerCase().replace(' ', '_'));
-        this.attack = attack == null ? new Attack() : attack;
-        this.armor = armor == null ? new Armor() : armor;
-        this.weight = weight;
-        stackable = false;
-
+    public Item(int ID) {
+        this.ID = ID;
+        amount = 0;
     }
 
-    public static final class ItemBuilder {
-
-        public static final Item createItem(String name) {
-            return createItem(name, 0);
-        }
-
-        public static final Item createItem(String name, int weight) {
-            return createItem(name, weight, null, null);
-        }
-
-        public static final Item craeteItem(String name, int weight, Attack attack) {
-            return createItem(name, weight, attack, null);
-        }
-
-        public static final Item createItem(String name, int weight, Armor armor) {
-            return createItem(name, weight, null, armor);
-        }
-
-        public static final Item createItem(String name, int weight, Attack attack, Armor armor) {
-            return new Item(name, weight, attack, armor);
-        }
-
+    public Item(Item item) {
+        ID = item.ID;
+        amount = 0;
     }
 
-    public String getName() {
-        return name;
+    public Item(int ID, int amount) {
+        this.ID = ID;
+        this.amount = amount;
     }
 
-    public Attack getAttack() {
-        return attack;
+    public Item(Item item, int amount) {
+        ID = item.ID;
+        this.amount = amount;
     }
 
-    public Armor getArmor() {
-        return armor;
+    public ItemData getData() {
+        return ItemDatabase.get(ID);
     }
 
-    public int getWeight() {
-        return weight;
+    public void convert(Item item) {
+        ID = item.ID;
+    }
+
+    public void copy(Item item) {
+        ID = item.ID;
+        amount = item.amount;
+    }
+
+    public synchronized void swap(Item item) {
+        int tmpID = ID;
+        int tmpAmount = amount;
+        ID = item.ID;
+        amount = item.amount;
+        item.ID = tmpID;
+        item.amount = tmpAmount;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void increase(int n) {
+        amount+=n;
+    }
+
+    public void decrease(int n) {
+        amount = Math.max(amount - n, 0);
     }
 
     @Override
-    public Object clone() {
-        try {
-            Item item = (Item) super.clone();
-            //all fields are final and none of them will be changed in the item`s lifetime, so deep clone if not proper
-            return item;
-        } catch (CloneNotSupportedException e) {
-            // this shouldn't happen, since we are Cloneable
-            throw new InternalError();
-        }
-    }
-
-    public String getImageName() {
-        return imageName;
+    public boolean equals(Object obj) {
+        return !(obj == null || !(obj instanceof Item)) && ((Item) obj).ID == ID;
     }
 }
-

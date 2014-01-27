@@ -167,7 +167,7 @@ public class Mob implements Cloneable, Locatable {
             Tile t = g.getMap().getTile(newLoc.x, newLoc.y);
             switch (t.getItemsAmount()) {
                 case 1:
-                    Log.g("Здесь есть %s.", t.getItemList().get(0).getItem().getName());
+                    Log.g("Здесь есть %s.", t.getItemList().get(0).getItem().getData().getName());
                 case 0:
                     break;
                 default:

@@ -7,6 +7,7 @@ import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.KeyboardHandler;
 import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.Viewport;
+import com.avapir.roguelike.game.ClothingSlots;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.locatable.DroppedItem;
@@ -67,9 +68,9 @@ public class GamePanel extends AbstractGamePanel {
 
                     g2.drawImage(itemBg, xx, yy, null);
 
-                    Item item = h.getInventory().getDressed(i * 3 + j);
+                    Item item = h.getInventory().getDressed(ClothingSlots.fromInt(i * 3 + j));
                     if (item != null) {
-                        g2.drawImage(getImage(item.getImageName()), xx, yy, null);
+                        g2.drawImage(getImage(item.getData().getImageName()), xx, yy, null);
                     }
                 }
             }
@@ -379,7 +380,7 @@ public class GamePanel extends AbstractGamePanel {
     }
 
     private void paintItemsOnTile(List<DroppedItem> itemList, int j, int i, Graphics2D g2) {
-        drawToCell(g2, getImage(itemList.size() > 1 ? "many_items" : itemList.get(0).getItem().getImageName()), j, i);
+        drawToCell(g2, getImage(itemList.size() > 1 ? "many_items" : itemList.get(0).getItem().getData().getImageName()), j, i);
     }
 
     private void paintMob(final Mob mob, final int j, final int i, final Graphics2D g2) {

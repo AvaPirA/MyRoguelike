@@ -73,11 +73,6 @@ public class Log implements Serializable {
     }
 
     /**
-     * Stores number of turn of last proceed record
-     */
-    private static int turn = -1;
-
-    /**
      * Sends default record for game
      *
      * @param s user data
@@ -119,6 +114,11 @@ public class Log implements Serializable {
     }
 
     /**
+     * Stores number of turn of last proceed record
+     */
+    private static int turn = -1;
+
+    /**
      * Retrieves number of current game turn and invokes {@link #refresh()} if it's not equal to {@link Log#turn}
      *
      * @return {@link com.avapir.roguelike.core.Game#getTurnCounter()}
@@ -144,7 +144,7 @@ public class Log implements Serializable {
     }
 
     /**
-     * Sets new value to {@link Log#REMAIN_RECORDS}
+     * Sets new value to {@link Log#REMAIN_RECORDS}, which must be more than zero
      *
      * @param count new value
      */
@@ -155,10 +155,17 @@ public class Log implements Serializable {
         REMAIN_RECORDS = count;
     }
 
+    /**
+     * @return the number of elements in the log
+     */
     public static int getSize() {
         return log.size();
     }
 
+    /**
+     * @param i index of element to return
+     * @return the element at the specified position
+     */
     public static String get(int i) {
         return log.get(i);
     }
