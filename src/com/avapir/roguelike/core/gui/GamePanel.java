@@ -67,7 +67,7 @@ public class GamePanel extends AbstractGamePanel {
 
                     g2.drawImage(itemBg, xx, yy, null);
 
-                    Item item = h.getInventory().getWeared(i * 3 + j);
+                    Item item = h.getInventory().getDressed(i * 3 + j);
                     if (item != null) {
                         g2.drawImage(getImage(item.getImageName()), xx, yy, null);
                     }

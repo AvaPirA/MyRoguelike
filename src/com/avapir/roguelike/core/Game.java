@@ -161,7 +161,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     public void EOT(final Point playerStep) {
         move(playerStep);
         // TODO SET GAME.BUSY
-        currentMap.computeFOV(hero.getLoc(), Hero.StatsFormulas.getFOVR(hero));
+        currentMap.computeFOV(hero.getLoc(), Hero.StatsFormulas.getFovRadius(hero));
         doUnlimitedAiWorks();
 
         turnCounter++;

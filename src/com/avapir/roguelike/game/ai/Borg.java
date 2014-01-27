@@ -108,7 +108,7 @@ public final class Borg extends SmartAI {
         if (g.getState() != GameState.GAME_OVER) {
             if (m == g.getHero()) {
                 final Hero h = g.getHero();
-                final int fovRad = Hero.StatsFormulas.getFOVR(h);
+                final int fovRad = Hero.StatsFormulas.getFovRadius(h);
                 if (target != null && !((Mob) target).isAlive()) {
                     target = null;
                 }

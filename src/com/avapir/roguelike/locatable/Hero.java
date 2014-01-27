@@ -6,7 +6,6 @@ import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.game.ClothingSlots;
-import com.avapir.roguelike.game.ai.Borg;
 import com.avapir.roguelike.game.ai.IdleAI;
 
 import java.awt.*;
@@ -14,8 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
-
-import static com.avapir.roguelike.core.RoguelikeMain.BORG;
 
 public class Hero extends Mob implements Locatable {
 
@@ -30,7 +27,7 @@ public class Hero extends Mob implements Locatable {
     private       int          XP;
 
     public Hero(String name, Game g) {
-        super(name, 1, 1, null, null, UNRESOLVED_LOCATION, BORG ? Borg.getNewInstance() : IdleAI.getNewInstance());
+        super(name, 1, 1, null, null, UNRESOLVED_LOCATION, IdleAI.getNewInstance());
         stats = new PrimaryStats(name);
         inventory = new Inventory();
         game = g;
@@ -91,13 +88,13 @@ public class Hero extends Mob implements Locatable {
             return (int) (xp * (1f + h.stats.getDex() / 300f + L / 100f));
         }
 
-        public static int getFOVR(final Hero h) {
+        public static int getFovRadius(final Hero h) {
             final int baseFOVR = 5;
             final int INT = getInt(h);
             return baseFOVR + INT / 50;
         }
 
-        public static int getATKR(final Hero h) {
+        public static int getAtkRadius(final Hero h) {
             final int AGI = getAgi(h);
             return AGI == 0 ? 0 : AGI < 50 ? 1 : AGI < 150 ? 2 : 3;
         }
@@ -225,35 +222,30 @@ public class Hero extends Mob implements Locatable {
 
     public static final class Inventory {
 
-        private static final int        NO_ITEM          = -69;
         public static final  int        MAX_ITEMS_AMOUNT = 50;
         private static final int        SLOTS            = 3 * 4; //12
         private final        List<Item> items            = new ArrayList<>();
         /** art1  helm  art2 weap  vest  weap2 glov  trou  lkkl rng1  legs  rng2 */
-        private final        int[]      wearedItems      = new int[SLOTS];
+        private final        int[]      dressedItems     = new int[SLOTS];
         private int storageWeight;
 
-        Inventory() {}
+        Inventory() {
+            for (int i = 0; i < SLOTS; i++) {
+                dressedItems[i] = ClothingSlots.NOT_DRESSED; // not dressed
+            }
+        }
 
         /**
          * @param slot shows the slot from which you want to get item
          *
-         * @return item in current slot or
+         * @return item in current slot or null
          */
-        public Item getWeared(ClothingSlots slot) {
-            return getItem(wearedItems[slot.ordinal()]);
-        }
-
-        public Item getWeared(int index) {
-            if (index < 0 || index > SLOTS) {
-                return null;
-            } else {
-                return getItem(index);
-            }
+        public Item getDressed(ClothingSlots slot) {
+            return getItem(dressedItems[slot.ordinal()]);
         }
 
         public Item getItem(int index) {
-            if (index == NO_ITEM || index < 0 || index >= items.size()) {
+            if (index == ClothingSlots.NOT_DRESSED) {
                 return null;
             } else {
                 return items.get(index);
@@ -264,11 +256,11 @@ public class Hero extends Mob implements Locatable {
             return items.listIterator();
         }
 
-        Attack getAttack() {
+        Attack getAttackOfItems() {
             final Attack atk = new Attack();
-            for (final int index : wearedItems) {
+            for (final int index : dressedItems) {
                 if (index < items.size() - 1) {
-                    if (index != NO_ITEM) {
+                    if (index != ClothingSlots.NOT_DRESSED) {
                         atk.addAttack(items.get(index).getAttack());
                     }
                 }
@@ -276,11 +268,11 @@ public class Hero extends Mob implements Locatable {
             return atk;
         }
 
-        Armor getArmor() {
+        Armor getArmorOfItems() {
             final Armor def = new Armor();
-            for (final int index : wearedItems) {
+            for (final int index : dressedItems) {
                 if (index < items.size() - 1) {
-                    if (index != NO_ITEM) {
+                    if (index != ClothingSlots.NOT_DRESSED) {
                         def.addArmor(items.get(index).getArmor());
                     }
                 }
@@ -294,6 +286,37 @@ public class Hero extends Mob implements Locatable {
 
         public int getWeight() {
             return storageWeight;
+        }
+
+        public void put(Item item) {
+            items.add(item);
+            storageWeight += item.getWeight();
+        }
+
+        public void dress(int index, ClothingSlots slot) {
+            dressedItems[slot.ordinal()] = index;
+        }
+
+        public void takeOff(ClothingSlots slots) {
+            dressedItems[slots.ordinal()] = ClothingSlots.NOT_DRESSED;
+        }
+
+        public ClothingSlots isDressed(int index) {
+            // FIXME maybe dressed\not_dresed state may be stored into item object
+            for (int i = 0; i < SLOTS; i++) {
+                if (dressedItems[i] == index) {
+                    return ClothingSlots.fromInt(i);
+                }
+            }
+            return null;
+        }
+
+        public void dropItem(int index) {
+            ClothingSlots slot = isDressed();
+            if (slot != null) {
+                takeOff(slot);
+            }
+            items.remove(index);
         }
     }
 
@@ -366,7 +389,7 @@ public class Hero extends Mob implements Locatable {
 
     @Override
     public Armor getArmor() {
-        return super.getArmor().addArmor(inventory.getArmor());
+        return super.getArmor().addArmor(inventory.getArmorOfItems());
     }
 
     @Override
@@ -376,7 +399,7 @@ public class Hero extends Mob implements Locatable {
 
     @Override
     public Attack getAttack() {
-        return super.getAttack().addAttack(inventory.getAttack());
+        return super.getAttack().addAttack(inventory.getAttackOfItems());
     }
 
     @Override
