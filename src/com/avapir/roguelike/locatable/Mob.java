@@ -186,7 +186,7 @@ public class Mob implements Cloneable, Locatable {
     private void moveAttack(Point newLoc, Game g) {
         final float dmg = attackMob(newLoc, g);
         if (this == g.getHero()) {
-            ((Hero) this).gainXpFromDamage(dmg, g);
+            ((Hero) this).gainXpFromDamage(dmg);
         }
     }
 

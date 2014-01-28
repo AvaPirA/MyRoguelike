@@ -745,18 +745,18 @@ public class Hero extends Mob implements Locatable {
         return stats;
     }
 
-    public void gainXpFromDamage(final float dmg, final Game g) {
+    public void gainXpFromDamage(final float dmg) {
         final int xp = (int) Math.pow(dmg, 6 / 5f);
         final int gainedXP = (int) StatsFormulas.addBonusXp(this, xp);
         XP += gainedXP;
         Log.g("%s получает %s опыта", getName(), gainedXP);
         while (lvlUp()) {
-            gainLvl(g);
+            gainLvl();
         }
 
     }
 
-    private void gainLvl(final Game g) {
+    private void gainLvl() {
         XP = 0;
         level++;
         stats.freeStats += PrimaryStats.DEFAULT_STAT_INCREASE;
