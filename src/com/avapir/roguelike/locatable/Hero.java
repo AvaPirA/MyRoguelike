@@ -19,6 +19,7 @@ public class Hero extends Mob implements Locatable {
             39516, 50261, 62876, 77537, 94421, 113712, 135596, 160266, 84495, 95074, 107905, 123472, 142427, 165669,
             194509, 231086, 279822, 374430, 209536, 248781, 296428, 354546, 425860, 514086, 624568, 765820, 954872};
     private final InventoryHandler inventory;
+    private final EquipmentHandler equipment;
     private final PrimaryStats     stats;
     private final Game             game;
     private       int              level;
@@ -28,6 +29,7 @@ public class Hero extends Mob implements Locatable {
         super(name, 1, 1, null, null, UNRESOLVED_LOCATION, IdleAI.getNewInstance());
         stats = new PrimaryStats(name);
         inventory = new InventoryHandler();
+        equipment = new EquipmentHandler();
         game = g;
         level = 1;
         XP = 0;
@@ -128,10 +130,11 @@ public class Hero extends Mob implements Locatable {
         }
 
         public static boolean isOverweighted(Hero hero) {
-            return hero.getInventory().getWeight() > getMaxWeight(hero);
+            return hero.equipment.getWeight() > getMaxWeight(hero);
         }
 
         public static int getMaxWeight(Hero hero) {
+            //todo
             return 30 * getStr(hero);
         }
 
@@ -548,7 +551,7 @@ public class Hero extends Mob implements Locatable {
 
     }
 
-    public final class OutfitHandler {
+    public static final class EquipmentHandler {
 
         private static final int SLOTS = 3 * 4;
 
@@ -558,31 +561,59 @@ public class Hero extends Mob implements Locatable {
          * wep1  legg  glov
          * rng1  boot  rng2
          */
-        private Item[] suit = new Item[SLOTS];
+        private Item[] equip = new Item[SLOTS];
+        private Attack attack;
+        private Armor armor;
+        private int weight;
+
+        public Attack getAttack() {
+            return attack;
+        }
+
+        public Armor getArmor() {
+            return armor;
+        }
+
+        public int getWeight() {
+            return weight;
+        }
+
+        private void onChangeEquipment() {
+            attack = new Attack();
+            armor = new Armor();
+            weight = 0;
+            for (Item i : equip) {
+                attack.addAttack(i.getData().getAttack());
+                armor.addArmor(i.getData().getArmor());
+                weight += i.getData().getWeight();
+            }
+        }
 
         public void putOn(int index, ClothingSlots slot) {
             Item stored = Hero.this.inventory.get(index);
             if (stored == null) {return;}
             int i = slot.ordinal();
-            if (suit[i] != null) {
-                suit[i].swap(stored);
+            if (equip[i] != null) {
+                equip[i].swap(stored);
             }
+            onChangeEquipment();
         }
 
         public Item get(ClothingSlots slot) {
-            return suit[slot.ordinal()];
+            return equip[slot.ordinal()];
         }
 
         public int getAmount(ClothingSlots slots) {
-            return suit[slots.ordinal()].getAmount();
+            return equip[slots.ordinal()].getAmount();
         }
 
         public Item takeOff(ClothingSlots slot) {
             if (inventory.free() > 0) {
                 int i = slot.ordinal();
-                Item tmp = suit[i];
-                suit[i] = null;
+                Item tmp = equip[i];
+                equip[i] = null;
                 inventory.put(tmp);
+                onChangeEquipment();
                 return tmp;
             } else {
                 throw new IllegalStateException("No empty space in inventory");
@@ -743,10 +774,6 @@ public class Hero extends Mob implements Locatable {
             Log.g("Вы #2#перегружены!#^#");
             return new Point(0, 0);
         }
-        if (inventory.hasTooMuchItems()) {
-            Log.g("Вы несете #2#слишком много вещей!#^#");
-            return new Point(0, 0);
-        }
         return super.move(dp, g);
     }
 
@@ -758,7 +785,7 @@ public class Hero extends Mob implements Locatable {
 
     @Override
     public Armor getArmor() {
-        return super.getArmor().addArmor(inventory.getArmorOfItems());
+        return super.getArmor().addArmor(equipment.getArmor());
     }
 
     @Override
@@ -768,7 +795,7 @@ public class Hero extends Mob implements Locatable {
 
     @Override
     public Attack getAttack() {
-        return super.getAttack().addAttack(inventory.getAttackOfItems());
+        return super.getAttack().addAttack(equipment.getAttack());
     }
 
     @Override
