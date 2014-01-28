@@ -419,12 +419,16 @@ public class Hero extends Mob implements Locatable {
             }
         }
 
-        public synchronized boolean contains(Item index) {
-            if (index == null) {
+        /**
+         * @param item type of items
+         * @return {@code true} if at least one cell stores items of specified type
+         */
+        public synchronized boolean contains(Item item) {
+            if (item == null) {
                 return free() > 0;
             } else {
                 for (Item i : storage) {
-                    if (index.equals(i)) {
+                    if (item.equals(i)) {
                         return true;
                     }
                 }
@@ -453,6 +457,11 @@ public class Hero extends Mob implements Locatable {
             }
         }
 
+        /**
+         * Swaps two cells.
+         * @param from first swapping cell
+         * @param to second swapping cell
+         */
         public synchronized void move(int from, int to) {
             if (storage[to] != null) {
                 if (storage[from] != null) {
