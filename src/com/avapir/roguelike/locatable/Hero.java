@@ -18,16 +18,16 @@ public class Hero extends Mob implements Locatable {
     private static final int[] XP_TO_LVL = {0, 68, 295, 805, 1716, 3154, 5249, 8136, 11955, 16851, 22978, 30475,
             39516, 50261, 62876, 77537, 94421, 113712, 135596, 160266, 84495, 95074, 107905, 123472, 142427, 165669,
             194509, 231086, 279822, 374430, 209536, 248781, 296428, 354546, 425860, 514086, 624568, 765820, 954872};
-    private final Inventory    inventory;
-    private final PrimaryStats stats;
-    private final Game         game;
-    private       int          level;
-    private       int          XP;
+    private final InventoryHandler inventory;
+    private final PrimaryStats     stats;
+    private final Game             game;
+    private       int              level;
+    private       int              XP;
 
     public Hero(String name, Game g) {
         super(name, 1, 1, null, null, UNRESOLVED_LOCATION, IdleAI.getNewInstance());
         stats = new PrimaryStats(name);
-        inventory = new Inventory();
+        inventory = new InventoryHandler();
         game = g;
         level = 1;
         XP = 0;
@@ -218,16 +218,30 @@ public class Hero extends Mob implements Locatable {
         }
     }
 
-    public final class InventoryHandler {
+    public static final class InventoryHandler {
 
-        private Item[] storage;
-        private int    occupied;
+        private             int    inventorySize = 0;
+        public static final int    LINE          = 8;
+        private             Item[] storage       = new Item[LINE * (inventorySize + 3)];
+        private int occupied;
 
         /**
-         * Puts new item to inventory. If there is no items of that, the new ones will be placed in first occured empty
+         * Adds new line (==8 cells) to storage
+         */
+        public void enlarge() {
+            Item[] tmp = new Item[LINE * (inventorySize + 3)];
+            System.arraycopy(storage, 0, tmp, 0, tmp.length); //save state
+            storage = new Item[LINE * (++inventorySize + 3)]; //enlarge
+            System.arraycopy(tmp, 0, storage, 0, tmp.length); //restore
+        }
+
+        /**
+         * Puts new item to inventory. If there is no items of that, the new ones will be placed in first occurred
+         * empty
          * cell. Either they will be stacked.
          *
          * @param item acquired item(s)
+         *
          * @throws IllegalArgumentException if there is no applicable cell
          */
         public synchronized void put(Item item) {
@@ -281,8 +295,9 @@ public class Hero extends Mob implements Locatable {
 
         /**
          * @param index any number
-         * @throws IllegalArgumentException if specified number is not a suitable index for
-         *              storage array. Actually it means <br>{@code index < 0 || index >= size()}</br>
+         *
+         * @throws IllegalArgumentException if specified number is not a suitable index for storage array. Actually it
+         *                                  means <br>{@code index < 0 || index >= size()}</br>
          */
         private void checkIndex(int index) {
             if (index < 0 || index >= size()) {
@@ -292,6 +307,7 @@ public class Hero extends Mob implements Locatable {
 
         /**
          * @param item type of item
+         *
          * @return index of first occurrence of item of specified type
          */
         public synchronized int find(Item item) {
@@ -301,6 +317,7 @@ public class Hero extends Mob implements Locatable {
         /**
          * @param item type of item
          * @param skip how much occurrences must be skipped
+         *
          * @return index of {@code skip+1} occurrence of item of specified type
          */
         private int find(Item item, int skip) {
@@ -325,13 +342,15 @@ public class Hero extends Mob implements Locatable {
 
         /**
          * Removes all items of specified type from storage
+         *
          * @param item type of item
+         *
          * @return type and total amount of removed items
          */
         public synchronized Item remove(Item item) {
             if (item == null) {return null;}
             Item tmp = new Item(item);
-            for(int i : findAll(item)) {
+            for (int i : findAll(item)) {
                 tmp.increase(remove(i).getAmount());
             }
             return tmp;
@@ -339,7 +358,9 @@ public class Hero extends Mob implements Locatable {
 
         /**
          * Clears cell specified by index
+         *
          * @param index index of cell
+         *
          * @return removed items
          */
         public synchronized Item remove(int index) {
@@ -353,9 +374,12 @@ public class Hero extends Mob implements Locatable {
 
         /**
          * Removes {@code amount} items of {@code item} type from storage
-         * @param item type of item
+         *
+         * @param item   type of item
          * @param amount how much items must be removed
+         *
          * @return type and total amount of removed items
+         *
          * @throws IllegalArgumentException if amount of stored items less than {@code amount}
          */
         public synchronized Item remove(Item item, int amount) {
@@ -381,6 +405,7 @@ public class Hero extends Mob implements Locatable {
 
         /**
          * @param item type of items
+         *
          * @return all occurrences of cells with items of specified type
          */
         public List<Integer> findAll(Item item) {
@@ -398,13 +423,15 @@ public class Hero extends Mob implements Locatable {
                     }
                 }
             }
-           return indexes;
+            return indexes;
         }
 
         /**
          * Decreases amount of items in specified cell
-         * @param index index of cell
+         *
+         * @param index  index of cell
          * @param amount amount of items to remove
+         *
          * @return type and total amount of removed items
          */
         public synchronized Item remove(int index, int amount) {
@@ -421,6 +448,7 @@ public class Hero extends Mob implements Locatable {
 
         /**
          * @param item type of items
+         *
          * @return {@code true} if at least one cell stores items of specified type
          */
         public synchronized boolean contains(Item item) {
@@ -440,7 +468,7 @@ public class Hero extends Mob implements Locatable {
          * Unites items of similar type from cells {@code from} and {@code to} into cell {@code to}
          *
          * @param from cell, where to get
-         * @param to cell, where to put the union
+         * @param to   cell, where to put the union
          */
         public synchronized void unite(int from, int to) {
             if (storage[to] == null) {
@@ -459,8 +487,9 @@ public class Hero extends Mob implements Locatable {
 
         /**
          * Swaps two cells.
+         *
          * @param from first swapping cell
-         * @param to second swapping cell
+         * @param to   second swapping cell
          */
         public synchronized void move(int from, int to) {
             if (storage[to] != null) {
@@ -484,8 +513,9 @@ public class Hero extends Mob implements Locatable {
 
         /**
          * Move some items from cell {@code from} to cell {@code to}.
-         * @param from cell, where to get
-         * @param to cell, where to put gathered items
+         *
+         * @param from   cell, where to get
+         * @param to     cell, where to put gathered items
          * @param amount how much items to transfer
          */
         public synchronized void split(int from, int to, int amount) {
@@ -518,13 +548,54 @@ public class Hero extends Mob implements Locatable {
 
     }
 
+    public final class OutfitHandler {
+
+        private static final int SLOTS = 3 * 4;
+
+        /**
+         * art1  helm  art2
+         * neck  vest  wep2
+         * wep1  legg  glov
+         * rng1  boot  rng2
+         */
+        private Item[] suit = new Item[SLOTS];
+
+        public void putOn(int index, ClothingSlots slot) {
+            Item stored = Hero.this.inventory.get(index);
+            if (stored == null) {return;}
+            int i = slot.ordinal();
+            if (suit[i] != null) {
+                suit[i].swap(stored);
+            }
+        }
+
+        public Item get(ClothingSlots slot) {
+            return suit[slot.ordinal()];
+        }
+
+        public int getAmount(ClothingSlots slots) {
+            return suit[slots.ordinal()].getAmount();
+        }
+
+        public Item takeOff(ClothingSlots slot) {
+            if (inventory.free() > 0) {
+                int i = slot.ordinal();
+                Item tmp = suit[i];
+                suit[i] = null;
+                inventory.put(tmp);
+                return tmp;
+            } else {
+                throw new IllegalStateException("No empty space in inventory");
+            }
+        }
+
+    }
+
     public static final class Inventory {
 
-        public static final  int        MAX_ITEMS_AMOUNT = 50;
-        private static final int        SLOTS            = 3 * 4; //12
-        private final        List<Item> items            = new ArrayList<>();
-        /** art1  helm  art2 weap  vest  weap2 glov  trou  lkkl rng1  legs  rng2 */
-        private final        int[]      dressedItems     = new int[SLOTS];
+        public static final int        MAX_ITEMS_AMOUNT = 50;
+        private final       List<Item> items            = new ArrayList<>();
+        private final       int[]      dressedItems     = new int[SLOTS];
         private int storageWeight;
 
         Inventory() {
@@ -717,7 +788,7 @@ public class Hero extends Mob implements Locatable {
         return level;
     }
 
-    public Inventory getInventory() {
+    public InventoryHandler getInventory() {
         return inventory;
     }
 
