@@ -9,10 +9,15 @@ import com.avapir.roguelike.game.ClothingSlots;
 import com.avapir.roguelike.game.ai.IdleAI;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 public class Hero extends Mob implements Locatable {
+    public EquipmentHandler getEquipment() {
+        return equipment;
+    }
 
     /** Stolen from L2 */
     private static final int[] XP_TO_LVL = {0, 68, 295, 805, 1716, 3154, 5249, 8136, 11955, 16851, 22978, 30475,
@@ -28,11 +33,11 @@ public class Hero extends Mob implements Locatable {
     public Hero(String name, Game g) {
         super(name, 1, 1, null, null, UNRESOLVED_LOCATION, IdleAI.getNewInstance());
         stats = new PrimaryStats(name);
-        inventory = new InventoryHandler();
-        equipment = new EquipmentHandler();
         game = g;
         level = 1;
         XP = 0;
+        inventory = new InventoryHandler(this);
+        equipment = new EquipmentHandler(this);
         restore();
     }
 
@@ -223,7 +228,7 @@ public class Hero extends Mob implements Locatable {
 
     public static final class InventoryHandler {
 
-        private             int    inventorySize = 0;
+        private             int    inventorySize = 3;
         public static final int    LINE          = 8;
         private             Item[] storage       = new Item[LINE * (inventorySize + 3)];
         private int occupied;
@@ -232,9 +237,9 @@ public class Hero extends Mob implements Locatable {
          * Adds new line (==8 cells) to storage
          */
         public void enlarge() {
-            Item[] tmp = new Item[LINE * (inventorySize + 3)];
+            Item[] tmp = new Item[LINE * (inventorySize)];
             System.arraycopy(storage, 0, tmp, 0, tmp.length); //save state
-            storage = new Item[LINE * (++inventorySize + 3)]; //enlarge
+            storage = new Item[LINE * (++inventorySize)]; //enlarge
             System.arraycopy(tmp, 0, storage, 0, tmp.length); //restore
         }
 
@@ -549,6 +554,31 @@ public class Hero extends Mob implements Locatable {
             return size() - occupied;
         }
 
+        /**
+         * Returns amount of lines in inventory available for storing smth.
+         * <p/>
+         * By default it's 3. Further in game player will be able to get additional lines by some vendor NPC or by some
+         * quest.
+         *
+         * @return amount of lines already achieved.
+         */
+        public int getSize() {
+            return inventorySize;
+        }
+
+        public int[][] toPaintableArrays() {
+            int[][] arrays = new int[occupied][4];
+            int cursor = 0;
+            for (int i = 0; i < storage.length; i++) {
+                if (storage[i] != null) {
+                    arrays[cursor][0] = i / LINE; //x
+                    arrays[cursor][1] = i % LINE; //y
+                    arrays[cursor][2] = storage[i].getID(); //image
+                    arrays[cursor][3] = storage[i].getAmount(); //nuff said
+                }
+            }
+            return arrays;
+        }
     }
 
     public static final class EquipmentHandler {
@@ -562,9 +592,23 @@ public class Hero extends Mob implements Locatable {
          * rng1  boot  rng2
          */
         private Item[] equip = new Item[SLOTS];
+        private Hero   hero;
         private Attack attack;
-        private Armor armor;
-        private int weight;
+        private Armor  armor;
+        private int    weight;
+
+        public EquipmentHandler(Hero hero) {
+            this.hero = hero;
+        }
+
+        public Item getDressed(int index) {
+            if (index < 0 || index >= SLOTS) {throw new IllegalArgumentException("Wrong slot number");}
+            return equip[index];
+        }
+
+        public Item getDressed(ClothingSlots slot) {
+            return equip[slot.ordinal()];
+        }
 
         public Attack getAttack() {
             return attack;
@@ -590,7 +634,7 @@ public class Hero extends Mob implements Locatable {
         }
 
         public void putOn(int index, ClothingSlots slot) {
-            Item stored = Hero.this.inventory.get(index);
+            Item stored = hero.inventory.get(index);
             if (stored == null) {return;}
             int i = slot.ordinal();
             if (equip[i] != null) {
@@ -608,11 +652,11 @@ public class Hero extends Mob implements Locatable {
         }
 
         public Item takeOff(ClothingSlots slot) {
-            if (inventory.free() > 0) {
+            if (hero.inventory.free() > 0) {
                 int i = slot.ordinal();
                 Item tmp = equip[i];
                 equip[i] = null;
-                inventory.put(tmp);
+                hero.inventory.put(tmp);
                 onChangeEquipment();
                 return tmp;
             } else {
@@ -620,104 +664,6 @@ public class Hero extends Mob implements Locatable {
             }
         }
 
-    }
-
-    public static final class Inventory {
-
-        public static final int        MAX_ITEMS_AMOUNT = 50;
-        private final       List<Item> items            = new ArrayList<>();
-        private final       int[]      dressedItems     = new int[SLOTS];
-        private int storageWeight;
-
-        Inventory() {
-            for (int i = 0; i < SLOTS; i++) {
-                dressedItems[i] = ClothingSlots.NOT_DRESSED; // not dressed
-            }
-        }
-
-        /**
-         * @param slot shows the slot from which you want to get item
-         *
-         * @return item in current slot or null
-         */
-        public Item getDressed(ClothingSlots slot) {
-            return getItem(dressedItems[slot.ordinal()]);
-        }
-
-        public Item getItem(int index) {
-            if (index == ClothingSlots.NOT_DRESSED) {
-                return null;
-            } else {
-                return items.get(index);
-            }
-        }
-
-        ListIterator<Item> getIterator() {
-            return items.listIterator();
-        }
-
-        Attack getAttackOfItems() {
-            final Attack atk = new Attack();
-            for (final int index : dressedItems) {
-                if (index < items.size() - 1) {
-                    if (index != ClothingSlots.NOT_DRESSED) {
-                        atk.addAttack(items.get(index).getData().getAttack());
-                    }
-                }
-            }
-            return atk;
-        }
-
-        Armor getArmorOfItems() {
-            final Armor def = new Armor();
-            for (final int index : dressedItems) {
-                if (index < items.size() - 1) {
-                    if (index != ClothingSlots.NOT_DRESSED) {
-                        def.addArmor(items.get(index).getData().getArmor());
-                    }
-                }
-            }
-            return def;
-        }
-
-        public boolean hasTooMuchItems() {
-            return items.size() > MAX_ITEMS_AMOUNT;
-        }
-
-        public int getWeight() {
-            return storageWeight;
-        }
-
-        public void put(Item item) {
-            items.add(item);
-            storageWeight += item.getData().getWeight();
-        }
-
-        public void dress(int index, ClothingSlots slot) {
-            dressedItems[slot.ordinal()] = index;
-        }
-
-        public void takeOff(ClothingSlots slots) {
-            dressedItems[slots.ordinal()] = ClothingSlots.NOT_DRESSED;
-        }
-
-        public ClothingSlots isDressed(int index) {
-            // FIXME maybe dressed\not_dresed state may be stored into item object
-            for (int i = 0; i < SLOTS; i++) {
-                if (dressedItems[i] == index) {
-                    return ClothingSlots.fromInt(i);
-                }
-            }
-            return null;
-        }
-
-        public void dropItem(int index) {
-            ClothingSlots slot = isDressed(index);
-            if (slot != null) {
-                takeOff(slot);
-            }
-            items.remove(index);
-        }
     }
 
     private void restore() {

@@ -108,6 +108,10 @@ public abstract class AbstractGamePanel extends JPanel {
         g2.drawImage(img, j * Tile.SIZE_px, i * Tile.SIZE_px, Tile.SIZE_px, Tile.SIZE_px, this);
     }
 
+    protected void printToCell(final Graphics g2, final String str, final int j, final int i) {
+        g2.drawString(str, j * Tile.SIZE_px, i * Tile.SIZE_px);
+    }
+
     private void paintBackground(final Graphics2D g2) {
         final BufferedImage bgTex = toBufferedImage(getImage("background"));
         final Rectangle2D canvas = new Rectangle2D.Double(0, 0, getWidth(), getHeight());

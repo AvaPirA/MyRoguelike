@@ -49,6 +49,10 @@ public class Item {
         item.amount = tmpAmount;
     }
 
+    public int getID() {
+        return ID;
+    }
+
     public int getAmount() {
         return amount;
     }

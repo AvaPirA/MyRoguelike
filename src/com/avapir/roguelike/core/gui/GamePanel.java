@@ -7,14 +7,10 @@ import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.KeyboardHandler;
 import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.Viewport;
-import com.avapir.roguelike.game.ClothingSlots;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
-import com.avapir.roguelike.locatable.DroppedItem;
-import com.avapir.roguelike.locatable.Hero;
+import com.avapir.roguelike.locatable.*;
 import com.avapir.roguelike.locatable.Hero.PrimaryStats;
-import com.avapir.roguelike.locatable.Item;
-import com.avapir.roguelike.locatable.Mob;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -44,19 +40,32 @@ public class GamePanel extends AbstractGamePanel {
         private final Point statsOffset  = new Point(o.x, o.y + 200);
         private final Point invenOffset  = new Point(o.x + 100, 100);
         private final Font  guiFont      = new Font(Font.MONOSPACED, Font.PLAIN, 15);
-        private int validMax;
+        private       int   validMax     = Integer.MIN_VALUE;
+        private Hero       hero;
+        private Graphics2D g2;
+
 
         public void paint(final Graphics2D g2) {
             invalidateMax();
-            final Hero h = game.getHero();
-            heroInventory(h, g2);
-            heroMainStats(h, g2);
-            heroAttack(h, g2);
-            heroArmor(h, g2);
-            heroStats(h, g2);
+            hero = game.getHero();
+            this.g2 = g2;
+            heroEquipment();
+            heroMainStats();
+            heroAttack();
+            heroArmor();
+            heroStats();
+
+            if (game.getState() == GameState.INVENTORY) {
+                /*draw inventory
+                * actually, I draw it at GamePanel#paintMap(Map, Graphics2D)
+                * Theres 2 goals got by this decision:
+                * 1) Do not paint inventory-pixels twice: first for map tiles and second for inventory
+                * 2) I hope it will look nice
+                */
+            }
         }
 
-        private void heroInventory(final Hero h, final Graphics2D g2) {
+        private void heroEquipment() {
             final Image itemBg = getImage("inventory_bg");
             int itemBgWidth = itemBg.getWidth(null);
             int itemBgHeight = itemBg.getHeight(null);
@@ -65,16 +74,13 @@ public class GamePanel extends AbstractGamePanel {
                 for (int j = 0; j < 4; j++) {
                     int xx = invenOffset.x + i * (itemBgWidth + 1);
                     int yy = invenOffset.y + j * (itemBgHeight + 1);
-
                     g2.drawImage(itemBg, xx, yy, null);
-
-                    Item item = h.getInventory().getDressed(ClothingSlots.fromInt(i * 3 + j));
+                    Item item = hero.getEquipment().getDressed(i * 3 + j);
                     if (item != null) {
                         g2.drawImage(getImage(item.getData().getImageName()), xx, yy, null);
                     }
                 }
             }
-
 
             if (game.getState() == GameState.INVENTORY) {
                 g2.setColor(Color.yellow);
@@ -85,7 +91,7 @@ public class GamePanel extends AbstractGamePanel {
             }
         }
 
-        private void heroMainStats(final Hero hero, final Graphics2D g2) {
+        private void heroMainStats() {
             g2.setFont(guiFont);
             g2.setColor(Color.yellow);
             g2.drawString("X: " + hero.getLoc().x, o.x, o.y);
@@ -103,7 +109,7 @@ public class GamePanel extends AbstractGamePanel {
                           o.y + 65);
         }
 
-        private void heroAttack(final Hero hero, final Graphics2D g2) {
+        private void heroAttack() {
             g2.setColor(Color.red);
             for (int i = 0; i < Attack.TOTAL_DMG_TYPES; i++) {
                 final float heroDmg = roundOneDigit(hero.getAttack(i));
@@ -111,7 +117,7 @@ public class GamePanel extends AbstractGamePanel {
             }
         }
 
-        private void heroArmor(final Hero hero, final Graphics2D g2) {
+        private void heroArmor() {
             g2.setColor(Color.orange);
             for (int i = 0; i < Armor.TOTAL_DEF_TYPES; i++) {
                 final float heroDef = roundOneDigit(hero.getArmor(i));
@@ -192,7 +198,7 @@ public class GamePanel extends AbstractGamePanel {
             validMax = Integer.MIN_VALUE;
         }
 
-        private void heroStats(final Hero hero, final Graphics2D g2) {
+        private void heroStats() {
             g2.setColor(Color.yellow);
             final int lineHeight = guiFont.getSize();
             final int oY = statsOffset.y - lineHeight + 3;// экспериментально полученное визуально лучшее значение
@@ -294,8 +300,9 @@ public class GamePanel extends AbstractGamePanel {
         final Point offset = new Point(15, 15);
         g2.setFont(logFont);
         g2.setColor(Color.white);
-        for (int i = 0; i < Log.getSize(); i++)
+        for (int i = 0; i < Log.getSize(); i++) {
             g2.drawString(Log.get(i), offset.x, offset.y + i * logFont.getSize() + 3);
+        }
     }
 
     private void debugShowMiniMap(final Map map, final Graphics2D g2) {
@@ -330,18 +337,105 @@ public class GamePanel extends AbstractGamePanel {
         }
     }
 
+    //  0123456789
+    // 0**********
+    // 1**      **
+    // 2** IIII **
+    // 3** IIII **   <<<=  =>>>>
+    // 4**      **   01234567890
+    // 5**********   *** II ****
+    // LINE = 4; SIZE = 2; HIT = 5; WIT = 10;
     private void paintMap(final Map map, final Graphics2D g2) {
-        final int offsetX = game.getCurrentX();
-        final int offsetY = game.getCurrentY();
-        for (int i = 0; i < getHeightInTiles(); i++) {
-            for (int j = 0; j < getWidthInTiles(); j++) {
-                // indexes on the Map
-                final int x = offsetX - Viewport.horizViewDistance() + j;
-                final int y = offsetY - Viewport.verticalViewDistance() + i;
-                final Tile tile = map.getTile(x, y);
-                if (tile != null) {
-                    paintTile(tile, j, i, g2);
+        final int offsetX = game.getCurrentX() - Viewport.horizViewDistance();
+        final int offsetY = game.getCurrentY() - Viewport.verticalViewDistance();
+        final int WIT = getWidthInTiles();
+        final int HIT = getHeightInTiles();
+        if (game.getState() == GameState.INVENTORY) {
+            int l = (WIT - Hero.InventoryHandler.LINE) / 2;
+            int r = (WIT + Hero.InventoryHandler.LINE) / 2;
+            int t = 3;
+            int d = t + game.getHero().getInventory().getSize() + 1; // +1 == border
+            //todo MAKE THIS SHIT AS SHADERS
+            paintMap_inventory(g2, l, r, t, d);
+            paintMap_inventoryBorder(g2, l, r, t, d);
+            paintMap_tiles(map, g2, offsetX, offsetY, WIT, HIT, l, r, t, d);
+        } else {
+            for (int i = 0; i < getHeightInTiles(); i++) {
+                for (int j = 0; j < getWidthInTiles(); j++) {
+                    // indexes on the Map
+                    final int x = offsetX - Viewport.horizViewDistance() + j;
+                    final int y = offsetY - Viewport.verticalViewDistance() + i;
+                    final Tile tile = map.getTile(x, y);
+                    if (tile != null) {
+                        paintTile(tile, j, i, g2);
+                    }
                 }
+            }
+        }
+
+    }
+
+    private void paintMap_tiles_tile(Map map,
+                                     Graphics2D g2,
+                                     int offsetX,
+                                     int offsetY,
+                                     int i,
+                                     int j) {// indexes on the Map
+        final int x = offsetX + j;
+        final int y = offsetY + i;
+        final Tile tile = map.getTile(x, y);
+        if (tile != null) {
+            paintTile(tile, j, i, g2);
+        } else {
+        }
+    }
+
+    private void paintMap_inventoryBorder(Graphics2D g2, int l, int r, int t, int d) {
+        Image border = getImage("empty");
+        for (int w = l; w <= r; w++) {
+            drawToCell(g2, border, w, t);
+            drawToCell(g2, border, w, d);
+        }
+        for (int h = t + 1; h < d; h++) {
+            drawToCell(g2, border, l, h);
+            drawToCell(g2, border, r, h);
+        }
+    }
+
+    private void paintMap_inventory(Graphics2D g2, int l, int r, int t, int d) {
+        Image invBgImg = getImage("inventory_bg");
+        for (int h = t + 1; h < d; h++) {
+            for (int w = l + 1; w < r; w++) {
+                drawToCell(g2, invBgImg, w, h);
+            }
+        }
+        int[][] items = game.getHero().getInventory().toPaintableArrays();
+
+        for (int[] item : items) {
+            drawToCell(g2, getImage(ItemDatabase.get(item[2]).getImageName()), item[1], item[0]);
+            if (item[3] != 1) {
+                printToCell(g2, Integer.toString(item[3]), item[1], item[0]);
+            }
+        }
+    }
+
+    private void paintMap_tiles(Map map, Graphics2D g2, int ox, int oy, int wit, int hit, int l, int r, int t, int d) {
+        for (int h = 0; h < t; h++) {
+            for (int w = 0; w < wit; ) {
+                paintMap_tiles_tile(map, g2, ox, oy, h, w);
+            }
+        }
+        for (int h = t; h < d; h++) {
+            for (int w = 0; w < l; w++) {
+                paintMap_tiles_tile(map, g2, ox, oy, h, w);
+            }
+            for (int w = r + 1; w < wit; w++) {
+                paintMap_tiles_tile(map, g2, ox, oy, h, w);
+            }
+        }
+        for (int h = d + 1; h < hit; h++) {
+            for (int w = 0; w < wit; ) {
+                paintMap_tiles_tile(map, g2, ox, oy, h, w);
             }
         }
 
