@@ -7,6 +7,10 @@ public class InventoryHandler extends AbstractStateHandler {
 
     private boolean focusOnEquipment = false;
 
+    public void changeFocus() {
+        focusOnEquipment = !focusOnEquipment;
+    }
+
     public InventoryHandler(final Game g) {
         super(g);
     }

@@ -107,7 +107,19 @@ public class KeyboardHandler extends KeyAdapter {
     }
 
     private void inventoryPress(final KeyEvent e) {
-        stateArrowsHandler(e.getKeyCode(), game.getInventoryHandler());
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_TAB:
+                game.getInventoryHandler().changeFocus();
+                break;
+            case KeyEvent.VK_ENTER:
+                if (e.isShiftDown()) {
+                    //ask about amount
+                }
+                //act
+                break;
+            default:
+                stateArrowsHandler(e.getKeyCode(), game.getInventoryHandler());
+        }
     }
 
     private void distanceAttackType(final KeyEvent e) {
