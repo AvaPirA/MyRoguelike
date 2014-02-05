@@ -36,7 +36,7 @@ public class Hero extends Mob implements Locatable {
         game = g;
         level = 1;
         XP = 0;
-        inventory = new InventoryHandler(this);
+        inventory = new InventoryHandler();
         equipment = new EquipmentHandler(this);
         restore();
     }
