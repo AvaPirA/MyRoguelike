@@ -24,6 +24,6 @@ public class InventoryHandler extends AbstractStateHandler {
     @Override
     protected int checkRestoreY(final int y) {
         int limitDown = focusOnEquipment ? 3 : game.getHero().getInventory().getSize();
-        return y < 0 ? 0 : y > 3 ? 3 : y;
+        return y < 0 ? 0 : y > limitDown ? limitDown : y;
     }
 }
