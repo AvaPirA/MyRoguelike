@@ -20,7 +20,6 @@ public class GamePanel extends AbstractGamePanel {
 
     private static final long serialVersionUID   = 1L;
     public static final int  STAT_BAR_HEIGHT_PX = 3;
-    static final         Font logFont            = new Font("Times New Roman", Font.PLAIN, 15);
     static final         Font coordFont          = new Font("Monospaced", Font.PLAIN, 10);
     private final Game       game;
     private final GuiPainter guiPainter;
@@ -273,7 +272,7 @@ public class GamePanel extends AbstractGamePanel {
         super.paintComponent(g);
         final Graphics2D g2 = (Graphics2D) g;
         paintMap(game.getMap(), g2);
-        paintLog(g2);
+        Log.getInstance().paint(this, g2, 15, 15);
         drawDialogs(g2);
         debugShowMiniMap(game.getMap(), g2);
     }
@@ -295,15 +294,6 @@ public class GamePanel extends AbstractGamePanel {
     @Override
     protected void paintGUI(final Graphics2D g2) {
         guiPainter.paint(g2);
-    }
-
-    private void paintLog(final Graphics2D g2) {
-        final Point offset = new Point(15, 15);
-        g2.setFont(logFont);
-        g2.setColor(Color.white);
-        for (int i = 0; i < Log.getSize(); i++) {
-            g2.drawString(Log.get(i), offset.x, offset.y + i * logFont.getSize() + 3);
-        }
     }
 
     private void debugShowMiniMap(final Map map, final Graphics2D g2) {

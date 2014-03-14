@@ -1,10 +1,22 @@
 package com.avapir.roguelike.core;
 
+import com.avapir.roguelike.core.gui.AbstractGamePanel;
+
+import java.awt.*;
 import java.io.Serializable;
 import java.util.LinkedList;
 
-public class Log implements Serializable {
+public class Log implements Serializable, Paintable {
     private static final long serialVersionUID = 1L;
+
+    private static Log instance = new Log();
+
+    public static Log getInstance() {
+        return instance;
+    }
+
+    private Log() {
+    }
 
     /**
      * How much records will remain after end of turn
@@ -24,22 +36,22 @@ public class Log implements Serializable {
     /**
      * Game instance for logging
      */
-    private static transient Game game;
+    private transient Game game;
 
     /**
      * How many records were made ​​from the beginning of turn
      */
-    private static transient int perTurn;
+    private transient int perTurn;
 
     /**
      * Storage of records
      */
-    private static LinkedList<String> log;
+    private LinkedList<String> loggedList;
 
     /**
      * @return is logger already connected to some instance of {@link com.avapir.roguelike.core.Game}
      */
-    private static boolean isConnected() {
+    private boolean isConnected() {
         return game != null;
     }
 
@@ -50,12 +62,12 @@ public class Log implements Serializable {
      *
      * @throws java.lang.IllegalStateException if logger already connected
      */
-    public static void connect(Game game) {
+    public void connect(Game game) {
         if (isConnected()) {
             throw new IllegalStateException("Logger already connected to another game instance");
         }
-        Log.game = game;
-        log = new LinkedList<>();
+        this.game = game;
+        loggedList = new LinkedList<>();
     }
 
     /**
@@ -63,7 +75,7 @@ public class Log implements Serializable {
      *
      * @return {@coed true} if succeed. {@code false} if logger was not connected yet
      */
-    public static boolean disconnect() {
+    public boolean disconnect() {
         if (isConnected()) {
             game = null;
             return true;
@@ -72,15 +84,19 @@ public class Log implements Serializable {
         }
     }
 
+    public static void g(final String s) {
+        Log.getInstance().game(s);
+    }
+
     /**
      * Sends default record for game
      *
      * @param s user data
      */
-    public static void g(final String s) {
+    public void game(final String s) {
         checkConnectivity();
         String formatted = String.format(FMT_GAME, perTurn, getTurnAndCheck(), s);
-        log.add(formatted);
+        loggedList.add(formatted);
         System.out.println(formatted);
         removePreviousTurnRecord();
     }
@@ -88,12 +104,15 @@ public class Log implements Serializable {
     /**
      * throws IllegalStateException if logger is not connected
      */
-    private static void checkConnectivity() {
+    private void checkConnectivity() {
         if (!isConnected()) {
             throw new IllegalStateException("Logger must be connected before making records");
         }
     }
 
+    public static void g(final String s, final Object... params){
+        Log.getInstance().game(s, params);
+    }
 
     /**
      * Sends default record about game
@@ -101,31 +120,31 @@ public class Log implements Serializable {
      * @param s formatting data string
      * @param s params data to insert
      */
-    public static void g(final String s, final Object... params) {
-        g(String.format(s, params));
+    public void game(final String s, final Object... params) {
+        game(String.format(s, params));
     }
 
     /**
      * Increments amount of added in that turn records and removes records from another turns if log is full
      */
-    private static void removePreviousTurnRecord() {
+    private void removePreviousTurnRecord() {
         perTurn++;
-        if (log.size() > REMAIN_RECORDS && perTurn <= REMAIN_RECORDS) {
-            log.poll();
+        if (loggedList.size() > REMAIN_RECORDS && perTurn <= REMAIN_RECORDS) {
+            loggedList.poll();
         }
     }
 
     /**
      * Stores number of turn of last send/received record
      */
-    private static int turn = -1;
+    private int turn = -1;
 
     /**
      * Retrieves number of current game turn and invokes {@link #refresh()} if it's not equal to {@link Log#turn}
      *
      * @return {@link com.avapir.roguelike.core.Game#getTurnCounter()}
      */
-    private static int getTurnAndCheck() {
+    private int getTurnAndCheck() {
         int currentTurn = game.getTurnCounter();
         if (turn != currentTurn) {
             refresh();
@@ -137,11 +156,11 @@ public class Log implements Serializable {
     /**
      * Removes extra records after end of turn.
      */
-    private static void refresh() {
+    private void refresh() {
         perTurn = 0;
-        int extra = log.size() - REMAIN_RECORDS;
+        int extra = loggedList.size() - REMAIN_RECORDS;
         for (int i = 0; i < extra; i++) {
-            log.poll();
+            loggedList.poll();
         }
     }
 
@@ -150,7 +169,7 @@ public class Log implements Serializable {
      *
      * @param count new value
      */
-    public static void resetRemainRecordsAmount(int count) {
+    public void resetRemainRecordsAmount(int count) {
         if (count < 0) {
             throw new IllegalArgumentException("Amount of records must be greater than zero");
         }
@@ -160,15 +179,28 @@ public class Log implements Serializable {
     /**
      * @return the number of elements in the log
      */
-    public static int getSize() {
-        return log.size();
+    public int getSize() {
+        return loggedList.size();
     }
 
     /**
      * @param i index of element to return
+     *
      * @return the element at the specified position
      */
-    public static String get(int i) {
-        return log.get(i);
+    public String get(int i) {
+        return loggedList.get(i);
+    }
+
+    static final Font logFont = new Font("Times New Roman", Font.PLAIN, 15);
+
+    @Override
+    public void paint(AbstractGamePanel panel, Graphics2D g2, int x, int y) {
+        final Point offset = new Point(x, y);
+        g2.setFont(logFont);
+        g2.setColor(Color.white);
+        for (int i = 0; i < getSize(); i++) {
+            g2.drawString(get(i), offset.x, offset.y + i * logFont.getSize() + 3);
+        }
     }
 }

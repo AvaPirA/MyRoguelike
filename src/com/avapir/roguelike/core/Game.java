@@ -60,7 +60,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     @Override
     public void init() {
-        Log.connect(this);
+        Log.getInstance().connect(this);
         System.out.println(System.getProperty("awt.toolkit"));
     }
 
