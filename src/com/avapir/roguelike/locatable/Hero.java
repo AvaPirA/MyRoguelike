@@ -5,6 +5,7 @@ import com.avapir.roguelike.battle.Attack;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.Log;
+import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.ClothingSlots;
 import com.avapir.roguelike.game.ai.IdleAI;
 
@@ -765,4 +766,21 @@ public class Hero extends Mob implements Locatable {
         return inventory;
     }
 
+    @Override
+    public void paint(AbstractGamePanel panel, Graphics2D g2, int j, int i) {
+        if (isAlive()) {
+            if (this == game.getHero()) {
+                panel.drawToCell(g2, panel.getImage("hero"), j, i);
+                paintColorBar(getHP() / getMaxHp(), new Color(0, 255, 0, 128), 0, j, i, g2);
+            }
+            if (getMaxMp() > 0) {
+                paintColorBar(getMP() / getMaxMp(), new Color(0, 128, 255, 128), 1, j, i, g2);
+            }
+        }
+        else { //if dead
+            if (this == game.getHero()) {
+                panel.drawToCell(g2, panel.getImage("rip"), j, i);
+            }
+        }
+    }
 }

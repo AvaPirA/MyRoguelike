@@ -19,7 +19,7 @@ import java.util.List;
 public class GamePanel extends AbstractGamePanel {
 
     private static final long serialVersionUID   = 1L;
-    private static final int  STAT_BAR_HEIGHT_PX = 3;
+    public static final int  STAT_BAR_HEIGHT_PX = 3;
     static final         Font logFont            = new Font("Times New Roman", Font.PLAIN, 15);
     static final         Font coordFont          = new Font("Monospaced", Font.PLAIN, 10);
     private final Game       game;
@@ -279,16 +279,17 @@ public class GamePanel extends AbstractGamePanel {
     }
 
     private void drawDialogs(Graphics2D g2) {
-        gameOverDialog(g2);
+        //TODO GameDialog class
+        if (game.getState() == GameState.GAME_OVER) {
+            gameOverDialog(g2);
+        }
     }
 
     private void gameOverDialog(Graphics2D g2) {
-        if (game.getState() == GameState.GAME_OVER) {
-            final Image img = getImage("gameover");
-            g2.drawImage(img,
-                         (getWidthInTiles() * Tile.SIZE_px - img.getWidth(null)) / 2,
-                         (getHeightInTiles() * Tile.SIZE_px - img.getHeight(null)) / 4, null);
-        }
+        final Image img = getImage("gameover");
+        g2.drawImage(img,
+                     (getWidthInTiles() * Tile.SIZE_px - img.getWidth(null)) / 2,
+                     (getHeightInTiles() * Tile.SIZE_px - img.getHeight(null)) / 4, null);
     }
 
     @Override
@@ -357,18 +358,12 @@ public class GamePanel extends AbstractGamePanel {
             int d = t + game.getHero().getInventory().getSize() + 1; // +1 == border
             //todo MAKE THIS SHIT AS SHADERS
             paintMap_inventory(g2, l, r, t, d);
-            paintMap_inventoryBorder(g2, l, r, t, d);
+            paintMap_inventoryBorder(g2, l - 1, r + 1, t - 1, d + 1);
             paintMap_tiles(map, g2, offsetX, offsetY, WIT, HIT, l, r, t, d);
         } else {
             for (int i = 0; i < getHeightInTiles(); i++) {
                 for (int j = 0; j < getWidthInTiles(); j++) {
-                    // indexes on the Map
-                    final int x = offsetX - Viewport.horizViewDistance() + j;
-                    final int y = offsetY - Viewport.verticalViewDistance() + i;
-                    final Tile tile = map.getTile(x, y);
-                    if (tile != null) {
-                        paintTile(tile, j, i, g2);
-                    }
+                    paintMap_tiles_tile(map, g2, offsetX, offsetY, i, j);
                 }
             }
         }
@@ -381,17 +376,17 @@ public class GamePanel extends AbstractGamePanel {
                                      int offsetY,
                                      int i,
                                      int j) {// indexes on the Map
-        final int x = offsetX + j;
-        final int y = offsetY + i;
-        final Tile tile = map.getTile(x, y);
+        final Tile tile = map.getTile(offsetX + j, offsetY + i);
         if (tile != null) {
-            paintTile(tile, j, i, g2);
+            tile.paint(this, g2, j, i);
         } else {
+            // some outworld. Stars ort smth
         }
     }
 
     private void paintMap_inventoryBorder(Graphics2D g2, int l, int r, int t, int d) {
         Image border = getImage("empty");
+        System.out.println("inv_bord: " + l + "=l<=w<=r=" + r);
         for (int w = l; w <= r; w++) {
             drawToCell(g2, border, w, t);
             drawToCell(g2, border, w, d);
@@ -400,12 +395,20 @@ public class GamePanel extends AbstractGamePanel {
             drawToCell(g2, border, l, h);
             drawToCell(g2, border, r, h);
         }
+        System.out.println("inv_bord: " + (t + 1) + "t+1<=h<d=" + d);
     }
 
+    /**
+     * @param g2
+     * @param l  left boundary cell
+     * @param r  right boundary cell
+     * @param t  top boundary cell
+     * @param d  bottom boundary cell
+     */
     private void paintMap_inventory(Graphics2D g2, int l, int r, int t, int d) {
         Image invBgImg = getImage("inventory_bg");
-        for (int h = t + 1; h < d; h++) {
-            for (int w = l + 1; w < r; w++) {
+        for (int h = t; h <= d; h++) {
+            for (int w = l; w <= r; w++) {
                 drawToCell(g2, invBgImg, w, h);
             }
         }
@@ -420,98 +423,28 @@ public class GamePanel extends AbstractGamePanel {
     }
 
     private void paintMap_tiles(Map map, Graphics2D g2, int ox, int oy, int wit, int hit, int l, int r, int t, int d) {
-        for (int h = 0; h < t; h++) {
-            for (int w = 0; w < wit; ) {
+        for (int h = 0; h < t - 1; h++) {
+            for (int w = 0; w < wit; w++) {
+                System.out.println(1);
                 paintMap_tiles_tile(map, g2, ox, oy, h, w);
             }
         }
-        for (int h = t; h < d; h++) {
-            for (int w = 0; w < l; w++) {
+        for (int h = t - 1; h < d + 2; h++) {
+            for (int w = 0; w < l - 1; w++) {
+                System.out.println(2);
                 paintMap_tiles_tile(map, g2, ox, oy, h, w);
             }
-            for (int w = r + 1; w < wit; w++) {
-                paintMap_tiles_tile(map, g2, ox, oy, h, w);
-            }
-        }
-        for (int h = d + 1; h < hit; h++) {
-            for (int w = 0; w < wit; ) {
+            for (int w = r + 2; w < wit; w++) {
+                System.out.println(3);
                 paintMap_tiles_tile(map, g2, ox, oy, h, w);
             }
         }
-
-    }
-
-    private void paintTile(final Tile tile, final int j, final int i, final Graphics2D g2) {
-        drawToCell(g2, getImage("empty"), j, i);
-
-        if (tile.isSeen()) {
-            String imageName;
-            switch (tile.getType()) {
-                case GRASS:
-                    imageName = "grass";
-                    break;
-                case TREE:
-                    imageName = "tree";
-                    break;
-                default:
-                    throw new RuntimeException("Unresolved tile type");
-            }
-            drawToCell(g2, getImage(imageName), j, i);
-
-            if (tile.isVisible()) {
-                if (tile.getMob() != null) {
-                    paintMob(tile.getMob(), j, i, g2);
-                }
-                if (tile.getItemsAmount() > 0) {
-                    paintItemsOnTile(tile.getItemList(), j, i, g2);
-                }
-            } else {
-                if (tile.isSeen()) {
-                    drawToCell(g2, getImage("wFog"), j, i);
-                }
+        for (int h = d + 2; h < hit; h++) {
+            for (int w = 0; w < wit; w++) {
+                System.out.println(4);
+                paintMap_tiles_tile(map, g2, ox, oy, h, w);
             }
         }
-    }
 
-    private void paintItemsOnTile(List<DroppedItem> itemList, int j, int i, Graphics2D g2) {
-        drawToCell(g2, getImage(itemList.size() > 1 ? "many_items" : itemList.get(0).getItem().getData().getImageName()), j, i);
-    }
-
-    private void paintMob(final Mob mob, final int j, final int i, final Graphics2D g2) {
-        if (mob.isAlive()) {
-            if (mob == game.getHero()) {
-                drawToCell(g2, getImage("hero"), j, i);
-                paintColorBar(mob.getHP() / mob.getMaxHp(), new Color(0, 255, 0, 128), 0, j, i, g2);
-            } else { //if not a hero
-                drawToCell(g2, getImage(mob.getName().toLowerCase()), j, i);
-                paintColorBar(mob.getHP() / mob.getMaxHp(), new Color(255, 0, 0, 128), 0, j, i, g2);
-            }
-            //if hero or not
-            if (mob.getMaxMp() > 0) {
-                paintColorBar(mob.getMP() / mob.getMaxMp(), new Color(0, 128, 255, 128), 1, j, i, g2);
-            }
-        } else { //if dead
-            if (mob == game.getHero()) {
-                drawToCell(g2, getImage("rip"), j, i);
-            }
-        }
-    }
-
-    void paintColorBar(final float value,
-                       final Color transparentColor,
-                       final int line,
-                       final int j,
-                       final int i,
-                       final Graphics2D g2) {
-        if (value < 0 || value > 1) {
-            throw new IllegalArgumentException();
-        }
-        g2.setColor(transparentColor);
-
-        int x = j * Tile.SIZE_px;
-        int y = i * Tile.SIZE_px + line * STAT_BAR_HEIGHT_PX;
-
-        g2.fillRect(x, y, Tile.SIZE_px, STAT_BAR_HEIGHT_PX);
-        g2.fillRect(x, y, (int) (value * Tile.SIZE_px), STAT_BAR_HEIGHT_PX);
     }
 }

@@ -79,7 +79,9 @@ public class Log implements Serializable {
      */
     public static void g(final String s) {
         checkConnectivity();
-        log.add(String.format(FMT_GAME, perTurn, getTurnAndCheck(), s));
+        String formatted = String.format(FMT_GAME, perTurn, getTurnAndCheck(), s);
+        log.add(formatted);
+        System.out.println(formatted);
         removePreviousTurnRecord();
     }
 
@@ -94,7 +96,7 @@ public class Log implements Serializable {
 
 
     /**
-     * Sends default record for game
+     * Sends default record about game
      *
      * @param s formatting data string
      * @param s params data to insert
@@ -114,7 +116,7 @@ public class Log implements Serializable {
     }
 
     /**
-     * Stores number of turn of last proceed record
+     * Stores number of turn of last send/received record
      */
     private static int turn = -1;
 

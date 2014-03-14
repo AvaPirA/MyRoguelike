@@ -104,11 +104,11 @@ public abstract class AbstractGamePanel extends JPanel {
         paintGUI(g2);
     }
 
-    protected void drawToCell(final Graphics g2, final Image img, final int j, final int i) {
+    public void drawToCell(final Graphics g2, final Image img, final int j, final int i) {
         g2.drawImage(img, j * Tile.SIZE_px, i * Tile.SIZE_px, Tile.SIZE_px, Tile.SIZE_px, this);
     }
 
-    protected void printToCell(final Graphics g2, final String str, final int j, final int i) {
+    public void printToCell(final Graphics g2, final String str, final int j, final int i) {
         g2.drawString(str, j * Tile.SIZE_px, i * Tile.SIZE_px);
     }
 
@@ -126,7 +126,14 @@ public abstract class AbstractGamePanel extends JPanel {
 
     protected abstract void paintGUI(final Graphics2D g2);
 
-    protected Image getImage(final String filename) {
+    /**
+     *
+     * @deprecated must be replaced with ImageResources
+     * @param filename
+     * @return
+     */
+    @Deprecated
+    public Image getImage(final String filename) {
         String file = path.concat(filename.endsWith(".png") ? filename : filename.concat(".png"));
         return tKit.getImage(file);
     }

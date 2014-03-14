@@ -18,4 +18,8 @@ public class ItemDatabase {
         return data.get(ID);
     }
 
+    public static ItemData get(Item item) {
+        return data.get(item.getID());
+    }
+
 }

@@ -1,12 +1,15 @@
 package com.avapir.roguelike.game;
 
+import com.avapir.roguelike.core.Paintable;
+import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.locatable.DroppedItem;
 import com.avapir.roguelike.locatable.Mob;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Tile {
+public class Tile implements Paintable{
 
     public static enum Type {
         EMPTY, GRASS, TREE, CLOSED_DOOR, OPENED_DOOR, STAIR_UP, STAIR_DOWN, WALL;
@@ -202,5 +205,39 @@ public class Tile {
         final Mob c = charHere;
         charHere = null;
         return c;
+    }
+
+    @Override
+    public void paint(AbstractGamePanel panel, Graphics2D g2, final int j, final int i) {
+        panel.drawToCell(g2, panel.getImage("empty"), j, i);
+
+        if (isSeen()) {
+            String imageName;
+            switch (getType()) {
+                case GRASS:
+                    imageName = "grass";
+                    break;
+                case TREE:
+                    imageName = "tree";
+                    break;
+                default:
+                    throw new RuntimeException("Unresolved tile type");
+            }
+            panel.drawToCell(g2, panel.getImage(imageName), j, i);
+
+            if (isVisible()) {
+                if (charHere != null) {
+                    charHere.paint(panel, g2, j, i);
+                }
+                if (getItemsAmount() > 0) {
+                    panel.drawToCell(g2, panel.getImage(itemsHere.size() > 1 ? "many_items" :
+                          itemsHere.get(0).getItem().getData().getImageName()), j, i);
+                }
+            } else {
+                if (isSeen()) {
+                    panel.drawToCell(g2, panel.getImage("wFog"), j, i);
+                }
+            }
+        }
     }
 }
