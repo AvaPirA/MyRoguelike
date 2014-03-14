@@ -3,15 +3,30 @@ package com.avapir.roguelike.core.statehandlers;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.locatable.Hero;
 
+import java.awt.*;
+
 public class InventoryHandler extends AbstractStateHandler {
 
-    private boolean focusOnEquipment = false;
+
+    private Point   savedInventoryState = new Point(0, 0);
+    private Point   savedEquipmentState = new Point(0, 0);
+    private boolean focusOnEquipment    = false;
 
     public boolean isOnEquipment() {
         return focusOnEquipment;
     }
 
     public void changeFocus() {
+        if(focusOnEquipment) {
+            savedEquipmentState = new Point(x, y);
+            x = savedInventoryState.x;
+            y = savedInventoryState.y;
+        }
+        else {
+            savedInventoryState = new Point(x, y);
+            x = savedEquipmentState.x;
+            y = savedEquipmentState.y;
+        }
         focusOnEquipment = !focusOnEquipment;
     }
 

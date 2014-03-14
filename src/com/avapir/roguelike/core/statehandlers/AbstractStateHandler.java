@@ -7,8 +7,8 @@ import java.awt.*;
 public abstract class AbstractStateHandler implements StateHandler {
 
     final Game game;
-    int y;
-    private int x;
+    protected int y;
+    protected int x;
 
     AbstractStateHandler(final Game g) {
         game = g;

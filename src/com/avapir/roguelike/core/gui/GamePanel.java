@@ -81,7 +81,7 @@ public class GamePanel extends AbstractGamePanel {
                 }
             }
 
-            if (game.getState() == GameState.INVENTORY) {
+            if (game.getState() == GameState.INVENTORY && game.getInventoryHandler().isOnEquipment()) {
                 g2.setColor(Color.yellow);
                 final Point cursor = game.getInventoryHandler().getCursor();
                 g2.drawRect(
@@ -410,28 +410,31 @@ public class GamePanel extends AbstractGamePanel {
                 printToCell(g2, Integer.toString(item[3]), item[1], item[0]);
             }
         }
+
+        if (game.getState() == GameState.INVENTORY && !game.getInventoryHandler().isOnEquipment()) {
+            g2.setColor(Color.yellow);
+            final Point cursor = game.getInventoryHandler().getCursor();
+            g2.drawRect(Tile.SIZE_px*(l + cursor.x),
+                    Tile.SIZE_px*(t + cursor.y), Tile.SIZE_px, Tile.SIZE_px);
+        }
     }
 
     private void paintMap_tiles(Map map, Graphics2D g2, int ox, int oy, int wit, int hit, int l, int r, int t, int d) {
         for (int h = 0; h < t - 1; h++) {
             for (int w = 0; w < wit; w++) {
-                System.out.println(1);
                 paintMap_tiles_tile(map, g2, ox, oy, h, w);
             }
         }
         for (int h = t - 1; h < d + 2; h++) {
             for (int w = 0; w < l - 1; w++) {
-                System.out.println(2);
                 paintMap_tiles_tile(map, g2, ox, oy, h, w);
             }
             for (int w = r + 2; w < wit; w++) {
-                System.out.println(3);
                 paintMap_tiles_tile(map, g2, ox, oy, h, w);
             }
         }
         for (int h = d + 2; h < hit; h++) {
             for (int w = 0; w < wit; w++) {
-                System.out.println(4);
                 paintMap_tiles_tile(map, g2, ox, oy, h, w);
             }
         }

@@ -109,6 +109,7 @@ public class KeyboardHandler extends KeyAdapter {
     }
 
     private void inventoryPress(final KeyEvent e) {
+        System.out.println(game.getInventoryHandler().isOnEquipment());
         switch (e.getKeyCode()) {
             case KeyEvent.VK_S:
                 Log.g("Курсон переключен");
