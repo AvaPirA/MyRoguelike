@@ -405,9 +405,9 @@ public class GamePanel extends AbstractGamePanel {
         int[][] items = game.getHero().getInventory().toPaintableArrays();
 
         for (int[] item : items) {
-            drawToCell(g2, getImage(ItemDatabase.get(item[2]).getImageName()), item[1], item[0]);
+            drawToCell(g2, getImage(ItemDatabase.get(item[2]).getImageName()), l+item[1], t+item[0]);
             if (item[3] != 1) {
-                printToCell(g2, Integer.toString(item[3]), item[1], item[0]);
+                printToCell(g2, Integer.toString(item[3]), l+item[1], t+item[0]);
             }
         }
 

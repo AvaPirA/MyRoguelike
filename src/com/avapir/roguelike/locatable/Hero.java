@@ -254,6 +254,7 @@ public class Hero extends Mob implements Locatable {
          * @throws IllegalArgumentException if there is no applicable cell
          */
         public synchronized void put(Item item) {
+            if (free() == 0) {throw new IllegalArgumentException("No empty space");}
             int index = find(item);
             if (index < 0) {
                 int firstEmpty = find(null);
@@ -494,6 +495,18 @@ public class Hero extends Mob implements Locatable {
             }
         }
 
+        public int coordToCell(int x, int y) {
+            return y*LINE+x;
+        }
+
+        public int coordToCell(Point p) {
+            return coordToCell(p.x, p.y);
+        }
+
+        public synchronized void move(Point p1, Point p2) {
+            move(coordToCell(p1), coordToCell(p2));
+        }
+
         /**
          * Swaps two cells.
          *
@@ -576,6 +589,7 @@ public class Hero extends Mob implements Locatable {
                     arrays[cursor][1] = i % LINE; //y
                     arrays[cursor][2] = storage[i].getID(); //image
                     arrays[cursor][3] = storage[i].getAmount(); //nuff said
+                    cursor++;
                 }
             }
             return arrays;
@@ -724,6 +738,19 @@ public class Hero extends Mob implements Locatable {
         return super.move(dp, g);
     }
 
+    public void pickUpItems() {
+        List<DroppedItem> items = game.getMap().getTile(getLoc().x, getLoc().y).getItemList();
+        Iterator<DroppedItem> iter = items.iterator();
+        try {
+            while(iter.hasNext()){
+                inventory.put(iter.next().getItem());
+                iter.remove();
+            }
+        } catch (IllegalArgumentException e) {
+            //no free space
+        }
+    }
+
     @Override
     protected void onDeath(final Game g) {
         g.gameOver();
@@ -776,8 +803,7 @@ public class Hero extends Mob implements Locatable {
             if (getMaxMp() > 0) {
                 paintColorBar(getMP() / getMaxMp(), new Color(0, 128, 255, 128), 1, j, i, g2);
             }
-        }
-        else { //if dead
+        } else { //if dead
             if (this == game.getHero()) {
                 panel.drawToCell(g2, panel.getImage("rip"), j, i);
             }

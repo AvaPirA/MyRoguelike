@@ -109,7 +109,7 @@ public abstract class AbstractGamePanel extends JPanel {
     }
 
     public void printToCell(final Graphics g2, final String str, final int j, final int i) {
-        g2.drawString(str, j * Tile.SIZE_px, i * Tile.SIZE_px);
+        g2.drawString(str, j * Tile.SIZE_px, i * Tile.SIZE_px+15 );
     }
 
     private void paintBackground(final Graphics2D g2) {

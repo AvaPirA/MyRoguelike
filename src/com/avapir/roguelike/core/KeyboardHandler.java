@@ -119,7 +119,7 @@ public class KeyboardHandler extends KeyAdapter {
                 if (e.isShiftDown()) {
                     //ask about amount
                 }
-                //act
+                game.getInventoryHandler().press();
                 break;
             default:
                 stateArrowsHandler(e.getKeyCode(), game.getInventoryHandler());
@@ -208,6 +208,8 @@ public class KeyboardHandler extends KeyAdapter {
                     Log.g("New zoom: %s%%", 100 * Tile.SIZE_px / 32f);
                 }
                 return;
+            case KeyEvent.VK_NUMPAD5:
+                game.getHero().pickUpItems();
             default:
                 return;
         }

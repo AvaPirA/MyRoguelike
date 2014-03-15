@@ -7,6 +7,7 @@ import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Hero.PrimaryStats;
+import com.avapir.roguelike.locatable.Item;
 import com.avapir.roguelike.locatable.Mob;
 
 import javax.swing.*;
@@ -14,6 +15,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
@@ -102,6 +104,15 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         }
         viewport = new Viewport(currentMap.putCharacter(hero), this);
         placeMobsAndItems(index);
+
+        //fixme remove later
+        Random r = new Random();
+        int xx = currentMap.getWidth();
+        int yy = currentMap.getHeight();
+        currentMap.dropItem(new Item(1), new Point(r.nextInt(xx), r.nextInt(yy)));
+        currentMap.dropItem(new Item(2), new Point(r.nextInt(xx), r.nextInt(yy)));
+        currentMap.dropItem(new Item(3), new Point(r.nextInt(xx), r.nextInt(yy)));
+
 
         EOT(new Point(0, 0));
     }

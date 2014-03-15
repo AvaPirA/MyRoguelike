@@ -3,6 +3,8 @@ package com.avapir.roguelike.game;
 import com.avapir.roguelike.core.Paintable;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.locatable.DroppedItem;
+import com.avapir.roguelike.locatable.Item;
+import com.avapir.roguelike.locatable.ItemData;
 import com.avapir.roguelike.locatable.Mob;
 
 import java.awt.*;
@@ -230,6 +232,10 @@ public class Tile implements Paintable{
                     charHere.paint(panel, g2, j, i);
                 }
                 if (getItemsAmount() > 0) {
+                    DroppedItem ditem = itemsHere.get(0);
+                    Item item = ditem.getItem();
+                    ItemData id = item.getData();
+                    String name = id.getName();
                     panel.drawToCell(g2, panel.getImage(itemsHere.size() > 1 ? "many_items" :
                           itemsHere.get(0).getItem().getData().getImageName()), j, i);
                 }

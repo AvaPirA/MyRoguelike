@@ -45,4 +45,15 @@ public class InventoryHandler extends AbstractStateHandler {
         int limitDown = focusOnEquipment ? 3 : game.getHero().getInventory().getSize();
         return y < 0 ? 0 : y > limitDown ? limitDown : y;
     }
+
+    private Point press;
+
+    public void press() {
+        if (press == null) {
+            press = new Point(x, y);
+        } else {
+            game.getHero().getInventory().move(press, new Point(x, y));
+            press = null;
+        }
+    }
 }
