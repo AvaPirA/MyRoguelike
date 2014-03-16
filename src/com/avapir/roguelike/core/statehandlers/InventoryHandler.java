@@ -1,6 +1,7 @@
 package com.avapir.roguelike.core.statehandlers;
 
 import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.game.ClothingSlots;
 import com.avapir.roguelike.locatable.Hero;
 
 import java.awt.*;
@@ -17,12 +18,11 @@ public class InventoryHandler extends AbstractStateHandler {
     }
 
     public void changeFocus() {
-        if(focusOnEquipment) {
+        if (focusOnEquipment) {
             savedEquipmentState = new Point(x, y);
             x = savedInventoryState.x;
             y = savedInventoryState.y;
-        }
-        else {
+        } else {
             savedInventoryState = new Point(x, y);
             x = savedEquipmentState.x;
             y = savedEquipmentState.y;
@@ -46,14 +46,33 @@ public class InventoryHandler extends AbstractStateHandler {
         return y < 0 ? 0 : y > limitDown ? limitDown : y;
     }
 
-    private Point press;
+    public Point press;
 
     public void press() {
-        if (press == null) {
-            press = new Point(x, y);
+        Hero h = game.getHero();
+        if (!focusOnEquipment) {
+            if (press == null) { //memorize
+                press = new Point(x, y);
+            } else { //use
+                h.getInventory().move(press, new Point(x, y));
+                press = null;
+            }
         } else {
-            game.getHero().getInventory().move(press, new Point(x, y));
-            press = null;
+            if(press == null) { //take off
+                h.getEquipment().takeOff(ClothingSlots.fromCoord(x, y));
+            } else { //put on
+                h.getEquipment().putOn(press, ClothingSlots.fromCoord(x, y));
+                changeFocus();
+            }
         }
+    }
+
+    public void equip() {
+        if(!focusOnEquipment){press();
+        changeFocus();        }
+    }
+
+    public Point getPress() {
+        return press;
     }
 }

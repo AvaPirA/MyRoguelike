@@ -28,7 +28,7 @@ public class Attack implements Cloneable {
 //
 //    }
 
-    public Attack addDamage(final int[] damages) {
+    public Attack addDamage(final float[] damages) {
         if (damages.length > TOTAL_DMG_TYPES) {
             throw new IllegalArgumentException();
         }
@@ -54,8 +54,8 @@ public class Attack implements Cloneable {
         if (atk == null) {
             return this;
         }
-
-        addDamageFromAttack(atk);
+        addDamage(atk.damage);
+//        addDamageFromAttack(atk);
         return this;
     }
 
@@ -93,6 +93,13 @@ public class Attack implements Cloneable {
             // this shouldn't happen, since we are Cloneable
             throw new InternalError();
         }
+    }
+
+    public static Attack sum(Attack a1, Attack a2) {
+        Attack a = new Attack();
+        a.addAttack(a1);
+        a.addAttack(a2);
+        return a;
     }
 }
 

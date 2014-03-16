@@ -9,7 +9,7 @@ public class Item {
 
     public Item(int ID) {
         this.ID = ID;
-        amount = 0;
+        amount = 1;
     }
 
     public Item(Item item) {
@@ -68,5 +68,10 @@ public class Item {
     @Override
     public boolean equals(Object obj) {
         return !(obj == null || !(obj instanceof Item)) && ((Item) obj).ID == ID;
+    }
+
+    @Override
+    public String toString() {
+        return getData().getName();
     }
 }

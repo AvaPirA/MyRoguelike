@@ -9,39 +9,74 @@ public class ItemData implements Cloneable {
     private final Attack  attack;
     private final Armor   armor;
     private final int     weight;
-    private final boolean stackable;
+    private final int stackSize;
     private String imageName;
 
-    private ItemData(String name, int weight, Attack attack, Armor armor) {
+    private ItemData(String name, int weight, Attack attack, Armor armor, int stackSize) {
         this.name = name;
         imageName = "item_".concat(name.toLowerCase().replace(' ', '_'));
         this.attack = attack == null ? new Attack() : attack;
         this.armor = armor == null ? new Armor() : armor;
         this.weight = weight;
-        stackable = false;
+        this.stackSize = stackSize;
 
     }
 
     public static final class ItemBuilder {
 
-        public static final ItemData createItem(String name) {
+        /**
+         * For typical quest items
+         * @param name name of item
+         * @return created item
+         */
+        public static ItemData createItem(String name) {
             return createItem(name, 0);
         }
 
-        public static final ItemData createItem(String name, int weight) {
-            return createItem(name, weight, null, null);
+        /**
+         * For typical consumables and resources
+         * @param name name of item
+         * @param weight weight of item
+         * @return created item
+         */
+        public static ItemData createItem(String name, int weight) {
+            return createItem(name, weight, null, null, 1000);
         }
 
-        public static final ItemData createItem(String name, int weight, Attack attack) {
-            return createItem(name, weight, attack, null);
+        /**
+         * For typical weapons
+         * @param name name of item
+         * @param weight weight of item
+         * @param attack attack power of item
+         * @return created item
+         */
+        public static ItemData createItem(String name, int weight, Attack attack) {
+            return createItem(name, weight, attack, null, 1);
         }
 
-        public static final ItemData createItem(String name, int weight, Armor armor) {
-            return createItem(name, weight, null, armor);
+
+        /**
+         * For typical armor
+         * @param name name of item
+         * @param weight weight of item
+         * @param armor armor power of item
+         * @return created item
+         */
+        public static ItemData createItem(String name, int weight, Armor armor) {
+            return createItem(name, weight, null, armor, 1);
         }
 
-        public static final ItemData createItem(String name, int weight, Attack attack, Armor armor) {
-            return new ItemData(name, weight, attack, armor);
+        /**
+         * For everything
+         * @param name name of item
+         * @param weight weight of item
+         * @param attack attack power of item
+         * @param armor armor power of item
+         * @param stackSize maximum amount of items into one inventory cell
+         * @return created item
+         */
+        public static ItemData createItem(String name, int weight, Attack attack, Armor armor, int stackSize) {
+            return new ItemData(name, weight, attack, armor, stackSize);
         }
 
     }

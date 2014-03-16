@@ -271,8 +271,12 @@ public class Hero extends Mob implements Locatable {
          *
          * @return item from specified cell
          */
-        public Item get(int index) {
+        private Item get(int index) {
             return storage[index];
+        }
+
+        public Item get(Point p) {
+            return get(coordToCell(p));
         }
 
         /**
@@ -480,10 +484,11 @@ public class Hero extends Mob implements Locatable {
          * @param from cell, where to get
          * @param to   cell, where to put the union
          */
-        public synchronized void unite(int from, int to) {
+        private synchronized void unite(int from, int to) {
             if (storage[to] == null) {
                 if (storage[from] != null) {
                     storage[to] = storage[from];
+                    storage[from] = null; //decrease(getAmount)
                 } // else both are null
             } else {
                 if (storage[from] != null) {
@@ -495,11 +500,11 @@ public class Hero extends Mob implements Locatable {
             }
         }
 
-        public int coordToCell(int x, int y) {
-            return y*LINE+x;
+        public static int coordToCell(int x, int y) {
+            return y * LINE + x;
         }
 
-        public int coordToCell(Point p) {
+        public static int coordToCell(Point p) {
             return coordToCell(p.x, p.y);
         }
 
@@ -517,7 +522,11 @@ public class Hero extends Mob implements Locatable {
             if (storage[to] != null) {
                 if (storage[from] != null) {
                     // non-null
-                    storage[from].swap(storage[to]);
+                    if (storage[from].equals(storage[to])) {
+                        unite(from, to);
+                    } else {
+                        storage[from].swap(storage[to]);
+                    }
                 } else {
                     // from -> null; to -> Item
                     storage[from] = storage[to];
@@ -642,19 +651,28 @@ public class Hero extends Mob implements Locatable {
             armor = new Armor();
             weight = 0;
             for (Item i : equip) {
-                attack.addAttack(i.getData().getAttack());
-                armor.addArmor(i.getData().getArmor());
-                weight += i.getData().getWeight();
+                if (i != null) {
+                    attack.addAttack(i.getData().getAttack());
+                    armor.addArmor(i.getData().getArmor());
+                    weight += i.getData().getWeight();
+                }
             }
         }
 
-        public void putOn(int index, ClothingSlots slot) {
+        public void putOn(Point p, ClothingSlots slot) {
+            putOn(InventoryHandler.coordToCell(p), slot);
+        }
+
+        private void putOn(int index, ClothingSlots slot) {
             Item stored = hero.inventory.get(index);
             if (stored == null) {return;}
             int i = slot.ordinal();
             if (equip[i] != null) {
-                equip[i].swap(stored);
+                hero.inventory.remove(index).swap(equip[i]);
+            }else {
+                equip[i] = hero.inventory.remove(index);
             }
+
             onChangeEquipment();
         }
 
@@ -742,7 +760,7 @@ public class Hero extends Mob implements Locatable {
         List<DroppedItem> items = game.getMap().getTile(getLoc().x, getLoc().y).getItemList();
         Iterator<DroppedItem> iter = items.iterator();
         try {
-            while(iter.hasNext()){
+            while (iter.hasNext()) {
                 inventory.put(iter.next().getItem());
                 iter.remove();
             }
@@ -759,7 +777,7 @@ public class Hero extends Mob implements Locatable {
 
     @Override
     public Armor getArmor() {
-        return super.getArmor().addArmor(equipment.getArmor());
+        return Armor.sum(getArmor(), equipment.getArmor());
     }
 
     @Override
@@ -769,7 +787,7 @@ public class Hero extends Mob implements Locatable {
 
     @Override
     public Attack getAttack() {
-        return super.getAttack().addAttack(equipment.getAttack());
+        return Attack.sum(super.getAttack(), equipment.getAttack());
     }
 
     @Override

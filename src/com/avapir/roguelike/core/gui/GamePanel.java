@@ -19,7 +19,7 @@ import java.util.List;
 public class GamePanel extends AbstractGamePanel {
 
     private static final long serialVersionUID   = 1L;
-    public static final int  STAT_BAR_HEIGHT_PX = 3;
+    public static final  int  STAT_BAR_HEIGHT_PX = 3;
     static final         Font coordFont          = new Font("Monospaced", Font.PLAIN, 10);
     private final Game       game;
     private final GuiPainter guiPainter;
@@ -405,17 +405,25 @@ public class GamePanel extends AbstractGamePanel {
         int[][] items = game.getHero().getInventory().toPaintableArrays();
 
         for (int[] item : items) {
-            drawToCell(g2, getImage(ItemDatabase.get(item[2]).getImageName()), l+item[1], t+item[0]);
+            drawToCell(g2, getImage(ItemDatabase.get(item[2]).getImageName()), l + item[1], t + item[0]);
             if (item[3] != 1) {
-                printToCell(g2, Integer.toString(item[3]), l+item[1], t+item[0]);
+                printToCell(g2, Integer.toString(item[3]), l + item[1], t + item[0]);
             }
         }
 
-        if (game.getState() == GameState.INVENTORY && !game.getInventoryHandler().isOnEquipment()) {
-            g2.setColor(Color.yellow);
-            final Point cursor = game.getInventoryHandler().getCursor();
-            g2.drawRect(Tile.SIZE_px*(l + cursor.x),
-                    Tile.SIZE_px*(t + cursor.y), Tile.SIZE_px, Tile.SIZE_px);
+        if (game.getState() == GameState.INVENTORY) {
+            final Point memorizedPress = game.getInventoryHandler().getPress();
+            if (!game.getInventoryHandler().isOnEquipment()) {
+                g2.setColor(Color.yellow);
+                final Point cursor = game.getInventoryHandler().getCursor();
+                g2.drawRect(Tile.SIZE_px * (l + cursor.x), Tile.SIZE_px * (t + cursor.y), Tile.SIZE_px, Tile.SIZE_px);
+            }
+            if (memorizedPress != null) {
+                g2.setColor(Color.green);
+                g2.drawRect(
+                        Tile.SIZE_px * (l + memorizedPress.x),
+                        Tile.SIZE_px * (t + memorizedPress.y), Tile.SIZE_px, Tile.SIZE_px);
+            }
         }
     }
 

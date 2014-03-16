@@ -65,4 +65,11 @@ public class Armor implements Cloneable {
         }
     }
 
+    public static Armor sum(Armor a1, Armor a2) {
+        Armor a = new Armor();
+        a.addArmor(a1);
+        a.addArmor(a2);
+        return a;
+    }
+
 }

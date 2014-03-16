@@ -102,6 +102,9 @@ public class KeyboardHandler extends KeyAdapter {
 
     private void inventoryType(final KeyEvent e) {
         switch (e.getKeyChar()) {
+            case 'e':
+                game.getInventoryHandler().equip();
+                break;
             case 'i':
                 game.removeInventoryHandler();
                 game.setState(GameState.MOVE);
