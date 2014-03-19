@@ -234,6 +234,13 @@ public class Hero extends Mob implements Locatable {
         private             Item[] storage       = new Item[LINE * (inventorySize + 3)];
         private int occupied;
 
+        public InventoryHandler() {
+            put(new Item(1));
+            put(new Item(2));
+            put(new Item(3));
+            put(new Item(4, 20));
+        }
+
         /**
          * Adds new line (==8 cells) to storage
          */
@@ -693,7 +700,8 @@ public class Hero extends Mob implements Locatable {
                 onChangeEquipment();
                 return tmp;
             } else {
-                throw new IllegalStateException("No empty space in inventory");
+                Log.g("Can't take off due full inventory");
+                return null;
             }
         }
 
@@ -777,7 +785,7 @@ public class Hero extends Mob implements Locatable {
 
     @Override
     public Armor getArmor() {
-        return Armor.sum(getArmor(), equipment.getArmor());
+        return Armor.sum(super.getArmor(), equipment.getArmor());
     }
 
     @Override

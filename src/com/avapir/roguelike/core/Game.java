@@ -7,7 +7,6 @@ import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
 import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Hero.PrimaryStats;
-import com.avapir.roguelike.locatable.Item;
 import com.avapir.roguelike.locatable.Mob;
 
 import javax.swing.*;
@@ -63,7 +62,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     @Override
     public void init() {
         Log.getInstance().connect(this);
-        System.out.println(System.getProperty("awt.toolkit"));
+        System.out.println("Used Toolkit: "+System.getProperty("awt.toolkit"));
     }
 
     @Override
@@ -109,11 +108,6 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         Random r = new Random();
         int xx = currentMap.getWidth();
         int yy = currentMap.getHeight();
-        currentMap.dropItem(new Item(1), new Point(r.nextInt(xx), r.nextInt(yy)));
-        currentMap.dropItem(new Item(2), new Point(r.nextInt(xx), r.nextInt(yy)));
-        currentMap.dropItem(new Item(3), new Point(r.nextInt(xx), r.nextInt(yy)));
-
-
         EOT(new Point(0, 0));
     }
 

@@ -63,13 +63,15 @@ public class InventoryHandler extends AbstractStateHandler {
             } else { //put on
                 h.getEquipment().putOn(press, ClothingSlots.fromCoord(x, y));
                 changeFocus();
+                press = null;
             }
         }
     }
 
     public void equip() {
         if(!focusOnEquipment){press();
-        changeFocus();        }
+        changeFocus();
+        }
     }
 
     public Point getPress() {

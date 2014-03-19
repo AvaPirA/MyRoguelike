@@ -46,7 +46,6 @@ public class ChangingStatsHandler extends AbstractStateHandler {
     @Override
     protected int checkRestoreX(final int x) {
         final int stat = game.getHero().getStats().values(y);
-        System.out.println(x + stat);
         if (x + stat == 301) {
             return x - 1;
         } else {

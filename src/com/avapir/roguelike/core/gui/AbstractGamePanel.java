@@ -6,6 +6,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class AbstractGamePanel extends JPanel {
 
@@ -109,7 +112,7 @@ public abstract class AbstractGamePanel extends JPanel {
     }
 
     public void printToCell(final Graphics g2, final String str, final int j, final int i) {
-        g2.drawString(str, j * Tile.SIZE_px, i * Tile.SIZE_px+15 );
+        g2.drawString(str, j * Tile.SIZE_px, (i+1) * Tile.SIZE_px);
     }
 
     private void paintBackground(final Graphics2D g2) {
@@ -127,14 +130,37 @@ public abstract class AbstractGamePanel extends JPanel {
     protected abstract void paintGUI(final Graphics2D g2);
 
     /**
+     * @param filename
+     *
+     * @return
      *
      * @deprecated must be replaced with ImageResources
-     * @param filename
-     * @return
      */
     @Deprecated
     public Image getImage(final String filename) {
         String file = path.concat(filename.endsWith(".png") ? filename : filename.concat(".png"));
-        return tKit.getImage(file);
+
+        return imageExists(file) ? tKit.getImage(file) : getImage("no_pic");
     }
+
+    Map<String, Boolean> loadedImages = new HashMap<>();
+
+    /**
+     * @param file path to file
+     *
+     * @return is specified file exists
+     */
+    private boolean imageExists(String file) {
+        Boolean exists = loadedImages.get(file);
+        if (exists == null) { // not checked?
+            exists = new File(file).exists(); // check
+            loadedImages.put(file, exists); // and save
+            if (!exists) {
+                System.err.println("Not found image for " + file);
+            }
+        }
+        return exists;
+
+    }
+
 }

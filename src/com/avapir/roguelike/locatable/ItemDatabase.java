@@ -21,6 +21,7 @@ public class ItemDatabase {
         data.put(1, ItemData.ItemBuilder.createItem("Test sword", 1, new Attack(5, 5, 5, 5, 5, 5)));
         data.put(2, ItemData.ItemBuilder.createItem("Test helmet", 1, new Armor(1,1,1,1,1,1)));
         data.put(3, ItemData.ItemBuilder.createItem("Test vest", 1, new Armor(3, 3, 3, 3, 3, 3)));
+        data.put(4, ItemData.ItemBuilder.createItem("Test trash", 1));
     }
 
     public static ItemData get(int ID) {

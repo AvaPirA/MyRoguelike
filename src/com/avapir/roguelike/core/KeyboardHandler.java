@@ -25,9 +25,8 @@ public class KeyboardHandler extends KeyAdapter {
 
     @Override
     public void keyTyped(final KeyEvent e) {
-//        System.out.println(e);
         switch (game.getState()) {
-            case MOVE:
+              case MOVE:
                 moveType(e);
                 break;
             case GAME_OVER:
@@ -53,7 +52,6 @@ public class KeyboardHandler extends KeyAdapter {
 
     @Override
     public void keyPressed(final KeyEvent e) {
-//        System.out.println(e);
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             System.exit(0);
         }
@@ -112,7 +110,6 @@ public class KeyboardHandler extends KeyAdapter {
     }
 
     private void inventoryPress(final KeyEvent e) {
-        System.out.println(game.getInventoryHandler().isOnEquipment());
         switch (e.getKeyCode()) {
             case KeyEvent.VK_S:
                 Log.g("Курсон переключен");

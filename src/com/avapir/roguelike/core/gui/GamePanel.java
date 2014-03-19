@@ -9,8 +9,10 @@ import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.Viewport;
 import com.avapir.roguelike.game.Map;
 import com.avapir.roguelike.game.Tile;
-import com.avapir.roguelike.locatable.*;
+import com.avapir.roguelike.locatable.Hero;
 import com.avapir.roguelike.locatable.Hero.PrimaryStats;
+import com.avapir.roguelike.locatable.Item;
+import com.avapir.roguelike.locatable.ItemDatabase;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -74,7 +76,8 @@ public class GamePanel extends AbstractGamePanel {
                     int xx = invenOffset.x + i * (itemBgWidth + 1);
                     int yy = invenOffset.y + j * (itemBgHeight + 1);
                     g2.drawImage(itemBg, xx, yy, null);
-                    Item item = hero.getEquipment().getDressed(i * 3 + j);
+                    g2.setColor(Color.yellow);
+                    Item item = hero.getEquipment().getDressed(j * 3 + i);
                     if (item != null) {
                         g2.drawImage(getImage(item.getData().getImageName()), xx, yy, null);
                     }
@@ -271,6 +274,8 @@ public class GamePanel extends AbstractGamePanel {
     public void paintComponent(final Graphics g) {
         super.paintComponent(g);
         final Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+
         paintMap(game.getMap(), g2);
         Log.getInstance().paint(this, g2, 15, 15);
         drawDialogs(g2);
@@ -376,7 +381,6 @@ public class GamePanel extends AbstractGamePanel {
 
     private void paintMap_inventoryBorder(Graphics2D g2, int l, int r, int t, int d) {
         Image border = getImage("empty");
-        System.out.println("inv_bord: " + l + "=l<=w<=r=" + r);
         for (int w = l; w <= r; w++) {
             drawToCell(g2, border, w, t);
             drawToCell(g2, border, w, d);
@@ -385,8 +389,10 @@ public class GamePanel extends AbstractGamePanel {
             drawToCell(g2, border, l, h);
             drawToCell(g2, border, r, h);
         }
-        System.out.println("inv_bord: " + (t + 1) + "t+1<=h<d=" + d);
     }
+
+    private static final Font  inventoryAmountFont  = new Font(Font.SERIF, Font.PLAIN, 12);
+    private              Color inventoryAmountColor = new Color(250, 250, 0);
 
     /**
      * @param g2
@@ -407,7 +413,9 @@ public class GamePanel extends AbstractGamePanel {
         for (int[] item : items) {
             drawToCell(g2, getImage(ItemDatabase.get(item[2]).getImageName()), l + item[1], t + item[0]);
             if (item[3] != 1) {
-                printToCell(g2, Integer.toString(item[3]), l + item[1], t + item[0]);
+                g2.setFont(inventoryAmountFont);
+                g2.setColor(inventoryAmountColor);
+                printToCell(g2, String.format("x%s", Integer.toString(item[3])), l + item[1], t + item[0]);
             }
         }
 
