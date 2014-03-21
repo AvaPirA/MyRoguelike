@@ -1,6 +1,6 @@
 package com.avapir.roguelike.core.gui;
 
-import com.avapir.roguelike.game.Tile;
+import com.avapir.roguelike.game.world.map.Tile;
 
 import javax.swing.*;
 import java.awt.*;

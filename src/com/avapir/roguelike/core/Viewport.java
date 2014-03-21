@@ -6,10 +6,10 @@ import java.awt.*;
 
 public class Viewport {
 
-    private Game game;
+    private Game  game;
     private Point currentLocation;
 
-    public static int horizViewDistance() {
+    public static int horizontalViewDistance() {
         return AbstractGamePanel.getWidthInTiles() / 2;
     }
 
@@ -30,16 +30,16 @@ public class Viewport {
     }
 
     public Viewport(Point screenCenter, Game game) {
-        this.game = game;
         currentLocation = new Point(screenCenter.x, screenCenter.y);
-    }
-
-    public int getY() {
-        return currentLocation.y;
+        this.game = game;
     }
 
     public int getX() {
         return currentLocation.x;
+    }
+
+    public int getY() {
+        return currentLocation.y;
     }
 
     public void move(Point p) {
@@ -47,10 +47,15 @@ public class Viewport {
         moveVertical(p.y);
     }
 
-
     private void moveHorizontal(int distX) {
         if (distX != 0 && goesOutOfHorizontal(distX)) {
             currentLocation.translate(distX, 0);
+        }
+    }
+
+    private void moveVertical(int distY) {
+        if (distY != 0 && goesOutOfVertical(distY)) {
+            currentLocation.translate(0, distY);
         }
     }
 
@@ -62,12 +67,6 @@ public class Viewport {
     private boolean goesOutOfVertical(int distY) {
         int heroY = game.getHero().getLoc().y;
         return Math.abs(heroY + distY - currentLocation.y) > verticalBoxDistance();
-    }
-
-    private void moveVertical(int distY) {
-        if (distY != 0 && goesOutOfVertical(distY)) {
-            currentLocation.translate(0, distY);
-        }
     }
 
     public String toString() {

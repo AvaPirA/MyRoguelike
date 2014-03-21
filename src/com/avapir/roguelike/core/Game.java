@@ -1,13 +1,14 @@
 package com.avapir.roguelike.core;
 
+import com.avapir.roguelike.core.controls.KeyboardHandler;
 import com.avapir.roguelike.core.gui.GameWindow;
 import com.avapir.roguelike.core.statehandlers.ChangingStatsHandler;
 import com.avapir.roguelike.core.statehandlers.InventoryHandler;
-import com.avapir.roguelike.game.Map;
-import com.avapir.roguelike.game.Tile;
-import com.avapir.roguelike.locatable.Hero;
-import com.avapir.roguelike.locatable.Hero.PrimaryStats;
-import com.avapir.roguelike.locatable.Mob;
+import com.avapir.roguelike.game.world.character.Hero;
+import com.avapir.roguelike.game.world.character.Hero.PrimaryStats;
+import com.avapir.roguelike.game.world.character.Mob;
+import com.avapir.roguelike.game.world.map.Map;
+import com.avapir.roguelike.game.world.map.Tile;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,21 +19,94 @@ import java.util.Random;
 
 public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
+    /**
+     * States in which game may be present. Current state affects GUI and the availability of various functions
+     *
+     * @since 0.0.1
+     * @author Alpen Ditrix
+     */
     public static enum GameState {
-        MOVE, INVENTORY, CHANGE_STATS, GAME_OVER, DISTANCE_ATTACK, VIEW
+        /**
+         * Awaiting of hero's try to step to another tile. That's default state of game on start and after end of
+         * previous turn
+         */
+        MOVE,
+        /**
+         * Showing to the player content of hero's inventory and equipment. Also provides ability to operate with items
+         * at inventory
+         *
+         * @see com.avapir.roguelike.game.world.character.Hero.InventoryHandler
+         * @see com.avapir.roguelike.game.world.items.Item
+         */
+        INVENTORY,
+        /**
+         * Changing hero's stats on user's demand (and when hero has unclaimed stat-points)
+         *
+         * @see com.avapir.roguelike.game.world.character.Hero.PrimaryStats
+         * @see com.avapir.roguelike.game.world.character.Hero.DefaultStats
+         * @see com.avapir.roguelike.game.world.character.Hero.StatsFormulas
+         */
+        CHANGE_STATS,
+        /**
+         * Terminal state of the game
+         */
+        GAME_OVER,
+        /**
+         * For using distance attack user must point the tile, where he want to shot (or spit, or smth else)
+         */
+        DISTANCE_ATTACK,
+        /**
+         * That state is similar to distance attack, but here you can look at any visible tile and after termination of
+         * that state, game will just return to previous one
+         */
+        VIEW
     }
 
-    private final List<Map>            maps;
-    private final Hero                 hero;
-    private final GameWindow           gameWindow;
-    private final List<Mob>            mobs;
-    private       Map                  currentMap;
-    private       Viewport             viewport;
-    private       int                  turnCounter;
-    private       GameState            state;
-    private       ChangingStatsHandler chs;
-    private       InventoryHandler     ih;
-    private       KeyboardHandler      kh;
+    /**
+     * Full list of already created maps
+     */
+    private final List<Map> maps;
+
+    /**
+     * The only one object that is controlled by player (user). That's his\her personal unique {@link com.avapir.roguelike.game.world.character.Mob}
+     *
+     * @see com.avapir.roguelike.game.world.character.Mob
+     * @see com.avapir.roguelike.game.world.character.Hero
+     */
+    private final Hero hero;
+
+    /**
+     * Main window of the game. Here everything will be painted.
+     */
+    private final GameWindow gameWindow;
+
+    /**
+     * List of the mobs on that map
+     */
+    private final List<Mob> mobs;
+
+    /**
+     * Currently representing terraing
+     */
+    private Map currentMap;
+
+    /**
+     * {@link Viewport} instance. That thing provides following players view to hero movement on the playground.
+     */
+    private Viewport viewport;
+
+    /**
+     * Amount of turns since start of game
+     */
+    private int       turnCounter;
+    /**
+     * Current state of the game
+     */
+    private GameState state;
+
+    private ChangingStatsHandler chs;
+    private InventoryHandler     ih;
+    private KeyboardHandler      kh;
 
     public Game(final String title) {
         Mob.game = this;
@@ -62,7 +136,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     @Override
     public void init() {
         Log.getInstance().connect(this);
-        System.out.println("Used Toolkit: "+System.getProperty("awt.toolkit"));
+        System.out.println("Used Toolkit: " + System.getProperty("awt.toolkit"));
     }
 
     @Override
@@ -225,12 +299,12 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         chs.flush();
         Log.g("Характеристики увеличились на:");
         final String[] ss = PrimaryStats.STATS_STRINGS;
-        Log.g("%s:%s;              %s:%s", ss[0], (hero.getStats().values(0) -
-                chs.getDiff()[0]), ss[1], (hero.getStats().values(1) - chs.getDiff()[1]));
-        Log.g("%s:%s;              %s:%s", ss[2], (hero.getStats().values(2) -
-                chs.getDiff()[2]), ss[3], (hero.getStats().values(5) - chs.getDiff()[5]));
-        Log.g("%s:%s;              %s:%s", ss[4], (hero.getStats().values(4) -
-                chs.getDiff()[4]), ss[5], (hero.getStats().values(5) - chs.getDiff()[5]));
+        Log.g("%s:%s;              %s:%s", ss[0], (hero.getStats().values(0) - chs.getDiff()[0]), ss[1], (
+                hero.getStats().values(1) - chs.getDiff()[1]));
+        Log.g("%s:%s;              %s:%s", ss[2], (hero.getStats().values(2) - chs.getDiff()[2]), ss[3], (
+                hero.getStats().values(5) - chs.getDiff()[5]));
+        Log.g("%s:%s;              %s:%s", ss[4], (hero.getStats().values(4) - chs.getDiff()[4]), ss[5], (
+                hero.getStats().values(5) - chs.getDiff()[5]));
         Log.g("__________________________");
         chs = null;
     }

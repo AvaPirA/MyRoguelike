@@ -1,0 +1,299 @@
+package com.avapir.roguelike.game.world.map;
+
+import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.game.fov.IFovAlgorithm;
+import com.avapir.roguelike.game.fov.ILosMap;
+import com.avapir.roguelike.game.fov.PermissiveFOV;
+import com.avapir.roguelike.game.world.character.Mob;
+import com.avapir.roguelike.game.world.items.DroppedItem;
+import com.avapir.roguelike.game.world.items.Item;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+/**
+ * Map is the representation of some terrain there player can stroll and do something. In typical roguelike game all
+ * maps must be generated randomly each time (but it's choice for developer to regenerate map on each loading or to
+ * generate it once). Map -- is some rectangular field filled with tiles, which may have a lot of states and
+ * functionalities
+ *
+ * @see com.avapir.roguelike.game.world.map.Tile
+ * @since 0.0.1
+ * @author Alpen Ditrix
+ */
+public class Map implements ILosMap {
+
+    private static final Random random = new Random();
+
+    /**
+     * Default map height
+     */
+    private static final int          DFT_HEIGHT = 100;
+    /**
+     * Default map width
+     */
+    private static final int          DFT_WIDTH  = 100;
+    /**
+     * Default delta-percents value.
+     */
+    private static final int          DFT_DELTA  = 20;
+    /**
+     * Instance of generator for random maps
+     */
+    private static final MapGenerator generator  = new MapGenerator();
+    /**
+     * The game, who owns that map
+     */
+    private final Game game;
+    /**
+     * Some {@link com.avapir.roguelike.game.fov.IFovAlgorithm} implementation
+     */
+    private final IFovAlgorithm permissiveFov = new PermissiveFOV();
+    /**
+     * Computed from default actual map height
+     */
+    private final int      HEIGHT_MAP;
+    /**
+     * Computed from default actual map width
+     */
+    private final int      WIDTH_MAP;
+    /**
+     * Storage of tiles
+     *
+     * @see com.avapir.roguelike.game.world.map.Tile
+     */
+    private final Tile[][] field;
+    /**
+     * Title of the map
+     */
+    private final String   title;
+
+    /**
+     * Creates empty map with specified dimensions
+     *
+     * @param g
+     * @param height
+     * @param width
+     */
+    @Deprecated
+    public Map(final Game g, final int height, final int width) {
+        game = g;
+        HEIGHT_MAP = height;
+        WIDTH_MAP = width;
+        field = new Tile[height][width];
+        title = "untitled";
+        generator.generateEmpty(this);
+    }
+
+    /**
+     * Create some game map mapped to provided {@link com.avapir.roguelike.core.Game} instance. Dimensions of the map
+     * will be chosen from addition of default value with some random delta-value
+     *
+     * @param g game instance
+     */
+    public Map(final Game g) {
+        game = g;
+        final int deltaHeight = DFT_HEIGHT * DFT_DELTA / 100;
+        final int deltaWidth = DFT_WIDTH * DFT_DELTA / 100;
+        HEIGHT_MAP = DFT_HEIGHT + random.nextInt(2 * deltaHeight) - deltaHeight;
+        WIDTH_MAP = DFT_WIDTH + random.nextInt(2 * deltaWidth) - deltaWidth;
+        field = new Tile[HEIGHT_MAP][WIDTH_MAP];
+        title = "untitled";
+        generator.generate(this);
+    }
+
+    private static class MapGenerator {
+        //todo
+
+        final List<Long> usedSeeds = new ArrayList<>();
+
+        void generateEmpty(final Map map) {
+            for (int i = 0; i < map.WIDTH_MAP; i++) {
+                for (int j = 0; j < map.HEIGHT_MAP; j++) {
+                    map.field[j][i] = new Tile(Tile.Type.GRASS);
+                }
+            }
+        }
+
+        void generate(final Map map) {
+            long seed = random.nextLong();
+            while (usedSeeds.contains(seed)) {
+                seed = random.nextLong();
+            }
+            usedSeeds.add(seed);
+            for (int i = 0; i < map.WIDTH_MAP; i++) {
+                for (int j = 0; j < map.HEIGHT_MAP; j++) {
+                    if (random.nextInt(100) > 80) {
+                        map.field[j][i] = new Tile(Tile.Type.TREE);
+                    } else {
+                        map.field[j][i] = new Tile(Tile.Type.GRASS);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @return {@link Map#HEIGHT_MAP}
+     */
+    public int getHeight() { return HEIGHT_MAP; }
+
+    /**
+     * @return {@link Map#WIDTH_MAP}
+     */
+    public int getWidth() { return WIDTH_MAP; }
+
+    /**
+     * @return title of that map
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * @param x horizontal coordinate of tile
+     * @param y vertical coordinate of tile
+     *
+     * @return {@link com.avapir.roguelike.game.world.map.Tile} instance if it is exist on the map or null otherwise
+     */
+    public Tile getTile(final int x, final int y) {
+        if (hasTile(x, y)) {
+            return field[y][x];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Puts provided character to specified tile
+     *
+     * @param c character instance
+     * @param x horizontal coordinate of tile
+     * @param y vertical coordinate of tile
+     *
+     * @return {@code true} if nothing gone wrong (so character was successfully put to the tile)
+     */
+    public boolean putCharacter(final Mob c, final int x, final int y) {
+        if (hasTile(x, y)) {
+            try {
+                field[c.getLoc().y][c.getLoc().x].removeCharacter();
+            } catch (final ArrayIndexOutOfBoundsException e) {
+                // placing "from memory"
+                // we will never get here since using if(hasTile(x, y))
+            }
+            c.setLocation(x, y);
+            return field[y][x].putCharacter(c);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Puts provided character to random free tile on the map. If few times (much more, than area of map) in a row we
+     * got engaged tile, probably map has no free tile and exception will be thrown
+     *
+     * @param c character instance
+     *
+     * @return coordinates of tile, where mob was put
+     */
+    public Point putCharacter(final Mob c) {
+        int x = random.nextInt(WIDTH_MAP), y = random.nextInt(HEIGHT_MAP);
+        int counter = 0;
+        final int maxCounter = HEIGHT_MAP * WIDTH_MAP * 4;// просто на всякий случай
+
+        while (!putCharacter(c, x, y)) {
+            x = random.nextInt(WIDTH_MAP);
+            y = random.nextInt(HEIGHT_MAP);
+            if (counter++ > maxCounter) {
+                throw new IllegalStateException("Bad map: no place to put character");
+            }
+        }
+        return new Point(x, y);
+    }
+
+    /**
+     * Removes character from specified tile
+     *
+     * @param p coordinate of tile on the map
+     *
+     * @return removed {@link com.avapir.roguelike.game.world.character.Mob}
+     */
+    public Mob removeCharacter(final Point p) {
+        return game.removeMob(field[p.y][p.x].removeCharacter());
+    }
+
+    /**
+     * Puts specified items (1 pcs) to specified tile
+     *
+     * @param item item instance
+     * @param p    coordinate of tile on the map
+     */
+    public void dropItem(final Item item, final Point p) {
+        field[p.y][p.x].dropItem(new DroppedItem(item, p));
+    }
+
+    /**
+     * Drops few items (0, 1, 2, ...) on the specified tile
+     *
+     * @param items list of item instances
+     * @param p     coordinate of tile on the map
+     */
+    public void dropItems(final List<Item> items, final Point p) {
+        List<DroppedItem> dropped = new ArrayList<>();
+        for (Item item : items) {
+            dropped.add(new DroppedItem(item, p));
+        }
+        field[p.y][p.x].dropItems(dropped);
+    }
+
+    @Override
+    public boolean hasTile(final int x, final int y) {
+        return x >= 0 && x < WIDTH_MAP && y >= 0 && y < HEIGHT_MAP;
+    }
+
+    /**
+     * Computes field of view (that is all visible tiles from another one) from specified tile. Actually {@link
+     * com.avapir.roguelike.game.world.character.Hero} stays on that tile.
+     *
+     * @param p      coordinate of hero's tile on the map
+     * @param radius how long is hero's sight. That equals "maximal orthogonal distance (by horizontal\vertical) where
+     *               tile is visible yet)
+     */
+    public void computeFOV(final Point p, final int radius) {
+        for (int i = 0; i < HEIGHT_MAP; i++) {
+            for (int j = 0; j < WIDTH_MAP; j++) {
+                if (field[i][j].isVisible()) {
+                    field[i][j].setSeen(true);
+                    field[i][j].setVisible(false);
+                }
+            }
+        }
+        permissiveFov.visitFieldOfView(this, p, radius);
+    }
+
+    @Override
+    public boolean isObstacle(final int x, final int y) {
+        return !getTile(x, y).isTransparent();
+    }
+
+    @Override
+    public void visit(final int x, final int y) {
+        getTile(x, y).setVisible(true);
+        getTile(x, y).setSeen(true);
+    }
+
+    /**
+     * Checks if specified tile is visible now
+     *
+     * @param x horizontal coordinate of tile
+     * @param y vertical coordinate of tile
+     *
+     * @return {@link com.avapir.roguelike.game.world.map.Tile#isVisible()}
+     */
+    public boolean isVisible(final int x, final int y) {
+        return getTile(x, y).isVisible();
+    }
+
+}

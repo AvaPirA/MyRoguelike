@@ -1,7 +1,7 @@
 package com.avapir.roguelike.core.statehandlers;
 
 import com.avapir.roguelike.core.Game;
-import com.avapir.roguelike.locatable.Hero;
+import com.avapir.roguelike.game.world.character.Hero;
 
 public class ChangingStatsHandler extends AbstractStateHandler {
 

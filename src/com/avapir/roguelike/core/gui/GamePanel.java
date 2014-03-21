@@ -1,18 +1,18 @@
 package com.avapir.roguelike.core.gui;
 
-import com.avapir.roguelike.battle.Armor;
-import com.avapir.roguelike.battle.Attack;
+import com.avapir.roguelike.game.battle.Armor;
+import com.avapir.roguelike.game.battle.Attack;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Game.GameState;
-import com.avapir.roguelike.core.KeyboardHandler;
+import com.avapir.roguelike.core.controls.KeyboardHandler;
 import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.Viewport;
-import com.avapir.roguelike.game.Map;
-import com.avapir.roguelike.game.Tile;
-import com.avapir.roguelike.locatable.Hero;
-import com.avapir.roguelike.locatable.Hero.PrimaryStats;
-import com.avapir.roguelike.locatable.Item;
-import com.avapir.roguelike.locatable.ItemDatabase;
+import com.avapir.roguelike.game.world.map.Map;
+import com.avapir.roguelike.game.world.map.Tile;
+import com.avapir.roguelike.game.world.character.Hero;
+import com.avapir.roguelike.game.world.character.Hero.PrimaryStats;
+import com.avapir.roguelike.game.world.items.Item;
+import com.avapir.roguelike.game.world.items.ItemDatabase;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -141,7 +141,7 @@ public class GamePanel extends AbstractGamePanel {
          * @param stat specified hero`s stat
          *
          * @return color from red to blue, through all spectre, which represents that stat-value from 0 to {@value
-         * com.avapir.roguelike.locatable.Hero.PrimaryStats#MAX_STAT_VALUE}
+         * com.avapir.roguelike.game.world.character.Hero.PrimaryStats#MAX_STAT_VALUE}
          */
         private Color getStatToColor(final int stat) {
             if (stat < 0) {
@@ -342,7 +342,7 @@ public class GamePanel extends AbstractGamePanel {
     // 5**********   *** II ****
     // LINE = 4; SIZE = 2; HIT = 5; WIT = 10;
     private void paintMap(final Map map, final Graphics2D g2) {
-        final int offsetX = game.getCurrentX() - Viewport.horizViewDistance();
+        final int offsetX = game.getCurrentX() - Viewport.horizontalViewDistance();
         final int offsetY = game.getCurrentY() - Viewport.verticalViewDistance();
         final int WIT = getWidthInTiles();
         final int HIT = getHeightInTiles();
