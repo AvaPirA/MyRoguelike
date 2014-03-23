@@ -1,15 +1,15 @@
 package com.avapir.roguelike.game.world.character;
 
-import com.avapir.roguelike.game.battle.Armor;
-import com.avapir.roguelike.game.battle.Attack;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
+import com.avapir.roguelike.game.battle.Armor;
+import com.avapir.roguelike.game.battle.Attack;
+import com.avapir.roguelike.game.world.Locatable;
 import com.avapir.roguelike.game.world.character.ai.IdleAI;
 import com.avapir.roguelike.game.world.items.DroppedItem;
 import com.avapir.roguelike.game.world.items.Item;
-import com.avapir.roguelike.game.world.Locatable;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class Hero extends Mob implements Locatable {
     private       int              XP;
 
     public Hero(String name, Game g) {
-        super(name, 1, 1, null, null, UNRESOLVED_LOCATION, IdleAI.getNewInstance());
+        super(name, 1, 1, null, null, UNRESOLVED_LOCATION, null, IdleAI.getNewInstance());
         stats = new PrimaryStats(name);
         game = g;
         level = 1;
@@ -588,7 +588,7 @@ public class Hero extends Mob implements Locatable {
 
         /**
          * Returns amount of lines in inventory available for storing smth.
-         * <p/>
+         * <p>
          * By default it's 3. Further in game player will be able to get additional lines by some vendor NPC or by some
          * quest.
          *
@@ -678,7 +678,7 @@ public class Hero extends Mob implements Locatable {
             int i = slot.ordinal();
             if (equip[i] != null) {
                 hero.inventory.remove(index).swap(equip[i]);
-            }else {
+            } else {
                 equip[i] = hero.inventory.remove(index);
             }
 

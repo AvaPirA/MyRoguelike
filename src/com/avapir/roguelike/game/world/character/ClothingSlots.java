@@ -9,7 +9,7 @@ public enum ClothingSlots {
     public static final int NOT_DRESSED = -69;
 
     public static ClothingSlots fromCoord(int x, int y) {
-        return fromInt(y*10 + x);
+        return fromInt(y * 10 + x);
     }
 
     public static final ClothingSlots fromInt(int i) {

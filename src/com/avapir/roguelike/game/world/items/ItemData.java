@@ -5,12 +5,12 @@ import com.avapir.roguelike.game.battle.Attack;
 
 public class ItemData implements Cloneable {
 
-    private final String  name;
-    private final Attack  attack;
-    private final Armor   armor;
-    private final int     weight;
-    private final int stackSize;
-    private String imageName;
+    private final String name;
+    private final Attack attack;
+    private final Armor  armor;
+    private final int    weight;
+    private final int    stackSize;
+    private       String imageName;
 
     private ItemData(String name, int weight, Attack attack, Armor armor, int stackSize) {
         this.name = name;
@@ -26,7 +26,9 @@ public class ItemData implements Cloneable {
 
         /**
          * For typical quest items
+         *
          * @param name name of item
+         *
          * @return created item
          */
         public static ItemData createItem(String name) {
@@ -35,8 +37,10 @@ public class ItemData implements Cloneable {
 
         /**
          * For typical consumables and resources
-         * @param name name of item
+         *
+         * @param name   name of item
          * @param weight weight of item
+         *
          * @return created item
          */
         public static ItemData createItem(String name, int weight) {
@@ -45,9 +49,11 @@ public class ItemData implements Cloneable {
 
         /**
          * For typical weapons
-         * @param name name of item
+         *
+         * @param name   name of item
          * @param weight weight of item
          * @param attack attack power of item
+         *
          * @return created item
          */
         public static ItemData createItem(String name, int weight, Attack attack) {
@@ -57,9 +63,11 @@ public class ItemData implements Cloneable {
 
         /**
          * For typical armor
-         * @param name name of item
+         *
+         * @param name   name of item
          * @param weight weight of item
-         * @param armor armor power of item
+         * @param armor  armor power of item
+         *
          * @return created item
          */
         public static ItemData createItem(String name, int weight, Armor armor) {
@@ -68,11 +76,13 @@ public class ItemData implements Cloneable {
 
         /**
          * For everything
-         * @param name name of item
-         * @param weight weight of item
-         * @param attack attack power of item
-         * @param armor armor power of item
+         *
+         * @param name      name of item
+         * @param weight    weight of item
+         * @param attack    attack power of item
+         * @param armor     armor power of item
          * @param stackSize maximum amount of items into one inventory cell
+         *
          * @return created item
          */
         public static ItemData createItem(String name, int weight, Attack attack, Armor armor, int stackSize) {

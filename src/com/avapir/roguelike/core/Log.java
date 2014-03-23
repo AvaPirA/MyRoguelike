@@ -110,7 +110,7 @@ public class Log implements Serializable, Paintable {
         }
     }
 
-    public static void g(final String s, final Object... params){
+    public static void g(final String s, final Object... params) {
         Log.getInstance().game(s, params);
     }
 

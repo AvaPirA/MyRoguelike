@@ -2,16 +2,16 @@ package com.avapir.roguelike.game.world.map;
 
 import com.avapir.roguelike.core.Paintable;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
+import com.avapir.roguelike.game.world.character.Mob;
 import com.avapir.roguelike.game.world.items.DroppedItem;
 import com.avapir.roguelike.game.world.items.Item;
 import com.avapir.roguelike.game.world.items.ItemData;
-import com.avapir.roguelike.game.world.character.Mob;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Tile implements Paintable{
+public class Tile implements Paintable {
 
     public static enum Type {
         EMPTY, GRASS, TREE, CLOSED_DOOR, OPENED_DOOR, STAIR_UP, STAIR_DOWN, WALL;
@@ -53,21 +53,21 @@ public class Tile implements Paintable{
 
     public static final class Flag {
 
-        public static final int FULL_FLAG   = 0b11111111111111111111111111111111;
-        public static final int EMPTY_FLAG  = 0b00000000000000000000000000000000;
+        public static final int FULL_FLAG     = 0b11111111111111111111111111111111;
+        public static final int EMPTY_FLAG    = 0b00000000000000000000000000000000;
         /* 0-8 FOV */
         // public static final int VISIBLE = 1 << 0;
         // public static final int SEEN = 1 << 1;
-        public static final int LIGHT_ON    = 1 << 2;
-        public static final int TRANSPARENT = 1 << 3;
-        public static final int F4          = 1 << 4;
-        public static final int F5          = 1 << 5;
-        public static final int F6          = 1 << 6;
-        public static final int F7          = 1 << 7;
-        public static final int F8          = 1 << 8;
+        public static final int LIGHT_ON      = 1 << 2;
+        public static final int TRANSPARENT   = 1 << 3;
+        public static final int F4            = 1 << 4;
+        public static final int F5            = 1 << 5;
+        public static final int F6            = 1 << 6;
+        public static final int F7            = 1 << 7;
+        public static final int F8            = 1 << 8;
         /* 9-14 terrain and moving */
-        public static final int PASSABLE    = 1 << 9;
-        public static final int EMPTY       = 1 << 10;
+        public static final int PASSABLE      = 1 << 9;
+        public static final int EMPTY         = 1 << 10;
         public static final int GRASS         = 1 << 11;
         public static final int STONES        = 1 << 12;
         public static final int ICE           = 1 << 13;
@@ -236,8 +236,12 @@ public class Tile implements Paintable{
                     Item item = ditem.getItem();
                     ItemData id = item.getData();
                     String name = id.getName();
-                    panel.drawToCell(g2, panel.getImage(itemsHere.size() > 1 ? "many_items" :
-                          itemsHere.get(0).getItem().getData().getImageName()), j, i);
+                    panel.drawToCell(g2, panel.getImage(itemsHere.size() > 1 ? "many_items" : itemsHere.get(0)
+                                                                                                       .getItem()
+                                                                                                       .getData()
+                                                                                                       .getImageName
+                                                                                                               ()),
+                                     j, i);
                 }
             } else {
                 if (isSeen()) {

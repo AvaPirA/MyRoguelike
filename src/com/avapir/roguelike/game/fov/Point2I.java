@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 /**
  * A class encapsulating a 2D point, as integers
- * <p/>
+ * <p>
  * (Reason for existance: java.awt.Point uses double and I wanted speed.)
  *
  * @author sdatta

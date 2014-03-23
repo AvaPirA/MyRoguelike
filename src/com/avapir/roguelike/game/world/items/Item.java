@@ -58,7 +58,7 @@ public class Item {
     }
 
     public void increase(int n) {
-        amount+=n;
+        amount += n;
     }
 
     public void decrease(int n) {

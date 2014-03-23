@@ -4,11 +4,12 @@ import java.util.Arrays;
 
 public class Main {
 
-    public static final boolean BORG = false;
-    public static final String TITLE = "MyRoguelike";
+    public static final boolean BORG  = false;
+    public static final String  TITLE = "MyRoguelike";
 
     /**
      * Main method what creates and executes the game
+     *
      * @param args console arguments
      */
     public static void main(final String[] args) {
@@ -18,8 +19,4 @@ public class Main {
         game.done();
     }
 
-    public static void unimplemented() {
-        throw new RuntimeException("Unimplemented feature");
-        // либо показывает диалогоовое окно. Лень запрогать
-    }
 }

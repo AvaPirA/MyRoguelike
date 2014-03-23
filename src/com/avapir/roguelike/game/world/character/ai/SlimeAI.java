@@ -1,8 +1,8 @@
 package com.avapir.roguelike.game.world.character.ai;
 
 import com.avapir.roguelike.core.Game;
-import com.avapir.roguelike.game.world.map.Tile;
 import com.avapir.roguelike.game.world.character.Mob;
+import com.avapir.roguelike.game.world.map.Tile;
 
 import java.awt.*;
 

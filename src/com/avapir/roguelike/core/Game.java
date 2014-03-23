@@ -15,15 +15,21 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
+/**
+ * That class stores all information about the game (actors, terrains, current state, etc) and manages it (transfers
+ * some information from one actor to another or provides necessary data to painters.
+ *
+ * @author Alpen Ditrix
+ * @since 0.0.1
+ */
 public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     /**
      * States in which game may be present. Current state affects GUI and the availability of various functions
      *
-     * @since 0.0.1
      * @author Alpen Ditrix
+     * @since 0.0.1
      */
     public static enum GameState {
         /**
@@ -65,28 +71,30 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     /**
      * Full list of already created maps
      */
-    private final List<Map> maps;
+    private final List<Map> maps = new ArrayList<>();
 
     /**
-     * The only one object that is controlled by player (user). That's his\her personal unique {@link com.avapir.roguelike.game.world.character.Mob}
+     * The only object that is controlled by player (user). That's his\her personal unique {@link
+     * com.avapir.roguelike.game.world.character.Mob}
      *
      * @see com.avapir.roguelike.game.world.character.Mob
      * @see com.avapir.roguelike.game.world.character.Hero
      */
-    private final Hero hero;
+    private Hero hero;
 
     /**
      * Main window of the game. Here everything will be painted.
      */
-    private final GameWindow gameWindow;
+    private final GameWindow gameWindow = new GameWindow(this);
 
     /**
      * List of the mobs on that map
      */
-    private final List<Mob> mobs;
+    //todo move to Map.java
+    private final List<Mob> mobs = new ArrayList<>();
 
     /**
-     * Currently representing terraing
+     * Current terrain
      */
     private Map currentMap;
 
@@ -104,21 +112,31 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
      */
     private GameState state;
 
-    private ChangingStatsHandler chs;
-    private InventoryHandler     ih;
-    private KeyboardHandler      kh;
+    /* handler instances */
+    private ChangingStatsHandler changingStatsHandler;
+    private InventoryHandler     inventoryHandler;
+    private KeyboardHandler      keyboardHandler;
 
+    private final String title;
+
+    /**
+     * This is the only constructor for the game.
+     *
+     * @param title name of the game. It will be the title of window
+     */
     public Game(final String title) {
-        Mob.game = this;
-        gameWindow = new GameWindow(title, this);
-        gameWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        hero = new Hero("Hero", this);
-        maps = new ArrayList<>();
-        mobs = new ArrayList<>();
-
-
+        this.title = title;
     }
 
+    /**
+     * Checks if provided {@link Point} is a proper "step" and if it is non-zero (distance > 0)
+     *
+     * @param dp step direction
+     *
+     * @return true if both coordinates of step are non-zero
+     *
+     * @throws java.lang.IllegalArgumentException if one of coordinates is not -1, 0 or 1
+     */
     private static boolean isActuallyMoved(final Point dp) {
         if (!((dp.x == 1 || dp.x == 0 || dp.x == -1) && (dp.y == 1 || dp.y == 0 || dp.y == -1))) {
             throw new IllegalArgumentException("Wrong step");
@@ -127,6 +145,9 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         }
     }
 
+    /**
+     * Preload fonts to have no freezes for that later (when font must be painted)
+     */
     private static void loadFonts() {
         final Graphics2D g2 = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR).createGraphics();
         g2.setFont(new Font("Times New Roman", Font.PLAIN, 8));
@@ -134,28 +155,32 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     }
 
     @Override
-    public void init() {
+    public void start() {
         Log.getInstance().connect(this);
-        System.out.println("Used Toolkit: " + System.getProperty("awt.toolkit"));
+        System.out.println("Uses Toolkit: " + System.getProperty("awt.toolkit"));
+
+        gameWindow.setTitle(title);
+        gameWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        gameWindow.setVisible(true);
     }
 
     @Override
-    public void start() {
-        state = GameState.MOVE;
-        // TODO потом надо поставить подходящий конструктор для карты
-        final int firstMap = 0;
-        maps.add(firstMap, new Map(this, 40, 40));
-        switchToMap(firstMap);
-        turnCounter = 0;
+    public void init() {
     }
 
     @Override
     public void done() {
-        loadFonts();
-        gameWindow.setVisible(true);
+        hero = new Hero("Hero", this);
+        state = GameState.MOVE;
+        // TODO потом надо поставить подходящий конструктор для карты
+        final int firstMapIndex = 0;
+        maps.add(firstMapIndex, new Map(this, 40, 40));
+        switchToMap(firstMapIndex);
+        turnCounter = 0;
     }
 
     private void placeMobsAndItems(final int scaler) {
+        //todo move to Map.java
 //        int i = 320;
         for (int x = 0; x < currentMap.getWidth(); x++) {
             for (int y = 0; y < currentMap.getHeight(); y++) {
@@ -168,6 +193,13 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         }
     }
 
+    /**
+     * Generates (if needed) and switches the game to another map (called when hero moved from one map to another).
+     * <br>
+     * Afterall turn will be ended,
+     *
+     * @param index internal index of map (just as ID)
+     */
     private void switchToMap(final int index) {
         if (maps.get(index) == null) {
             currentMap = new Map(this, 40, 40);
@@ -178,20 +210,25 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         viewport = new Viewport(currentMap.putCharacter(hero), this);
         placeMobsAndItems(index);
 
-        //fixme remove later
-        Random r = new Random();
-        int xx = currentMap.getWidth();
-        int yy = currentMap.getHeight();
-        EOT(new Point(0, 0));
+        final Point zeroStep = new Point(0, 0);
+        EOT(zeroStep);
     }
 
-    private void move(final Point p) {
-        if (isActuallyMoved(p)) {
+    /**
+     * If performed step is correct, logs that and checks if viewport must be moved
+     *
+     * @param dp step direction
+     */
+    private void move(final Point dp) {
+        if (isActuallyMoved(dp)) {
             Log.g("Перешел в [%s, %s]", hero.getLoc().x, hero.getLoc().y);
-            viewport.move(p);
+            viewport.move(dp);
         }
     }
 
+    /**
+     * Executes AI instructions for each Mob
+     */
     private void doUnlimitedAiWorks() {
         hero.doAI(this);
         for (Mob mob : mobs) {
@@ -268,22 +305,22 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     @Override
     public ChangingStatsHandler getStatsHandler() {
-        return chs;
+        return changingStatsHandler;
     }
 
     @Override
     public InventoryHandler getInventoryHandler() {
-        return ih;
+        return inventoryHandler;
     }
 
     @Override
     public KeyboardHandler getKeyboardHandler() {
-        return kh;
+        return keyboardHandler;
     }
 
     @Override
     public void setKeyboardHandler(final KeyboardHandler keyboardHandler) {
-        kh = keyboardHandler;
+        this.keyboardHandler = keyboardHandler;
     }
 
     @Override
@@ -291,48 +328,58 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
         Log.g("_____________________");
         Log.g("Изменение характеристик:");
         Log.g("Свободных хар-к: %s", hero.getStats().getFree());
-        chs = new ChangingStatsHandler(this);
+        changingStatsHandler = new ChangingStatsHandler(this);
     }
 
     @Override
     public void removeStatsHandler() {
-        chs.flush();
+        changingStatsHandler.flush();
         Log.g("Характеристики увеличились на:");
         final String[] ss = PrimaryStats.STATS_STRINGS;
-        Log.g("%s:%s;              %s:%s", ss[0], (hero.getStats().values(0) - chs.getDiff()[0]), ss[1], (
-                hero.getStats().values(1) - chs.getDiff()[1]));
-        Log.g("%s:%s;              %s:%s", ss[2], (hero.getStats().values(2) - chs.getDiff()[2]), ss[3], (
-                hero.getStats().values(5) - chs.getDiff()[5]));
-        Log.g("%s:%s;              %s:%s", ss[4], (hero.getStats().values(4) - chs.getDiff()[4]), ss[5], (
-                hero.getStats().values(5) - chs.getDiff()[5]));
+        Log.g("%s:%s;              %s:%s", ss[0], (hero.getStats().values(0) -
+                changingStatsHandler.getDiff()[0]), ss[1], (hero.getStats().values(1) -
+                changingStatsHandler.getDiff()[1]));
+        Log.g("%s:%s;              %s:%s", ss[2], (hero.getStats().values(2) -
+                changingStatsHandler.getDiff()[2]), ss[3], (hero.getStats().values(5) -
+                changingStatsHandler.getDiff()[5]));
+        Log.g("%s:%s;              %s:%s", ss[4], (hero.getStats().values(4) -
+                changingStatsHandler.getDiff()[4]), ss[5], (hero.getStats().values(5) -
+                changingStatsHandler.getDiff()[5]));
         Log.g("__________________________");
-        chs = null;
+        changingStatsHandler = null;
     }
 
     @Override
     public void createInventoryHandler() {
         Log.g("_____________________");
         Log.g("Открыт инвентарь!");
-        ih = new InventoryHandler(this);
+        inventoryHandler = new InventoryHandler(this);
     }
 
     @Override
     public void removeInventoryHandler() {
         Log.g("Инвентарь закрыт");
         Log.g("_____________________");
-        ih = null;
+        inventoryHandler = null;
     }
 
+    /**
+     * Enlarges tile size
+     */
     public static void zoomIn() {
-//        zoomFactor += 1;
         Tile.SIZE_px += 1;
     }
 
+    /**
+     * Reduces tile size
+     */
     public static void zoomOut() {
-//        zoomFactor -= 1;
         Tile.SIZE_px -= 1;
     }
 
+    /**
+     * Sets screen center at the Hero
+     */
     public void resetViewport() {
         viewport.setCenter(hero.getLoc().x, hero.getLoc().y);
     }

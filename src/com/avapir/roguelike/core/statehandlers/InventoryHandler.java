@@ -58,7 +58,7 @@ public class InventoryHandler extends AbstractStateHandler {
                 press = null;
             }
         } else {
-            if(press == null) { //take off
+            if (press == null) { //take off
                 h.getEquipment().takeOff(ClothingSlots.fromCoord(x, y));
             } else { //put on
                 h.getEquipment().putOn(press, ClothingSlots.fromCoord(x, y));
@@ -69,8 +69,9 @@ public class InventoryHandler extends AbstractStateHandler {
     }
 
     public void equip() {
-        if(!focusOnEquipment){press();
-        changeFocus();
+        if (!focusOnEquipment) {
+            press();
+            changeFocus();
         }
     }
 

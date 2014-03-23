@@ -30,7 +30,7 @@ public interface ILosMap {
 
     /**
      * Location (x,y) is visible Visit the location (x,y)
-     * <p/>
+     * <p>
      * This can involve saving the points in a collection, setting flags on a 2D map etc.
      *
      * @param x

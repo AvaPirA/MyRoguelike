@@ -1,25 +1,24 @@
 package com.avapir.roguelike.game.world.character;
 
-import com.avapir.roguelike.game.battle.Armor;
-import com.avapir.roguelike.game.battle.Attack;
-import com.avapir.roguelike.game.battle.Battle;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.Paintable;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.core.gui.GamePanel;
-import com.avapir.roguelike.game.world.map.Map;
-import com.avapir.roguelike.game.world.map.Tile;
+import com.avapir.roguelike.game.battle.Armor;
+import com.avapir.roguelike.game.battle.Attack;
+import com.avapir.roguelike.game.battle.Battle;
+import com.avapir.roguelike.game.world.Locatable;
 import com.avapir.roguelike.game.world.character.ai.AbstractAI;
 import com.avapir.roguelike.game.world.character.ai.IdleAI;
 import com.avapir.roguelike.game.world.character.ai.SlimeAI;
-import com.avapir.roguelike.game.world.Locatable;
+import com.avapir.roguelike.game.world.map.Map;
+import com.avapir.roguelike.game.world.map.Tile;
 
 import java.awt.*;
 
 public class Mob implements Cloneable, Locatable, Paintable {
 
-    public static   Game       game;
     protected final Attack     attack;
     protected final Armor      armor;
     private final   String     name;
@@ -30,7 +29,14 @@ public class Mob implements Cloneable, Locatable, Paintable {
     protected       float      maxHP;
     private         Point      location;
 
-    protected Mob(String name, float maxHP, float maxMP, Attack attack, Armor armor, Point location, AbstractAI ai) {
+    protected Mob(String name,
+                  float maxHP,
+                  float maxMP,
+                  Attack attack,
+                  Armor armor,
+                  Point location,
+                  Map map,
+                  AbstractAI ai) {
         this.name = name;
         this.maxHP = maxHP;
         this.maxMP = maxMP;
@@ -41,9 +47,8 @@ public class Mob implements Cloneable, Locatable, Paintable {
         this.ai = ai;
         this.location = new Point(location);
 
-        Map m = game.getMap();
-        if (m != null && m.hasTile(location.x, location.y)) {
-            m.putCharacter(this, location.x, location.y);
+        if (map != null && map.hasTile(location.x, location.y)) {
+            map.putCharacter(this, location.x, location.y);
         }
     }
 
@@ -53,35 +58,41 @@ public class Mob implements Cloneable, Locatable, Paintable {
         public static final int DFT_MP = 100;
 
         public static Mob createMob(String name) {
-            return createMob(name, UNRESOLVED_LOCATION);
+            return createMob(name, UNRESOLVED_LOCATION, null);
         }
 
-        public static Mob createMob(String name, Point location) {
-            return createMob(name, DFT_HP, DFT_MP, location);
+        public static Mob createMob(String name, Point location, Map map) {
+            return createMob(name, DFT_HP, DFT_MP, location, map);
         }
 
         public static Mob createMob(String name, Attack attack, Armor armor) {
-            return createMob(name, attack, armor, UNRESOLVED_LOCATION);
+            return createMob(name, attack, armor, UNRESOLVED_LOCATION, null);
         }
 
         public static Mob createMob(String name, float maxHP, float maxMP) {
-            return createMob(name, maxHP, maxMP, UNRESOLVED_LOCATION);
+            return createMob(name, maxHP, maxMP, UNRESOLVED_LOCATION, null);
         }
 
-        public static Mob createMob(String name, float maxHP, float maxMP, Point location) {
-            return createMob(name, maxHP, maxMP, new Attack(), new Armor(), location);
+        public static Mob createMob(String name, float maxHP, float maxMP, Point location, Map map) {
+            return createMob(name, maxHP, maxMP, new Attack(), new Armor(), location, map);
         }
 
-        public static Mob createMob(String name, Attack attack, Armor armor, Point location) {
-            return createMob(name, DFT_HP, DFT_MP, attack, armor, location);
+        public static Mob createMob(String name, Attack attack, Armor armor, Point location, Map map) {
+            return createMob(name, DFT_HP, DFT_MP, attack, armor, location, map);
         }
 
         public static Mob createMob(String name, float maxHP, float maxMP, Attack attack, Armor armor) {
-            return createMob(name, maxHP, maxMP, attack, armor, UNRESOLVED_LOCATION);
+            return createMob(name, maxHP, maxMP, attack, armor, UNRESOLVED_LOCATION, null);
         }
 
-        public static Mob createMob(String name, float maxHP, float maxMP, Attack attack, Armor armor, Point location) {
-            return createMob(name, maxHP, maxMP, attack, armor, location, IdleAI.getNewInstance());
+        public static Mob createMob(String name,
+                                    float maxHP,
+                                    float maxMP,
+                                    Attack attack,
+                                    Armor armor,
+                                    Point location,
+                                    Map map) {
+            return createMob(name, maxHP, maxMP, attack, armor, location, map, IdleAI.getNewInstance());
 
         }
 
@@ -91,12 +102,13 @@ public class Mob implements Cloneable, Locatable, Paintable {
                                     Attack attack,
                                     Armor armor,
                                     Point location,
+                                    Map map,
                                     AbstractAI ai) {
-            return new Mob(name, maxHP, maxMP, attack, armor, location, ai);
+            return new Mob(name, maxHP, maxMP, attack, armor, location, map, ai);
         }
 
         public static Mob createMob(String name, int maxHP, int maxMP, Attack attack, Armor armor, AbstractAI ai) {
-            return createMob(name, maxHP, maxMP, attack, armor, UNRESOLVED_LOCATION, ai);
+            return createMob(name, maxHP, maxMP, attack, armor, UNRESOLVED_LOCATION, null, ai);
         }
     }
 
@@ -299,10 +311,10 @@ public class Mob implements Cloneable, Locatable, Paintable {
         }
     }
 
-    public void paint(AbstractGamePanel panel, Graphics2D g2, int j, int i){
+    public void paint(AbstractGamePanel panel, Graphics2D g2, int j, int i) {
         if (isAlive()) {
-                panel.drawToCell(g2, panel.getImage(getName().toLowerCase()), j, i);
-                paintColorBar(getHP() / getMaxHp(), new Color(255, 0, 0, 128), 0, j, i, g2);
+            panel.drawToCell(g2, panel.getImage(getName().toLowerCase()), j, i);
+            paintColorBar(getHP() / getMaxHp(), new Color(255, 0, 0, 128), 0, j, i, g2);
             if (getMaxMp() > 0) {
                 paintColorBar(getMP() / getMaxMp(), new Color(0, 128, 255, 128), 1, j, i, g2);
             }

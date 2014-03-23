@@ -5,8 +5,9 @@ import java.util.LinkedList;
 
 /**
  * Precise permissive visibility algorithm.
- * <p/>
- * TODO : Do multitile organism by replacing offsetT(0,1)(1, 0) by offsetT(0, size.y) (size.x, 0). Also need to consider
+ * <p>
+ * TODO : Do multitile organism by replacing offsetT(0,1)(1, 0) by offsetT(0, size.y) (size.x, 0). Also need to
+ * consider
  * border tiles.
  *
  * @author sdatta

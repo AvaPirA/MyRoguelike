@@ -19,9 +19,9 @@ import java.util.Random;
  * generate it once). Map -- is some rectangular field filled with tiles, which may have a lot of states and
  * functionalities
  *
+ * @author Alpen Ditrix
  * @see com.avapir.roguelike.game.world.map.Tile
  * @since 0.0.1
- * @author Alpen Ditrix
  */
 public class Map implements ILosMap {
 

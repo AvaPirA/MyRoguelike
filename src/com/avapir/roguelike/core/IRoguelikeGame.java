@@ -9,25 +9,28 @@ import java.awt.*;
 /**
  * Here defined function that inherent in the roguelike game.
  *
- * @since 0.0.1
  * @author Alpen Ditrix
+ * @since 0.0.1
  */
 public interface IRoguelikeGame {
 
     /**
      * @return instance of hero-mob, which is controlled by player (user).
+     *
      * @see com.avapir.roguelike.game.world.character.Hero
      */
     Hero getHero();
 
     /**
      * @return instance of game map
+     *
      * @see com.avapir.roguelike.game.world.map.Map
      */
     Map getMap();
 
     /**
      * Roguelike is a turn-based-game. In each turn hero may do only one move-action.
+     *
      * @return turn since game start
      */
     int getTurnCounter();
@@ -46,13 +49,16 @@ public interface IRoguelikeGame {
 
     /**
      * @return current state of game
+     *
      * @see com.avapir.roguelike.core.Game.GameState
      */
     Game.GameState getState();
 
     /**
      * Resets previous game state with new one
+     *
      * @param state new game state
+     *
      * @see com.avapir.roguelike.core.Game.GameState
      */
     void setState(Game.GameState state);
@@ -63,8 +69,8 @@ public interface IRoguelikeGame {
     void repaint();
 
     /**
-     *
      * @param m
+     *
      * @return
      */
     Mob removeMob(Mob m);

@@ -1,18 +1,18 @@
 package com.avapir.roguelike.core.gui;
 
-import com.avapir.roguelike.game.battle.Armor;
-import com.avapir.roguelike.game.battle.Attack;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Game.GameState;
-import com.avapir.roguelike.core.controls.KeyboardHandler;
 import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.Viewport;
-import com.avapir.roguelike.game.world.map.Map;
-import com.avapir.roguelike.game.world.map.Tile;
+import com.avapir.roguelike.core.controls.KeyboardHandler;
+import com.avapir.roguelike.game.battle.Armor;
+import com.avapir.roguelike.game.battle.Attack;
 import com.avapir.roguelike.game.world.character.Hero;
 import com.avapir.roguelike.game.world.character.Hero.PrimaryStats;
 import com.avapir.roguelike.game.world.items.Item;
 import com.avapir.roguelike.game.world.items.ItemDatabase;
+import com.avapir.roguelike.game.world.map.Map;
+import com.avapir.roguelike.game.world.map.Tile;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -129,13 +129,13 @@ public class GamePanel extends AbstractGamePanel {
 
         /**
          * SP: 0-74 === case 0 === 255\0\0 -> 255\252\0
-         * <p/>
+         * <p>
          * SP: 75-149 === case 1 === 255\0\0 -> 0\255\0
-         * <p/>
+         * <p>
          * SP: 150-224 === case 2 === 0\255\0 -> 0\252\255
-         * <p/>
+         * <p>
          * SP: 225-299 === case 3 === 0\255\255 -> 0\3\255
-         * <p/>
+         * <p>
          * SP: 300 === case 4 === 0\0\255
          *
          * @param stat specified hero`s stat

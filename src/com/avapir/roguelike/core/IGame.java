@@ -3,8 +3,11 @@ package com.avapir.roguelike.core;
 /**
  * Any object, which implements a game app must implement this interface. It has only 3 steps which describes main
  * game-app loading steps.
- *
+ * <p>
  * The main thing is that this interface is only a соглашение todo
+ *
+ * @author Alpen Ditrix
+ * @since 0.0.1
  */
 public interface IGame {
 
