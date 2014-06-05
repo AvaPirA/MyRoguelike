@@ -18,7 +18,7 @@ public class ChangingStatsHandler extends AbstractStateHandler {
     }
 
     private int free() {
-        return freeDiff + game.getHero().getStats().getFree();
+        return freeDiff + game.getHero().getStats().getFreeStats();
     }
 
     @Override
@@ -60,7 +60,7 @@ public class ChangingStatsHandler extends AbstractStateHandler {
 
     public void flush() {
         for (int i = 0; i < Hero.PrimaryStats.PRIMARY_STATS_AMOUNT; i++) {
-            game.getHero().getStats().increaseBy(i, diff[i]);
+            game.getHero().getStats().changeStatBy(i, diff[i]);
         }
         game.getHero().getStats().changeFreeBy(freeDiff);
     }

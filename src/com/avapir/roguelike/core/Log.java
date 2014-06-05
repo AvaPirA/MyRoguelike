@@ -6,7 +6,7 @@ import java.awt.*;
 import java.io.Serializable;
 import java.util.LinkedList;
 
-public class Log implements Serializable, Paintable {
+public class Log implements Serializable, Drawable {
     private static final long serialVersionUID = 1L;
 
     private static Log instance = new Log();
@@ -195,7 +195,7 @@ public class Log implements Serializable, Paintable {
     static final Font logFont = new Font("Times New Roman", Font.PLAIN, 15);
 
     @Override
-    public void paint(AbstractGamePanel panel, Graphics2D g2, int x, int y) {
+    public void draw(AbstractGamePanel panel, Graphics2D g2, int x, int y) {
         final Point offset = new Point(x, y);
         g2.setFont(logFont);
         g2.setColor(Color.white);

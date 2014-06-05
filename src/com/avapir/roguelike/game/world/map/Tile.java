@@ -1,6 +1,6 @@
 package com.avapir.roguelike.game.world.map;
 
-import com.avapir.roguelike.core.Paintable;
+import com.avapir.roguelike.core.Drawable;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.world.character.Mob;
 import com.avapir.roguelike.game.world.items.DroppedItem;
@@ -17,7 +17,7 @@ import java.util.List;
  * @see com.avapir.roguelike.game.world.map.Tile.Type
  * @see com.avapir.roguelike.game.world.map.Tile.Flag
  */
-public class Tile implements Paintable {
+public class Tile implements Drawable {
 
     /**
      * Here described all default types of tiles. Each one may be modified by some game triggers or situations.
@@ -344,7 +344,9 @@ public class Tile implements Paintable {
 
     /**
      * Puts specified character to this tile, if possible
+     *
      * @param chr character instance
+     *
      * @return true if character was put
      */
     public boolean putCharacter(final Mob chr) {
@@ -358,6 +360,7 @@ public class Tile implements Paintable {
 
     /**
      * Puts one specified item to tile's storage.
+     *
      * @param item item reference
      */
     public void dropItem(final DroppedItem item) {
@@ -371,6 +374,7 @@ public class Tile implements Paintable {
 
     /**
      * Puts few specified items to tile's storage
+     *
      * @param items list of items
      */
     public void dropItems(final List<DroppedItem> items) {
@@ -413,6 +417,7 @@ public class Tile implements Paintable {
     /**
      * Removes character from this tile (but not deletes that object -- it's also stored in {@link com.avapir
      * .roguelike.core.Game#mobs}
+     *
      * @return null or removed mob
      */
     public Mob removeCharacter() {
@@ -422,7 +427,7 @@ public class Tile implements Paintable {
     }
 
     @Override
-    public void paint(AbstractGamePanel panel, Graphics2D g2, final int j, final int i) {
+    public void draw(AbstractGamePanel panel, Graphics2D g2, final int j, final int i) {
         panel.drawToCell(g2, panel.getImage("empty"), j, i);
 
         if (isSeen()) {
@@ -441,7 +446,7 @@ public class Tile implements Paintable {
 
             if (isVisible()) {
                 if (charHere != null) {
-                    charHere.paint(panel, g2, j, i);
+                    charHere.draw(panel, g2, j, i);
                 }
                 if (getItemsAmount() > 0) {
                     panel.drawToCell(g2, panel.getImage(itemsHere.size() > 1 ? "many_items" : itemsHere.get(0)

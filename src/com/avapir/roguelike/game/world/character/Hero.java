@@ -7,9 +7,9 @@ import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.battle.Armor;
 import com.avapir.roguelike.game.battle.Attack;
 import com.avapir.roguelike.game.world.Locatable;
-import com.avapir.roguelike.game.world.character.ai.IdleAI;
 import com.avapir.roguelike.game.world.items.DroppedItem;
 import com.avapir.roguelike.game.world.items.Item;
+import com.avapir.roguelike.game.world.map.Tile;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -17,42 +17,66 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * This class implements special type of mob with stats, inventory and equipment. Accordingly,
+ * this means that this mob has greater secondary stats, may drop some items and has greater secondary stats again.
+ * Also it handles few cases for main hero (e.g. game must end if main hero is dead).
+ */
 public class Hero extends Mob implements Locatable {
-    public EquipmentHandler getEquipment() {
-        return equipment;
-    }
 
-    /** Stolen from L2 */
+    /** Amounts of XP needed to level up */
     private static final int[] XP_TO_LVL = {0, 68, 295, 805, 1716, 3154, 5249, 8136, 11955, 16851, 22978, 30475,
             39516, 50261, 62876, 77537, 94421, 113712, 135596, 160266, 84495, 95074, 107905, 123472, 142427, 165669,
             194509, 231086, 279822, 374430, 209536, 248781, 296428, 354546, 425860, 514086, 624568, 765820, 954872};
+    /** {@link InventoryHandler} instance. Responsible for hero's items storage */
     private final InventoryHandler inventory;
+    /** {@link EquipmentHandler} instance. Responsible for items that hero equipped */
     private final EquipmentHandler equipment;
+    /** {@link PrimaryStats} instance. Responsible for stats of hero that may be found in the calculation formulas */
     private final PrimaryStats     stats;
+    /** {@link Game} instance. Intended for influencing on the world. */
     private final Game             game;
+    /** Current hero's level */
     private       int              level;
+    /** Current amount of experience */
     private       int              XP;
 
+    /**
+     * Creates new hero but don't put him somewhere on the map
+     *
+     * @param name displayable name
+     * @param g    game instance
+     */
     public Hero(String name, Game g) {
-        super(name, 1, 1, null, null, UNRESOLVED_LOCATION, null, IdleAI.getNewInstance());
-        stats = new PrimaryStats(name);
+        /* Name, maxHp, maxMp, attack, armor, location, map, ai*/
+//        super(name, 1, 1, null, null, UNRESOLVED_LOCATION, null, IdleAI.getNewInstance()); // same as next line
+        super(name);
         game = g;
+        stats = new PrimaryStats(name);
         level = 1;
         XP = 0;
         inventory = new InventoryHandler();
-        equipment = new EquipmentHandler(this);
+        equipment = new EquipmentHandler(inventory);
         restore();
     }
 
+    /**
+     * That class describes default stats which are applied to every new instance of corresponding Hero
+     */
     private static final class DefaultStats {
         /* 	STR 	AGI 	VIT 	INT 	DEX 	LUK */
-        static final int[] PLAYER = {3, 3, 3, 3, 2, 1};    // 16
-        //		static final int[]	PLAYER	= { 280, 	170,	230,	90,		70,		47 };	// 887
-        static final int[] NPC    = {50, 100, 100, 50, 50, 10};    // 360
-        static final int[] ELDER  = {290, 120, 390, 700, 400, 100};    // 2000
-        static final int[] UNDEAD = {120, 40, 120, 0, 40, 0};    // 320
+        private static final int[] PLAYER = {3, 3, 3, 3, 2, 1};    // 16
+        private static final int[] NPC    = {50, 100, 100, 50, 50, 10};  // 360
+        private static final int[] ELDER  = {290, 120, 390, 700, 400, 100};    // 2000
+        private static final int[] UNDEAD = {120, 40, 120, 0, 40, 0};    // 320
+
+        //private static final int[] PLAYER = {280, 170, 230, 90, 70, 47}; // 887 test values
     }
 
+    /**
+     * Contains all formulas used for every secondary parameters: attack or defense power, hp and mp values,
+     * FoV radius, endurance and so on. Also here is some sugar for primary hero stats, but that methods .
+     */
     public static final class StatsFormulas {
 
         public static float getMaxHP(final Hero h) {
@@ -62,31 +86,10 @@ public class Hero extends Mob implements Locatable {
             return baseHP + 4 * STR + 7 * VIT;
         }
 
-        private static int getVit(final Hero h) {
-            return getStat(h, 2);
-        }
-
-        private static int getStr(final Hero h) {
-            return getStat(h, 0);
-        }
-
-        private static int getStat(final Hero h, final int i) {
-            int STAT = h.getStats().values(i);
-            final GameState s = h.game.getState();
-            if (s == GameState.CHANGE_STATS) {
-                STAT += h.game.getStatsHandler().getDiff()[i];
-            }
-            return STAT;
-        }
-
         public static float getMaxMP(final Hero h) {
             final int baseMP = 1;
             final int INT = getInt(h);
             return baseMP + 7 * INT;
-        }
-
-        private static int getInt(final Hero h) {
-            return getStat(h, 3);
         }
 
         public static double addBonusXp(final Hero h, final double xp) {
@@ -107,10 +110,6 @@ public class Hero extends Mob implements Locatable {
             return AGI == 0 ? 0 : AGI < 50 ? 1 : AGI < 150 ? 2 : 3;
         }
 
-        private static int getAgi(final Hero h) {
-            return getStat(h, 1);
-        }
-
         public static Attack getAttack(final Hero h) {
             final float STR = getStr(h);
             final float DEX = getDex(h);
@@ -120,9 +119,6 @@ public class Hero extends Mob implements Locatable {
             return new Attack(phy, mag);
         }
 
-        private static int getDex(final Hero h) {
-            return getStat(h, 4);
-        }
 
         public static Armor getArmor(final Hero h) {
             final float STR = getStr(h);
@@ -133,51 +129,102 @@ public class Hero extends Mob implements Locatable {
             return new Armor(phy, mag);
         }
 
-        private static int getLuk(final Hero h) {
-            return getStat(h, 5);
-        }
-
         public static boolean isOverweighted(Hero hero) {
             return hero.equipment.getWeight() > getMaxWeight(hero);
         }
 
         public static int getMaxWeight(Hero hero) {
-            //todo
+            //fixme fix that out of the air formula
             return 30 * getStr(hero);
         }
 
+        private static int getStr(final Hero h) {
+            return getStat(h, 0);
+        }
+
+        private static int getAgi(final Hero h) {
+            return getStat(h, 1);
+        }
+
+        private static int getVit(final Hero h) {
+            return getStat(h, 2);
+        }
+
+        private static int getInt(final Hero h) {
+            return getStat(h, 3);
+        }
+
+        private static int getDex(final Hero h) {
+            return getStat(h, 4);
+        }
+
+        private static int getLuk(final Hero h) {
+            return getStat(h, 5);
+        }
+
+        private static int getStat(final Hero h, final int i) {
+            int STAT = h.getStats().values(i);
+            final GameState s = h.game.getState();
+            if (s == GameState.CHANGE_STATS) {
+                STAT += h.game.getStatsHandler().getDiff()[i];
+            }
+            return STAT;
+        }
+
+        //todo new formulas
+
     }
 
+    /**
+     * Here is the main hero's stats. They are used to compute formulas from {@link StatsFormulas}. Each time hero
+     * reaches next level, he gains few "free stats" which can be spend on purchase any primary stat.
+     */
     public static final class PrimaryStats {
 
-        public static final String[] STATS_STRINGS         = {"STR", "AGI", "VIT", "INT", "DEX", "LUK"};
         /** STRength <br> AGIlity <br> VITality <br> INTelligence <br> DEXterity <br> LUcK */
-        public static final int      PRIMARY_STATS_AMOUNT  = STATS_STRINGS.length;
-        public static final int      DEFAULT_STAT_INCREASE = 5;
-        public static final int      MAX_STAT_VALUE        = 300;
-        private final       int[]    values                = new int[PRIMARY_STATS_AMOUNT];
-        private             int      freeStats             = 100000;
+        public static final  String[] STATS_STRINGS         = {"STR", "AGI", "VIT", "INT", "DEX", "LUK"};
+        /** Total amount of stats */
+        public static final  int      PRIMARY_STATS_AMOUNT  = STATS_STRINGS.length;
+        /** Maximum value which can have any stat */
+        public static final  int      MAX_STAT_VALUE        = 300;
+        /** Amount of "free stats" gained on each level up */
+        private static final int      DEFAULT_STAT_INCREASE = 5;
+        /** Stats storage */
+        private final        int[]    values                = new int[PRIMARY_STATS_AMOUNT];
+        /** Amount of available "free stats". Default value is amount of "free stats" available for new Hero */
+        private              int      freeStats             = 100000;
 
-        //@formatter:off
+        /**
+         * Creates new stats instance for corresponding hero type
+         *
+         * @param name displayable hero name
+         */
         public PrimaryStats(final String name) {
+            // TODO name prefix recognition == crap
+            int[] defaultStats;
             if (name.contains("NPC")) {
-                ac(DefaultStats.NPC);
+                defaultStats = DefaultStats.NPC;
             } else if (name.contains("Elder")) {
-                ac(DefaultStats.ELDER);
+                defaultStats = DefaultStats.ELDER;
             } else if (name.contains("Undead")) {
-                ac(DefaultStats.UNDEAD);
+                defaultStats = DefaultStats.UNDEAD;
             } else {
-                ac(DefaultStats.PLAYER);
+                defaultStats = DefaultStats.PLAYER;
             }
+            System.arraycopy(defaultStats, 0, values, 0, PRIMARY_STATS_AMOUNT);
         }
 
-        private void ac(final int[] a) {
-            System.arraycopy(a, 0, values, 0, PRIMARY_STATS_AMOUNT);
-        }
-
+        /**
+         * Allows to iterate through stats array. Used in painting GUI.
+         *
+         * @param i index of requested stat
+         *
+         * @return requested stat value
+         *
+         * @throws java.lang.ArrayIndexOutOfBoundsException if {@code i < 0} or {@code i > }
+         *                                                  {@link #PRIMARY_STATS_AMOUNT}
+         */
         public int values(final int i) {return values[i];}
-
-        public int[] getArray() {return values;}
 
         public int getStr() {return values[0];}
 
@@ -190,61 +237,81 @@ public class Hero extends Mob implements Locatable {
         public int getDex() {return values[4];}
 
         public int getLuk() {return values[5];}
-        //@formatter:on
 
+        /**
+         * @param i stat index
+         *
+         * @return {@code true} if that stat can not be increased further
+         */
         public boolean isMaxed(final int i) {
             return values[i] >= MAX_STAT_VALUE;
         }
 
-        public void decrease(final int cursor) {
-            decreaseBy(cursor, 1);
-            freeStats++;
-        }
-
-        public void decreaseBy(final int cursor, final int value) {
-            values[cursor] -= value;
-        }
-
-        public void increase(final int cursor) {
-            if (freeStats > 0) {
-                increaseBy(cursor, 1);
-                freeStats--;
-            }
-        }
-
-        public void increaseBy(final int cursor, final int value) {
+        /**
+         * Changes specified stat by specified value
+         *
+         * @param cursor index of stat
+         * @param value  will be added to specified stat. May be negative
+         */
+        public void changeStatBy(final int cursor, final int value) {
             values[cursor] += value;
         }
 
-        public boolean hasFreeStats() {
+        /**
+         * @return {@code true} if Hero has at least one "free stat"
+         */
+        public boolean isLearnable() {
             return freeStats > 0;
         }
 
-        public int getFree() {
+        public int getFreeStats() {
             return freeStats;
         }
 
+        /**
+         * Changes amount of "free stats" by specified value
+         *
+         * @param freeDiff will be added to {@link #freeStats}. May be negative
+         */
         public void changeFreeBy(final int freeDiff) {
             freeStats += freeDiff;
         }
     }
 
+    /**
+     * That is representation of hero's backpack.<br/>
+     * You can put here items, you can get items from herem you can move items inside the inventory,
+     * you can stack similar items into one cell, you can split one cell into two,
+     * you can enlarge inventory (maybe with some special items or NPC).
+     */
     public static final class InventoryHandler {
+        //todo InventoryHandler implements Paintable
+        //todo inventory sorting
+        //todo InventoryHandler is too binded with it's View. Need to escape this and to do it in right MVC way
 
-        private             int    inventorySize = 3;
         public static final int    LINE          = 8;
+        private             int    inventorySize = 3;
         private             Item[] storage       = new Item[LINE * (inventorySize + 3)];
+        /** Amount of cells which stores some items */
         private int occupied;
 
         public InventoryHandler() {
-            put(new Item(1));
-            put(new Item(2));
-            put(new Item(3));
-            put(new Item(4, 20));
+//            put(new Item(1));
+//            put(new Item(2));
+//            put(new Item(3));
+//            put(new Item(4, 20));
+        }
+
+        public static int coordToCell(int x, int y) {
+            return y * LINE + x;
+        }
+
+        public static int coordToCell(Point p) {
+            return coordToCell(p.x, p.y);
         }
 
         /**
-         * Adds new line (==8 cells) to storage
+         * Adds new line ({@value #LINE} cells) to storage
          */
         public void enlarge() {
             Item[] tmp = new Item[LINE * (inventorySize)];
@@ -254,9 +321,8 @@ public class Hero extends Mob implements Locatable {
         }
 
         /**
-         * Puts new item to inventory. If there is no items of that, the new ones will be placed in first occurred
-         * empty
-         * cell. Either they will be stacked.
+         * Puts new item to inventory. If there is no items of that type, the new ones will be placed in first occurred
+         * empty cell. Either they will be stacked.
          *
          * @param item acquired item(s)
          *
@@ -320,10 +386,10 @@ public class Hero extends Mob implements Locatable {
          * @param index any number
          *
          * @throws IllegalArgumentException if specified number is not a suitable index for storage array. Actually it
-         *                                  means <br>{@code index < 0 || index >= size()}</br>
+         *                                  means <br>{@code index < 0 || index >= capacity()}</br>
          */
         private void checkIndex(int index) {
-            if (index < 0 || index >= size()) {
+            if (index < 0 || index >= capacity()) {
                 throw new IllegalArgumentException("Wrong index");
             }
         }
@@ -348,13 +414,13 @@ public class Hero extends Mob implements Locatable {
                 if (free() < 1) {
                     return -1; //no empty space
                 }
-                for (int i = 0; i < size(); i++) {
+                for (int i = 0; i < capacity(); i++) {
                     if (storage[i] == null && skip-- == 0) {
                         return i;
                     }
                 }
             } else {
-                for (int i = 0; i < size(); i++) {
+                for (int i = 0; i < capacity(); i++) {
                     if (item.equals(storage[i]) && skip-- == 0) {
                         return i;
                     }
@@ -434,13 +500,13 @@ public class Hero extends Mob implements Locatable {
         public List<Integer> findAll(Item item) {
             List<Integer> indexes = new ArrayList<>();
             if (item == null) {
-                for (int i = 0; i < size(); i++) {
+                for (int i = 0; i < capacity(); i++) {
                     if (storage[i] == null) {
                         indexes.add(i);
                     }
                 }
             } else {
-                for (int i = 0; i < size(); i++) {
+                for (int i = 0; i < capacity(); i++) {
                     if (item.equals(storage[i])) {
                         indexes.add(i);
                     }
@@ -498,23 +564,17 @@ public class Hero extends Mob implements Locatable {
                 if (storage[from] != null) {
                     storage[to] = storage[from];
                     storage[from] = null; //decrease(getAmount)
+                    occupied--;
                 } // else both are null
             } else {
                 if (storage[from] != null) {
                     if (storage[from].equals(storage[to])) {
                         storage[to].increase(storage[from].getAmount());
                         storage[from] = null; //decrease(getAmount)
+                        occupied--;
                     }
                 }
             }
-        }
-
-        public static int coordToCell(int x, int y) {
-            return y * LINE + x;
-        }
-
-        public static int coordToCell(Point p) {
-            return coordToCell(p.x, p.y);
         }
 
         public synchronized void move(Point p1, Point p2) {
@@ -568,6 +628,7 @@ public class Hero extends Mob implements Locatable {
                 } else if (storage[from].equals(storage[to])) {
                     storage[from].decrease(amount);
                     storage[to].increase(amount);
+                    occupied++;
                 }
             }
         }
@@ -575,7 +636,7 @@ public class Hero extends Mob implements Locatable {
         /**
          * @return maximum possible number of stored items
          */
-        public int size() {
+        public int capacity() {
             return storage.length;
         }
 
@@ -583,7 +644,7 @@ public class Hero extends Mob implements Locatable {
          * @return amount of free cells in storage
          */
         public int free() {
-            return size() - occupied;
+            return capacity() - occupied;
         }
 
         /**
@@ -598,6 +659,12 @@ public class Hero extends Mob implements Locatable {
             return inventorySize;
         }
 
+        /**
+         * Collects significant information about inventory when painting module requested it.
+         *
+         * @return array which stores information about all stored items (and only about items: we don't care about
+         * empty cells): coords, amount and id (to map image)
+         */
         public int[][] toPaintableArrays() {
             int[][] arrays = new int[occupied][4];
             int cursor = 0;
@@ -614,8 +681,15 @@ public class Hero extends Mob implements Locatable {
         }
     }
 
+    /**
+     * This is representation of hero's clothing, that contains: helm, vest, gloves, leggins, boots, necklace,
+     * 2 weapons (or one two-handed), 2 rings, 2 artifacts. Also this class can compute all secondary stats which
+     * equipped items provide.
+     */
     public static final class EquipmentHandler {
+        //todo maybe this class must be moved into InventoryHandler as inner(non-static nested) class?
 
+        /** Total amount of places where some clothing may be put */
         private static final int SLOTS = 3 * 4;
 
         /**
@@ -625,22 +699,28 @@ public class Hero extends Mob implements Locatable {
          * rng1  boot  rng2
          */
         private Item[] equip = new Item[SLOTS];
-        private Hero   hero;
-        private Attack attack;
-        private Armor  armor;
-        private int    weight;
 
-        public EquipmentHandler(Hero hero) {
-            this.hero = hero;
+        /** Inventory instance from where hero gets items to wear */
+        private InventoryHandler inventory;
+        /** Cached attack value */
+        private Attack           attack;
+        /** Cached armor value */
+        private Armor            armor;
+        /** Cached weight value */
+        private int              weight;
+
+        public EquipmentHandler(InventoryHandler inventory) {
+            this.inventory = inventory;
         }
 
-        public Item getDressed(int index) {
+        /**
+         * @param index slot index
+         *
+         * @return item dressed in specified slot
+         */
+        public Item get(int index) {
             if (index < 0 || index >= SLOTS) {throw new IllegalArgumentException("Wrong slot number");}
             return equip[index];
-        }
-
-        public Item getDressed(ClothingSlots slot) {
-            return equip[slot.ordinal()];
         }
 
         public Attack getAttack() {
@@ -655,6 +735,9 @@ public class Hero extends Mob implements Locatable {
             return weight;
         }
 
+        /**
+         * Update cache values when some item was put on or taken off
+         */
         private void onChangeEquipment() {
             attack = new Attack();
             armor = new Armor();
@@ -668,18 +751,30 @@ public class Hero extends Mob implements Locatable {
             }
         }
 
+        /**
+         * Puts one item from inventory to specified slot into equipment
+         *
+         * @param p    from where to get item
+         * @param slot where to put item
+         */
         public void putOn(Point p, ClothingSlots slot) {
             putOn(InventoryHandler.coordToCell(p), slot);
         }
 
+        /**
+         * Puts one item from inventory to specified slot into equipment
+         *
+         * @param index from where to get item
+         * @param slot  where to put item
+         */
         private void putOn(int index, ClothingSlots slot) {
-            Item stored = hero.inventory.get(index);
+            Item stored = inventory.get(index);
             if (stored == null) {return;}
             int i = slot.ordinal();
             if (equip[i] != null) {
-                hero.inventory.remove(index).swap(equip[i]);
+                inventory.remove(index).swap(equip[i]);
             } else {
-                equip[i] = hero.inventory.remove(index);
+                equip[i] = inventory.remove(index);
             }
 
             onChangeEquipment();
@@ -689,16 +784,28 @@ public class Hero extends Mob implements Locatable {
             return equip[slot.ordinal()];
         }
 
+        /**
+         * @param slots specified slot
+         *
+         * @return amount of items dressed in specified slot (usable for e.g. arrows)
+         */
         public int getAmount(ClothingSlots slots) {
             return equip[slots.ordinal()].getAmount();
         }
 
+        /**
+         * Takes off item from specified slot of equipment to inventory. If inventory if full nothing will happen.
+         *
+         * @param slot specified slot
+         *
+         * @return item that was taken off
+         */
         public Item takeOff(ClothingSlots slot) {
-            if (hero.inventory.free() > 0) {
+            if (inventory.free() > 0) {
                 int i = slot.ordinal();
                 Item tmp = equip[i];
                 equip[i] = null;
-                hero.inventory.put(tmp);
+                inventory.put(tmp);
                 onChangeEquipment();
                 return tmp;
             } else {
@@ -709,54 +816,69 @@ public class Hero extends Mob implements Locatable {
 
     }
 
-    private void restore() {
-        maxHP = Hero.StatsFormulas.getMaxHP(this);
-        maxMP = Hero.StatsFormulas.getMaxMP(this);
-        HP = maxHP;
-        MP = maxMP;
-        attack.replaceBy(Hero.StatsFormulas.getAttack(this));
-        armor.replaceBy(Hero.StatsFormulas.getArmor(this));
+    public EquipmentHandler getEquipment() {
+        return equipment;
     }
 
+    /**
+     * Restores main character's parameters to default (computed with {@link StatsFormulas})
+     */
+    private void restore() {
+        maxHP = StatsFormulas.getMaxHP(this);
+        maxMP = StatsFormulas.getMaxMP(this);
+        HP = maxHP;
+        MP = maxMP;
+        attack.replaceBy(StatsFormulas.getAttack(this));
+        armor.replaceBy(StatsFormulas.getArmor(this));
+    }
+
+    /**
+     * Updates main character's parameter while player changes stats (while he distributes "free stats"). Hp/mp
+     * percentage will remain to prevent cheat-healing.
+     */
     public void updateStats() {
         final float hpPercentage = HP / maxHP;
         final float mpPercentage = MP / maxMP;
 
-        maxHP = Hero.StatsFormulas.getMaxHP(this);
-        maxMP = Hero.StatsFormulas.getMaxMP(this);
+        maxHP = StatsFormulas.getMaxHP(this);
+        maxMP = StatsFormulas.getMaxMP(this);
         HP = maxHP * hpPercentage;
         MP = maxMP * mpPercentage;
-        attack.replaceBy(Hero.StatsFormulas.getAttack(this));
-        armor.replaceBy(Hero.StatsFormulas.getArmor(this));
+        attack.replaceBy(StatsFormulas.getAttack(this));
+        armor.replaceBy(StatsFormulas.getArmor(this));
     }
 
     public PrimaryStats getStats() {
         return stats;
     }
 
+    /**
+     * Computes amount of XP gained from dealt damage and adds bonus XP. After that method will check if new level
+     * requirements was met.
+     *
+     * @param dmg dealt damage
+     */
     public void gainXpFromDamage(final float dmg) {
+        //todo move formula to StatsFormulas
         final int xp = (int) Math.pow(dmg, 6 / 5f);
         final int gainedXP = (int) StatsFormulas.addBonusXp(this, xp);
         XP += gainedXP;
         Log.g("%s получает %s опыта", getName(), gainedXP);
-        while (lvlUp()) {
-            gainLvl();
+
+        //todo extract method
+        while (XP >= XP_TO_LVL[level]) {
+            XP = 0;
+            level++;
+            stats.freeStats += PrimaryStats.DEFAULT_STAT_INCREASE;
+            restore();
+            Log.g("%s достиг %s уровня!", getName(), level);
         }
-
     }
 
-    private void gainLvl() {
-        XP = 0;
-        level++;
-        stats.freeStats += PrimaryStats.DEFAULT_STAT_INCREASE;
-        restore();
-        Log.g("%s достиг %s уровня!", getName(), level);
-    }
-
-    private boolean lvlUp() {
-        return XP >= XP_TO_LVL[level];
-    }
-
+    /**
+     * {@inheritDoc}
+     * Unable to move while carrying to heavy equipment
+     */
     @Override
     public Point move(final Point dp, final Game g) {
         if (StatsFormulas.isOverweighted(this)) {
@@ -766,6 +888,9 @@ public class Hero extends Mob implements Locatable {
         return super.move(dp, g);
     }
 
+    /**
+     * Puts items from tile on which hero stands to inventory (while it has free space)
+     */
     public void pickUpItems() {
         List<DroppedItem> items = game.getMap().getTile(getLoc().x, getLoc().y).getItemList();
         Iterator<DroppedItem> iter = items.iterator();
@@ -779,9 +904,15 @@ public class Hero extends Mob implements Locatable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * Death of main hero will end the game.
+     */
     @Override
     protected void onDeath(final Game g) {
-        g.gameOver();
+        if (this == g.getHero()) {
+            g.gameOver();
+        }
         g.repaint();
     }
 
@@ -809,6 +940,9 @@ public class Hero extends Mob implements Locatable {
         return XP;
     }
 
+    /**
+     * @return amount of XP needed to reach next level
+     */
     public int getAdvanceXP() {
         return XP_TO_LVL[level];
     }
@@ -821,8 +955,11 @@ public class Hero extends Mob implements Locatable {
         return inventory;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void paint(AbstractGamePanel panel, Graphics2D g2, int j, int i) {
+    public void draw(AbstractGamePanel panel, Graphics2D g2, int j, int i) {
         if (isAlive()) {
             if (this == game.getHero()) {
                 panel.drawToCell(g2, panel.getImage("hero"), j, i);
@@ -836,5 +973,40 @@ public class Hero extends Mob implements Locatable {
                 panel.drawToCell(g2, panel.getImage("rip"), j, i);
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void moveTo(Point newLoc, Game g) {
+        super.moveTo(newLoc, g);
+        if (this == g.getHero()) {
+            Tile t = g.getMap().getTile(newLoc.x, newLoc.y);
+            switch (t.getItemsAmount()) {
+                case 1:
+                    Log.g("Здесь есть %s.", t.getItemList().get(0).getItem().getData().getName());
+                case 0:
+                    break;
+                default:
+                    Log.g("Здесь лежит много вещей.");
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Attacks hostile mob and gains experience from dealt damage
+     *
+     * @param newLoc there to go
+     * @param g      {@link Game} instance
+     *
+     * @return dealt damage
+     */
+    @Override
+    protected float moveAttack(Point newLoc, Game g) {
+        float damage = super.moveAttack(newLoc, g);
+        gainXpFromDamage(damage);
+        return damage;
     }
 }

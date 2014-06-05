@@ -1,8 +1,8 @@
 package com.avapir.roguelike.game.world.character;
 
+import com.avapir.roguelike.core.Drawable;
 import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Log;
-import com.avapir.roguelike.core.Paintable;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.core.gui.GamePanel;
 import com.avapir.roguelike.game.battle.Armor;
@@ -17,7 +17,12 @@ import com.avapir.roguelike.game.world.map.Tile;
 
 import java.awt.*;
 
-public class Mob implements Cloneable, Locatable, Paintable {
+/**
+ * This class represents any actor in the game. Each mob has default stats such as name, max or current HP and MP
+ * amount, attack and defence power and current location on the map. Also each mob (or more often -- each kind of mobs)
+ * may have so behavior specified by implementation of {@link com.avapir.roguelike.game.world.character.ai.AbstractAI}
+ */
+public class Mob implements Cloneable, Locatable, Drawable {
 
     protected final Attack     attack;
     protected final Armor      armor;
@@ -28,6 +33,18 @@ public class Mob implements Cloneable, Locatable, Paintable {
     protected       float      maxMP;
     protected       float      maxHP;
     private         Point      location;
+
+    protected Mob(String name) {
+        this.name = name;
+        this.ai = IdleAI.getNewInstance();
+        maxHP = 1;
+        maxMP = 1;
+        HP = maxHP;
+        MP = maxMP;
+        attack = new Attack();
+        armor = new Armor();
+        location = UNRESOLVED_LOCATION;
+    }
 
     protected Mob(String name,
                   float maxHP,
@@ -124,16 +141,35 @@ public class Mob implements Cloneable, Locatable, Paintable {
         return ai;
     }
 
+    /**
+     * @return in-game name of mob
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * @return current HP value of mob
+     */
     public float getHP() {
         return HP;
     }
 
+    /**
+     * @return current MP value of mob
+     */
     public float getMP() {
         return MP;
+    }
+
+    /**
+     * Moves mob to new location
+     *
+     * @param newLoc
+     * @param g
+     */
+    protected void moveTo(Point newLoc, Game g) {
+        g.getMap().putCharacter(this, newLoc.x, newLoc.y);
     }
 
     /**
@@ -176,66 +212,60 @@ public class Mob implements Cloneable, Locatable, Paintable {
         }
     }
 
-    private void moveTo(Point newLoc, Game g) {
-        g.getMap().putCharacter(this, newLoc.x, newLoc.y);
-        if (this == g.getHero()) {
-            Tile t = g.getMap().getTile(newLoc.x, newLoc.y);
-            switch (t.getItemsAmount()) {
-                case 1:
-                    Log.g("Здесь есть %s.", t.getItemList().get(0).getItem().getData().getName());
-                case 0:
-                    break;
-                default:
-                    Log.g("Здесь лежит много вещей.");
-                    break;
-            }
-        }
-    }
-
     /**
-     * Character tried to go to {@code newLoc} but there is some hostile
+     * Character tried to go to {@code newLoc} but there is some hostile. Also method returns exp-valued damage
+     * amount. For usual hit it equals to dealt damage, but not when defender was killed. All overdealt damage will
+     * be plused to "exp-valued damage" twice. <p>E.g.: defender "D" had 10HP and attacker "A" dealt 25 damage. Then "A"
+     * will gain 10 exp for "D"`s 10HP and (25-10)*2 exp for not hurted but dealt damage. Summary it's 40 exp. </p>
+     * Such way overkills are encouraged.
      *
      * @param newLoc there to go
      * @param g      {@link Game} instance
+     * @return amount of damage for which character will gain experience.
      */
-    private void moveAttack(Point newLoc, Game g) {
-        final float dmg = attackMob(newLoc, g);
-        if (this == g.getHero()) {
-            ((Hero) this).gainXpFromDamage(dmg);
-        }
-    }
-
-    private float attackMob(final Point dp, final Game g) {
-        final Mob defender = g.getMap().getTile(dp.x, dp.y).getMob();
+    protected float moveAttack(Point newLoc, Game g) {
+        final Mob defender = g.getMap().getTile(newLoc.x, newLoc.y).getMob();
         if (defender != g.getHero() && this != g.getHero()) {
             return 0;
         }
         float damage = Battle.computeDamage(getAttack(), defender.getArmor());
-        defender.receiveDamage(damage, g);
+        defender.dealDamage(damage, g);
 
         Log.g("%s наносит %s урона по %s", this.getName(), damage, defender.getName());
         Log.g("У %s осталось %s здоровья", defender.getName(), AbstractGamePanel.roundOneDigit(defender.getHP()));
 
         if (defender.getHP() <= 0) {
-            damage -= defender.getHP() * 2;// bonus XP for Overkills
+            damage += Math.abs(defender.getHP() * 2);// bonus XP for Overkills
         }
 
         return damage;
     }
 
-    private void receiveDamage(final float dmg, final Game g) {
+    /**
+     * Inflicts pure damage and checks if character is alive
+     *
+     * @param dmg inflicted damage
+     * @param g   {@link Game} instance
+     */
+    private void dealDamage(final float dmg, final Game g) {
         HP -= dmg;
         if (!isAlive()) {
             onDeath(g);
         }
     }
 
+    /**
+     * Applies some mob-specific things caused by death (important for e.g. bosses)
+     */
     protected void onDeath(final Game g) {
         ai.onDeath(this, g);
     }
 
+    /**
+     * @return {@link Mob#HP} > 0
+     */
     public boolean isAlive() {
-        return HP >= 0;
+        return HP > 0;
     }
 
     Armor getArmor() {
@@ -311,7 +341,10 @@ public class Mob implements Cloneable, Locatable, Paintable {
         }
     }
 
-    public void paint(AbstractGamePanel panel, Graphics2D g2, int j, int i) {
+    /**
+     * {@inheritDoc}
+     */
+    public void draw(AbstractGamePanel panel, Graphics2D g2, int j, int i) {
         if (isAlive()) {
             panel.drawToCell(g2, panel.getImage(getName().toLowerCase()), j, i);
             paintColorBar(getHP() / getMaxHp(), new Color(255, 0, 0, 128), 0, j, i, g2);
@@ -321,6 +354,17 @@ public class Mob implements Cloneable, Locatable, Paintable {
         }
     }
 
+    /**
+     * Paints colored bar for some stat of character above him. Usually used for HP\MP. That method receives only
+     * percentage value of stat (float value of {@code currentValue/maxValue}).
+     *
+     * @param value percents of tile which wil be filled twice
+     * @param transparentColor color which will be used
+     * @param line number of line painting already. Usually it's 0 for HP and 1 for MP
+     * @param j horizontal coordinate of tile
+     * @param i vertical coordinate of tile
+     * @param g2 {@link Graphics2D} instance
+     */
     protected void paintColorBar(final float value,
                                  final Color transparentColor,
                                  final int line,

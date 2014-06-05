@@ -18,7 +18,7 @@ public class SlimeAI extends EasyAI {
     public void computeAI(final Mob m, final Game g) {
         final int x = m.getLoc().x;
         final int y = m.getLoc().y;
-        final Point p = new Point(r.nextInt(3) - 1, r.nextInt(3) - 1);
+        final Point p = new Point(random.nextInt(3) - 1, random.nextInt(3) - 1);
         for (int i = x - 4; i < x + 4; i++) {
             for (int j = y - 4; j < y + 4; j++) {
                 final Tile t = g.getMap().getTile(i, j);

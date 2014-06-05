@@ -77,7 +77,7 @@ public class GamePanel extends AbstractGamePanel {
                     int yy = invenOffset.y + j * (itemBgHeight + 1);
                     g2.drawImage(itemBg, xx, yy, null);
                     g2.setColor(Color.yellow);
-                    Item item = hero.getEquipment().getDressed(j * 3 + i);
+                    Item item = hero.getEquipment().get(j * 3 + i);
                     if (item != null) {
                         g2.drawImage(getImage(item.getData().getImageName()), xx, yy, null);
                     }
@@ -236,8 +236,8 @@ public class GamePanel extends AbstractGamePanel {
 
             }
 
-            if (hero.getStats().hasFreeStats()) {
-                int free = hero.getStats().getFree();
+            if (hero.getStats().isLearnable()) {
+                int free = hero.getStats().getFreeStats();
                 if (isChangingStats) {
                     free += game.getStatsHandler().getFreeDiff();
                 }
@@ -277,7 +277,7 @@ public class GamePanel extends AbstractGamePanel {
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
         paintMap(game.getMap(), g2);
-        Log.getInstance().paint(this, g2, 15, 15);
+        Log.getInstance().draw(this, g2, 15, 15);
         drawDialogs(g2);
         debugShowMiniMap(game.getMap(), g2);
     }
@@ -373,7 +373,7 @@ public class GamePanel extends AbstractGamePanel {
                                      int j) {// indexes on the Map
         final Tile tile = map.getTile(offsetX + j, offsetY + i);
         if (tile != null) {
-            tile.paint(this, g2, j, i);
+            tile.draw(this, g2, j, i);
         } else {
             // some outworld. Stars ort smth
         }

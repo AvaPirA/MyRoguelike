@@ -327,7 +327,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     public void createStatsHandler() {
         Log.g("_____________________");
         Log.g("Изменение характеристик:");
-        Log.g("Свободных хар-к: %s", hero.getStats().getFree());
+        Log.g("Свободных хар-к: %s", hero.getStats().getFreeStats());
         changingStatsHandler = new ChangingStatsHandler(this);
     }
 

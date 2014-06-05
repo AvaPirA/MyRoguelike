@@ -9,10 +9,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Defines mob behavior on every state. Also defines drop-list of mob, which uses that AI
+ */
 public abstract class AbstractAI {
 
-    protected static final Random r = new Random();
+    /**
+     * General haphazard generator
+     */
+    protected static final Random random = new Random();
 
+    /**
+     * @param m
+     * @param g
+     */
     public abstract void computeAI(Mob m, Game g);
 
     public void onDeath(final Mob mob, final Game g) {
@@ -25,8 +35,8 @@ public abstract class AbstractAI {
         return Collections.emptyList();
     }
 
-    Point getRandomDirection() {
-        return new Point(new Point(r.nextInt(3) - 1, r.nextInt(3) - 1));
+    protected Point getRandomDirection() {
+        return new Point(new Point(random.nextInt(3) - 1, random.nextInt(3) - 1));
     }
 
 }
