@@ -18,8 +18,9 @@ public interface IGame {
 
     /**
      * Here game will load some important resources.
+     * @param s name of game
      */
-    void init();
+    void init(String s);
 
     /**
      * All "loading" must be done at this point. E.g. here will be started game cycle or something.

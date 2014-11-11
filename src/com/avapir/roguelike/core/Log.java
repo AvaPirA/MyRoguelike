@@ -34,11 +34,6 @@ public class Log implements Serializable, Drawable {
     private static final String FMT_GAME_FORMATTED = "[%d:%d] ";
 
     /**
-     * Game instance for logging
-     */
-    private transient Game game;
-
-    /**
      * How many records were made ​​from the beginning of turn
      */
     private transient int perTurn;
@@ -46,43 +41,7 @@ public class Log implements Serializable, Drawable {
     /**
      * Storage of records
      */
-    private LinkedList<String> loggedList;
-
-    /**
-     * @return is logger already connected to some instance of {@link com.avapir.roguelike.core.Game}
-     */
-    private boolean isConnected() {
-        return game != null;
-    }
-
-    /**
-     * Connects logger to instance of {@link com.avapir.roguelike.core.Game}.
-     *
-     * @param game instance
-     *
-     * @throws java.lang.IllegalStateException if logger already connected
-     */
-    public void connect(Game game) {
-        if (isConnected()) {
-            throw new IllegalStateException("Logger already connected to another game instance");
-        }
-        this.game = game;
-        loggedList = new LinkedList<>();
-    }
-
-    /**
-     * Disconnects logger from {@link com.avapir.roguelike.core.Game} instance.
-     *
-     * @return {@coed true} if succeed. {@code false} if logger was not connected yet
-     */
-    public boolean disconnect() {
-        if (isConnected()) {
-            game = null;
-            return true;
-        } else {
-            return false;
-        }
-    }
+    private LinkedList<String> loggedList = new LinkedList<>();
 
     public static void g(final String s) {
         Log.getInstance().game(s);
@@ -94,20 +53,10 @@ public class Log implements Serializable, Drawable {
      * @param s user data
      */
     public void game(final String s) {
-        checkConnectivity();
         String formatted = String.format(FMT_GAME, perTurn, getTurnAndCheck(), s);
         loggedList.add(formatted);
         System.out.println(formatted);
         removePreviousTurnRecord();
-    }
-
-    /**
-     * throws IllegalStateException if logger is not connected
-     */
-    private void checkConnectivity() {
-        if (!isConnected()) {
-            throw new IllegalStateException("Logger must be connected before making records");
-        }
     }
 
     public static void g(final String s, final Object... params) {
@@ -145,7 +94,7 @@ public class Log implements Serializable, Drawable {
      * @return {@link com.avapir.roguelike.core.Game#getTurnCounter()}
      */
     private int getTurnAndCheck() {
-        int currentTurn = game.getTurnCounter();
+        int currentTurn = Game.getInstance().getTurnCounter();
         if (turn != currentTurn) {
             refresh();
             turn = currentTurn;

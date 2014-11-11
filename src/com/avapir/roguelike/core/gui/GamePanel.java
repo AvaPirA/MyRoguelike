@@ -23,14 +23,12 @@ public class GamePanel extends AbstractGamePanel {
     private static final long serialVersionUID   = 1L;
     public static final  int  STAT_BAR_HEIGHT_PX = 3;
     static final         Font coordFont          = new Font("Monospaced", Font.PLAIN, 10);
-    private final Game       game;
     private final GuiPainter guiPainter;
 
-    public GamePanel(final Game g) {
+    public GamePanel() {
         super();
-        game = g;
         guiPainter = new GuiPainter();
-        addKeyListener(new KeyboardHandler(game));
+        addKeyListener(new KeyboardHandler());
         setFocusable(true);
     }
 
@@ -48,7 +46,7 @@ public class GamePanel extends AbstractGamePanel {
 
         public void paint(final Graphics2D g2) {
             invalidateMax();
-            hero = game.getHero();
+            hero = Hero.getInstance();
             this.g2 = g2;
             heroEquipment();
             heroMainStats();
@@ -56,7 +54,7 @@ public class GamePanel extends AbstractGamePanel {
             heroArmor();
             heroStats();
 
-            if (game.getState() == GameState.INVENTORY) {
+            if (Game.getInstance().getState() == GameState.INVENTORY) {
                 /*draw inventory
                 * actually, I draw it at GamePanel#paintMap(Map, Graphics2D)
                 * Theres 2 goals got by this decision:
@@ -84,6 +82,7 @@ public class GamePanel extends AbstractGamePanel {
                 }
             }
 
+            Game game = Game.getInstance();
             if (game.getState() == GameState.INVENTORY && game.getInventoryHandler().isOnEquipment()) {
                 g2.setColor(Color.yellow);
                 final Point cursor = game.getInventoryHandler().getCursor();
@@ -181,10 +180,11 @@ public class GamePanel extends AbstractGamePanel {
             if (validMax == Integer.MIN_VALUE) {
                 int max = 0;
                 final List<Integer> arr = new ArrayList<>();
+                Game game = Game.getInstance();
                 for (int i = 0; i < Hero.PrimaryStats.PRIMARY_STATS_AMOUNT; i++) {
-                    arr.add(Math.abs(game.getHero().getStats().values(i)));
+                    arr.add(Math.abs(Hero.getInstance().getStats().values(i)));
                     if (game.getState() == GameState.CHANGE_STATS) {
-                        arr.add(Math.abs(game.getHero().getStats().values(i) + game.getStatsHandler().getDiff()[i]));
+                        arr.add(Math.abs(Hero.getInstance().getStats().values(i) + game.getStatsHandler().getDiff()[i]));
                     }
                 }
 
@@ -201,13 +201,14 @@ public class GamePanel extends AbstractGamePanel {
         }
 
         private void heroStats() {
+            Game game = Game.getInstance();
             g2.setColor(Color.yellow);
             final int lineHeight = guiFont.getSize();
             final int oY = statsOffset.y - lineHeight + 3;// экспериментально полученное визуально лучшее значение
             final boolean isChangingStats = game.getState() == GameState.CHANGE_STATS;
 
             for (int i = 0; i < PrimaryStats.STATS_STRINGS.length; i++) {
-                final int curStat = game.getHero().getStats().values(i);
+                final int curStat = Hero.getInstance().getStats().values(i);
                 final int diff = isChangingStats ? game.getStatsHandler().getDiff()[i] : 0;
 
                 // rectangles
@@ -248,7 +249,7 @@ public class GamePanel extends AbstractGamePanel {
                 // cursor
                 g2.setColor(Color.yellow);
                 final int cursor = game.getStatsHandler().getCursor().y;
-                game.getHero().getStats().values(cursor);
+                Hero.getInstance().getStats().values(cursor);
 
                 g2.drawRect(statsOffset.x, oY + cursor * 15, 75 * 2, lineHeight);
 
@@ -276,15 +277,15 @@ public class GamePanel extends AbstractGamePanel {
         final Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
-        paintMap(game.getMap(), g2);
+        paintMap(Game.getInstance().getMap(), g2);
         Log.getInstance().draw(this, g2, 15, 15);
         drawDialogs(g2);
-        debugShowMiniMap(game.getMap(), g2);
+        debugShowMiniMap(Game.getInstance().getMap(), g2);
     }
 
     private void drawDialogs(Graphics2D g2) {
         //TODO GameDialog class
-        if (game.getState() == GameState.GAME_OVER) {
+        if (Game.getInstance().getState() == GameState.GAME_OVER) {
             gameOverDialog(g2);
         }
     }
@@ -342,15 +343,15 @@ public class GamePanel extends AbstractGamePanel {
     // 5**********   *** II ****
     // LINE = 4; SIZE = 2; HIT = 5; WIT = 10;
     private void paintMap(final Map map, final Graphics2D g2) {
-        final int offsetX = game.getCurrentX() - Viewport.horizontalViewDistance();
-        final int offsetY = game.getCurrentY() - Viewport.verticalViewDistance();
+        final int offsetX = Game.getInstance().getCurrentX() - Viewport.horizontalViewDistance();
+        final int offsetY = Game.getInstance().getCurrentY() - Viewport.verticalViewDistance();
         final int WIT = getWidthInTiles();
         final int HIT = getHeightInTiles();
-        if (game.getState() == GameState.INVENTORY) {
+        if (Game.getInstance().getState() == GameState.INVENTORY) {
             int l = (WIT - Hero.InventoryHandler.LINE) / 2;
             int r = (WIT + Hero.InventoryHandler.LINE) / 2;
             int t = 3;
-            int d = t + game.getHero().getInventory().getSize() + 1; // +1 == border
+            int d = t + Hero.getInstance().getInventory().getSize() + 1; // +1 == border
             //todo MAKE THIS SHIT AS SHADERS
             paintMap_inventory(g2, l, r, t, d);
             paintMap_inventoryBorder(g2, l - 1, r + 1, t - 1, d + 1);
@@ -408,7 +409,7 @@ public class GamePanel extends AbstractGamePanel {
                 drawToCell(g2, invBgImg, w, h);
             }
         }
-        int[][] items = game.getHero().getInventory().toPaintableArrays();
+        int[][] items = Hero.getInstance().getInventory().toPaintableArrays();
 
         for (int[] item : items) {
             drawToCell(g2, getImage(ItemDatabase.get(item[2]).getImageName()), l + item[1], t + item[0]);
@@ -419,6 +420,7 @@ public class GamePanel extends AbstractGamePanel {
             }
         }
 
+        Game game = Game.getInstance();
         if (game.getState() == GameState.INVENTORY) {
             final Point memorizedPress = game.getInventoryHandler().getPress();
             if (!game.getInventoryHandler().isOnEquipment()) {

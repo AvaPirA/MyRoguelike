@@ -44,10 +44,6 @@ public class Map implements ILosMap {
      */
     private static final MapGenerator generator  = new MapGenerator();
     /**
-     * The game, who owns that map
-     */
-    private final Game game;
-    /**
      * Some {@link com.avapir.roguelike.game.fov.IFovAlgorithm} implementation
      */
     private final IFovAlgorithm permissiveFov = new PermissiveFOV();
@@ -73,13 +69,11 @@ public class Map implements ILosMap {
     /**
      * Creates empty map with specified dimensions
      *
-     * @param g
      * @param height
      * @param width
      */
     @Deprecated
-    public Map(final Game g, final int height, final int width) {
-        game = g;
+    public Map(final int height, final int width) {
         HEIGHT_MAP = height;
         WIDTH_MAP = width;
         field = new Tile[height][width];
@@ -91,10 +85,8 @@ public class Map implements ILosMap {
      * Create some game map mapped to provided {@link com.avapir.roguelike.core.Game} instance. Dimensions of the map
      * will be chosen from addition of default value with some random delta-value
      *
-     * @param g game instance
      */
-    public Map(final Game g) {
-        game = g;
+    public Map() {
         final int deltaHeight = DFT_HEIGHT * DFT_DELTA / 100;
         final int deltaWidth = DFT_WIDTH * DFT_DELTA / 100;
         HEIGHT_MAP = DFT_HEIGHT + random.nextInt(2 * deltaHeight) - deltaHeight;
@@ -221,7 +213,7 @@ public class Map implements ILosMap {
      * @return removed {@link com.avapir.roguelike.game.world.character.Mob}
      */
     public Mob removeCharacter(final Point p) {
-        return game.removeMob(field[p.y][p.x].removeCharacter());
+        return Game.getInstance().removeMob(field[p.y][p.x].removeCharacter());
     }
 
     /**

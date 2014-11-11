@@ -4,6 +4,7 @@ import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Game.GameState;
 import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.statehandlers.StateHandler;
+import com.avapir.roguelike.game.world.character.Hero;
 import com.avapir.roguelike.game.world.map.Tile;
 
 import java.awt.*;
@@ -12,13 +13,10 @@ import java.awt.event.KeyEvent;
 
 public class KeyboardHandler extends KeyAdapter {
 
-    private final Game game;
     private Point target = null;
 
-    public KeyboardHandler(final Game game) {
+    public KeyboardHandler() {
         super();
-        this.game = game;
-        game.setKeyboardHandler(this);
     }
 
     public void setBorgMove(final Point p) {
@@ -27,7 +25,7 @@ public class KeyboardHandler extends KeyAdapter {
 
     @Override
     public void keyTyped(final KeyEvent e) {
-        switch (game.getState()) {
+        switch (Game.getInstance().getState()) {
             case MOVE:
                 moveType(e);
                 break;
@@ -49,7 +47,7 @@ public class KeyboardHandler extends KeyAdapter {
             default:
                 throw new IllegalStateException("Wrong game state");
         }
-        game.repaint();
+        Game.getInstance().repaint();
     }
 
     @Override
@@ -57,7 +55,7 @@ public class KeyboardHandler extends KeyAdapter {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             System.exit(0);
         }
-        switch (game.getState()) {
+        switch (Game.getInstance().getState()) {
             case MOVE:
                 movePress(e);
                 break;
@@ -77,11 +75,12 @@ public class KeyboardHandler extends KeyAdapter {
                 inventoryPress(e);
                 break;
             default:
-                throw new IllegalStateException("Wrong game state: " + game.getState());
+                throw new IllegalStateException("Wrong game state: " + Game.getInstance().getState());
         }
     }
 
     private void moveType(final KeyEvent e) {
+        Game game = Game.getInstance();
         switch (e.getKeyChar()) {
             case 'i':
                 game.setState(GameState.INVENTORY);
@@ -101,6 +100,7 @@ public class KeyboardHandler extends KeyAdapter {
     }
 
     private void inventoryType(final KeyEvent e) {
+        Game game = Game.getInstance();
         switch (e.getKeyChar()) {
             case 'e':
                 game.getInventoryHandler().equip();
@@ -112,6 +112,7 @@ public class KeyboardHandler extends KeyAdapter {
     }
 
     private void inventoryPress(final KeyEvent e) {
+        Game game = Game.getInstance();
         switch (e.getKeyCode()) {
             case KeyEvent.VK_S:
                 Log.g("Курсон переключен");
@@ -141,6 +142,7 @@ public class KeyboardHandler extends KeyAdapter {
     }
 
     private void changeStatsType(final KeyEvent e) {
+        Game game = Game.getInstance();
         switch (e.getKeyChar()) {
             case 'c':
                 game.removeStatsHandler();
@@ -149,7 +151,7 @@ public class KeyboardHandler extends KeyAdapter {
     }
 
     private void changeStatsPress(final KeyEvent e) {
-        stateArrowsHandler(e.getKeyCode(), game.getStatsHandler());
+        stateArrowsHandler(e.getKeyCode(), Game.getInstance().getStatsHandler());
     }
 
     private void viewType(final KeyEvent e) {
@@ -200,18 +202,18 @@ public class KeyboardHandler extends KeyAdapter {
                 break;
             case KeyEvent.VK_EQUALS:
                 Game.zoomIn();
-                game.resetViewport();
+                Game.getInstance().resetViewport();
                 Log.g("New zoom: %s%%", 100 * Tile.SIZE_px / 32f);
                 return;
             case KeyEvent.VK_MINUS:
                 if (Tile.SIZE_px > 1) {
                     Game.zoomOut();
-                    game.resetViewport();
+                    Game.getInstance().resetViewport();
                     Log.g("New zoom: %s%%", 100 * Tile.SIZE_px / 32f);
                 }
                 return;
             case KeyEvent.VK_NUMPAD5:
-                game.getHero().pickUpItems();
+                Hero.getInstance().pickUpItems();
             default:
                 return;
         }
@@ -220,9 +222,9 @@ public class KeyboardHandler extends KeyAdapter {
 
     void move(final Point p) {
         if (target == null) {
-            final Point resultMove = game.getHero().move(p, game);
+            final Point resultMove = Game.getInstance().getHero().move(p);
             if (resultMove != null) {
-                game.EOT(resultMove);
+                Game.getInstance().EOT(resultMove);
             }
         }
     }

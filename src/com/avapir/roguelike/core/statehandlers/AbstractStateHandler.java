@@ -6,13 +6,9 @@ import java.awt.*;
 
 public abstract class AbstractStateHandler implements StateHandler {
 
-    final     Game game;
     protected int  y;
     protected int  x;
 
-    AbstractStateHandler(final Game g) {
-        game = g;
-    }
 
     protected abstract int checkRestoreX(int x);
 
@@ -22,28 +18,28 @@ public abstract class AbstractStateHandler implements StateHandler {
     public final void pressDown() {
         y++;
         y = checkRestoreY(y);
-        game.repaint();
+        Game.getInstance().repaint();
     }
 
     @Override
     public final void pressUp() {
         y--;
         y = checkRestoreY(y);
-        game.repaint();
+        Game.getInstance().repaint();
     }
 
     @Override
     public void pressLeft() {
         x--;
         x = checkRestoreX(x);
-        game.repaint();
+        Game.getInstance().repaint();
     }
 
     @Override
     public void pressRight() {
         x++;
         x = checkRestoreX(x);
-        game.repaint();
+        Game.getInstance().repaint();
     }
 
     @Override

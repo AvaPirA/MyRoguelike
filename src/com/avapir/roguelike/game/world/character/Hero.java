@@ -23,6 +23,8 @@ import java.util.Random;
  */
 public class Hero extends Mob {
 
+    public static Hero getInstance() { return Game.getInstance().getHero();}
+
     /** Amounts of XP needed to level up */
     private static final int[] XP_TO_LVL = {0, 68, 295, 805, 1716, 3154, 5249, 8136, 11955, 16851, 22978, 30475,
             39516, 50261, 62876, 77537, 94421, 113712, 135596, 160266, 84495, 95074, 107905, 123472, 142427, 165669,
@@ -33,8 +35,6 @@ public class Hero extends Mob {
     private final EquipmentHandler equipment;
     /** {@link PrimaryStats} instance. Responsible for stats of hero that may be found in the calculation formulas */
     private final PrimaryStats     stats;
-    /** {@link Game} instance. Intended for influencing on the world. */
-    private final Game             game;
     /** Current hero's level */
     private       int              level;
     /** Current amount of experience */
@@ -44,13 +44,11 @@ public class Hero extends Mob {
      * Creates new hero but don't put him somewhere on the map
      *
      * @param name displayable name
-     * @param g    game instance
      */
-    public Hero(String name, Game g) {
+    public Hero(String name) {
         /* Name, maxHp, maxMp, attack, armor, location, map, ai*/
 //        super(name, 1, 1, null, null, UNRESOLVED_LOCATION, null, IdleAI.getNewInstance()); // same as next line
         super(name);
-        game = g;
         stats = new PrimaryStats(name);
         level = 1;
         XP = 0;
@@ -163,9 +161,9 @@ public class Hero extends Mob {
 
         private static int getStat(final Hero h, final int i) {
             int STAT = h.getStats().values(i);
-            final GameState s = h.game.getState();
+            final GameState s = Game.getInstance().getState();
             if (s == GameState.CHANGE_STATS) {
-                STAT += h.game.getStatsHandler().getDiff()[i];
+                STAT += Game.getInstance().getStatsHandler().getDiff()[i];
             }
             return STAT;
         }
@@ -648,7 +646,7 @@ public class Hero extends Mob {
 
         /**
          * Returns amount of lines in inventory available for storing smth.
-         * <p>
+         * <p/>
          * By default it's 3. Further in game player will be able to get additional lines by some vendor NPC or by some
          * quest.
          *
@@ -879,19 +877,19 @@ public class Hero extends Mob {
      * Unable to move while carrying to heavy equipment
      */
     @Override
-    public Point move(final Point dp, final Game g) {
+    public Point move(final Point dp) {
         if (StatsFormulas.isOverweighted(this)) {
             Log.g("Вы #2#перегружены!#^#");
             return new Point(0, 0);
         }
-        return super.move(dp, g);
+        return super.move(dp);
     }
 
     /**
      * Puts items from tile on which hero stands to inventory (while it has free space)
      */
     public void pickUpItems() {
-        List<DroppedItem> items = game.getMap().getTile(getLoc().x, getLoc().y).getItemList();
+        List<DroppedItem> items = Game.getInstance().getMap().getTile(getLoc().x, getLoc().y).getItemList();
         Iterator<DroppedItem> iter = items.iterator();
         try {
             while (iter.hasNext()) {
@@ -908,10 +906,9 @@ public class Hero extends Mob {
      * Death of main hero will end the game.
      */
     @Override
-    protected void onDeath(final Game g) {
-        if (this == g.getHero()) {
-            g.gameOver();
-        }
+    protected void onDeath() {
+        Game g = Game.getInstance();
+        g.gameOver();
         g.repaint();
     }
 
@@ -960,17 +957,13 @@ public class Hero extends Mob {
     @Override
     public void draw(AbstractGamePanel panel, Graphics2D g2, int j, int i) {
         if (isAlive()) {
-            if (this == game.getHero()) {
-                panel.drawToCell(g2, panel.getImage("hero"), j, i);
-                paintColorBar(getHP() / getMaxHp(), new Color(0, 255, 0, 128), 0, j, i, g2);
-            }
+            panel.drawToCell(g2, panel.getImage("hero"), j, i);
+            paintColorBar(getHP() / getMaxHp(), new Color(0, 255, 0, 128), 0, j, i, g2);
             if (getMaxMp() > 0) {
                 paintColorBar(getMP() / getMaxMp(), new Color(0, 128, 255, 128), 1, j, i, g2);
             }
         } else { //if dead
-            if (this == game.getHero()) {
-                panel.drawToCell(g2, panel.getImage("rip"), j, i);
-            }
+            panel.drawToCell(g2, panel.getImage("rip"), j, i);
         }
     }
 
@@ -978,19 +971,18 @@ public class Hero extends Mob {
      * {@inheritDoc}
      */
     @Override
-    protected void moveTo(Point newLoc, Game g) {
-        super.moveTo(newLoc, g);
-        if (this == g.getHero()) {
-            Tile t = g.getMap().getTile(newLoc.x, newLoc.y);
-            switch (t.getItemsAmount()) {
-                case 1:
-                    Log.g("Здесь есть %s.", t.getItemList().get(0).getItem().getData().getName());
-                case 0:
-                    break;
-                default:
-                    Log.g("Здесь лежит много вещей.");
-                    break;
-            }
+    protected void moveTo(Point newLoc) {
+        super.moveTo(newLoc);
+
+        Tile t = Game.getInstance().getMap().getTile(newLoc.x, newLoc.y);
+        switch (t.getItemsAmount()) {
+            case 1:
+                Log.g("Здесь есть %s.", t.getItemList().get(0).getItem().getData().getName());
+            case 0:
+                break;
+            default:
+                Log.g("Здесь лежит много вещей.");
+                break;
         }
     }
 
@@ -998,13 +990,12 @@ public class Hero extends Mob {
      * Attacks hostile mob and gains experience from dealt damage
      *
      * @param newLoc there to go
-     * @param g      {@link Game} instance
      *
      * @return dealt damage
      */
     @Override
-    protected float moveAttack(Point newLoc, Game g) {
-        float damage = super.moveAttack(newLoc, g);
+    protected float moveAttack(Point newLoc) {
+        float damage = super.moveAttack(newLoc);
         gainXpFromDamage(damage);
         return damage;
     }

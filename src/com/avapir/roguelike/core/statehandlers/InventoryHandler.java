@@ -1,6 +1,5 @@
 package com.avapir.roguelike.core.statehandlers;
 
-import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.game.world.character.ClothingSlots;
 import com.avapir.roguelike.game.world.character.Hero;
 
@@ -30,10 +29,6 @@ public class InventoryHandler extends AbstractStateHandler {
         focusOnEquipment = !focusOnEquipment;
     }
 
-    public InventoryHandler(final Game g) {
-        super(g);
-    }
-
     @Override
     protected int checkRestoreX(final int x) {
         int limitRight = focusOnEquipment ? 2 : Hero.InventoryHandler.LINE;
@@ -42,14 +37,14 @@ public class InventoryHandler extends AbstractStateHandler {
 
     @Override
     protected int checkRestoreY(final int y) {
-        int limitDown = focusOnEquipment ? 3 : game.getHero().getInventory().getSize();
+        int limitDown = focusOnEquipment ? 3 : Hero.getInstance().getInventory().getSize();
         return y < 0 ? 0 : y > limitDown ? limitDown : y;
     }
 
     public Point press;
 
     public void press() {
-        Hero h = game.getHero();
+        Hero h = Hero.getInstance();
         if (!focusOnEquipment) {
             if (press == null) { //memorize
                 press = new Point(x, y);

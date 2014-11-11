@@ -8,8 +8,8 @@ public class ChangingStatsHandler extends AbstractStateHandler {
     private final int[] diff;
     private       int   freeDiff;
 
-    public ChangingStatsHandler(final Game g) {
-        super(g);
+    public ChangingStatsHandler() {
+        super();
         diff = new int[Hero.PrimaryStats.PRIMARY_STATS_AMOUNT];
     }
 
@@ -18,7 +18,7 @@ public class ChangingStatsHandler extends AbstractStateHandler {
     }
 
     private int free() {
-        return freeDiff + game.getHero().getStats().getFreeStats();
+        return freeDiff + Hero.getInstance().getStats().getFreeStats();
     }
 
     @Override
@@ -29,7 +29,7 @@ public class ChangingStatsHandler extends AbstractStateHandler {
             if (d != diff[y]) {
                 freeDiff--;
             }
-            game.repaint();
+            Game.getInstance().repaint();
         }
     }
 
@@ -40,12 +40,12 @@ public class ChangingStatsHandler extends AbstractStateHandler {
         if (d != diff[y]) {
             freeDiff++;
         }
-        game.repaint();
+        Game.getInstance().repaint();
     }
 
     @Override
     protected int checkRestoreX(final int x) {
-        final int stat = game.getHero().getStats().values(y);
+        final int stat = Hero.getInstance().getStats().values(y);
         if (x + stat == 301) {
             return x - 1;
         } else {
@@ -60,9 +60,9 @@ public class ChangingStatsHandler extends AbstractStateHandler {
 
     public void flush() {
         for (int i = 0; i < Hero.PrimaryStats.PRIMARY_STATS_AMOUNT; i++) {
-            game.getHero().getStats().changeStatBy(i, diff[i]);
+            Hero.getInstance().getStats().changeStatBy(i, diff[i]);
         }
-        game.getHero().getStats().changeFreeBy(freeDiff);
+        Hero.getInstance().getStats().changeFreeBy(freeDiff);
     }
 
     public int[] getDiff() {

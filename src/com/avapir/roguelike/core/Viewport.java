@@ -6,7 +6,6 @@ import java.awt.*;
 
 public class Viewport {
 
-    private Game  game;
     private Point currentLocation;
 
     public static int horizontalViewDistance() {
@@ -29,9 +28,8 @@ public class Viewport {
         currentLocation = new Point(x, y);
     }
 
-    public Viewport(Point screenCenter, Game game) {
+    public Viewport(Point screenCenter) {
         currentLocation = new Point(screenCenter.x, screenCenter.y);
-        this.game = game;
     }
 
     public int getX() {
@@ -60,12 +58,12 @@ public class Viewport {
     }
 
     private boolean goesOutOfHorizontal(int distX) {
-        int heroX = game.getHero().getLoc().x;
+        int heroX = Game.getInstance().getHero().getLoc().x;
         return Math.abs(heroX + distX - currentLocation.x) > horizontalBoxDistance();
     }
 
     private boolean goesOutOfVertical(int distY) {
-        int heroY = game.getHero().getLoc().y;
+        int heroY = Game.getInstance().getHero().getLoc().y;
         return Math.abs(heroY + distY - currentLocation.y) > verticalBoxDistance();
     }
 

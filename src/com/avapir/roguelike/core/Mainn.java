@@ -2,9 +2,8 @@ package com.avapir.roguelike.core;
 
 import java.util.Arrays;
 
-public class Main {
+public class Mainn {
 
-    public static final boolean BORG  = false;
     public static final String  TITLE = "MyRoguelike";
 
     /**
@@ -13,8 +12,8 @@ public class Main {
      * @param args console arguments
      */
     public static void main(final String[] args) {
-        final IGame game = new Game(TITLE + (args.length > 0 ? Arrays.toString(args) : ""));
-        game.init();
+        IGame game = Game.getInstance();
+        game.init(TITLE + (args.length > 0 ? Arrays.toString(args) : ""));
         game.start();
         game.done();
     }

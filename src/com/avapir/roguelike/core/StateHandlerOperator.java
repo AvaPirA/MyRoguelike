@@ -1,6 +1,5 @@
 package com.avapir.roguelike.core;
 
-import com.avapir.roguelike.core.controls.KeyboardHandler;
 import com.avapir.roguelike.core.statehandlers.ChangingStatsHandler;
 import com.avapir.roguelike.core.statehandlers.InventoryHandler;
 
@@ -14,8 +13,6 @@ import com.avapir.roguelike.core.statehandlers.InventoryHandler;
  */
 public interface StateHandlerOperator {
 
-    void setKeyboardHandler(KeyboardHandler keyboardHandler);
-
     /* Creators */
     void createStatsHandler();
 
@@ -26,8 +23,6 @@ public interface StateHandlerOperator {
     ChangingStatsHandler getStatsHandler();
 
     InventoryHandler getInventoryHandler();
-
-    KeyboardHandler getKeyboardHandler();
 
     /* Removers */
     void removeInventoryHandler();

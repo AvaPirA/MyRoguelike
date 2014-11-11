@@ -164,23 +164,21 @@ public class Mob extends Locatable implements Cloneable, Drawable {
      * Moves mob to new location
      *
      * @param newLoc
-     * @param g
      */
-    protected void moveTo(Point newLoc, Game g) {
-        g.getMap().putCharacter(this, newLoc.x, newLoc.y);
+    protected void moveTo(Point newLoc) {
+        Game.getInstance().getMap().putCharacter(this, newLoc.x, newLoc.y);
     }
 
     /**
      * Tries to move in specified direction
      *
      * @param dp where to try to go
-     * @param g  {@link Game} instance
      *
      * @return resulting move of player. If step was successful it will equal to {@code dp}. Otherwise it checks is it
      * restricted by rules (e.g. going into wall) or by some state (paralysed). Then method will return {@code null} or
      * {@code new Point(0,0)} respectively.
      */
-    public Point move(final Point dp, final Game g) {
+    public Point move(final Point dp) {
         if (dp.x == 0 && dp.y == 0) {
             return null;
         }
@@ -189,16 +187,16 @@ public class Mob extends Locatable implements Cloneable, Drawable {
         newLoc.translate(dp.x, dp.y);
 
 
-        Tile t = g.getMap().getTile(newLoc.x, newLoc.y);
+        Tile t = Game.getInstance().getMap().getTile(newLoc.x, newLoc.y);
         if (t != null) {
             if (t.getMob() != null) {
-                moveAttack(newLoc, g);
+                moveAttack(newLoc);
                 return new Point(0, 0);
             } else {
                 if (t.isPassable()) {
-                    moveTo(newLoc, g);
+                    moveTo(newLoc);
                     return dp;
-                } else if (t.isClosed() && this == g.getHero()) {
+                } else if (t.isClosed() && this == Hero.getInstance()) {
                     // g.TryToOpen(ny, nx, true);
                     return new Point(0, 0);
                 } else {
@@ -218,16 +216,15 @@ public class Mob extends Locatable implements Cloneable, Drawable {
      * Such way overkills are encouraged.
      *
      * @param newLoc there to go
-     * @param g      {@link Game} instance
      * @return amount of damage for which character will gain experience.
      */
-    protected float moveAttack(Point newLoc, Game g) {
-        final Mob defender = g.getMap().getTile(newLoc.x, newLoc.y).getMob();
-        if (defender != g.getHero() && this != g.getHero()) {
+    protected float moveAttack(Point newLoc) {
+        final Mob defender = Game.getInstance().getMap().getTile(newLoc.x, newLoc.y).getMob();
+        if (defender != Hero.getInstance() && this != Hero.getInstance()) {
             return 0;
         }
         float damage = Battle.computeDamage(getAttack(), defender.getArmor());
-        defender.dealDamage(damage, g);
+        defender.dealDamage(damage);
 
         Log.g("%s наносит %s урона по %s", this.getName(), damage, defender.getName());
         Log.g("У %s осталось %s здоровья", defender.getName(), AbstractGamePanel.roundOneDigit(defender.getHP()));
@@ -243,20 +240,19 @@ public class Mob extends Locatable implements Cloneable, Drawable {
      * Inflicts pure damage and checks if character is alive
      *
      * @param dmg inflicted damage
-     * @param g   {@link Game} instance
      */
-    private void dealDamage(final float dmg, final Game g) {
+    private void dealDamage(final float dmg) {
         HP -= dmg;
         if (!isAlive()) {
-            onDeath(g);
+            onDeath();
         }
     }
 
     /**
      * Applies some mob-specific things caused by death (important for e.g. bosses)
      */
-    protected void onDeath(final Game g) {
-        ai.onDeath(this, g);
+    protected void onDeath() {
+        ai.onDeath(this);
     }
 
     /**
@@ -290,8 +286,8 @@ public class Mob extends Locatable implements Cloneable, Drawable {
         return maxMP;
     }
 
-    public void doAI(final Game g) {
-        ai.computeAI(this, g);
+    public void doAI() {
+        ai.computeAI(this);
     }
 
     @Override

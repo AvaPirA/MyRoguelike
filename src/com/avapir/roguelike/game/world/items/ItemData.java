@@ -2,6 +2,7 @@ package com.avapir.roguelike.game.world.items;
 
 import com.avapir.roguelike.game.battle.Armor;
 import com.avapir.roguelike.game.battle.Attack;
+import com.sun.istack.internal.NotNull;
 
 public class ItemData implements Cloneable {
 
@@ -12,11 +13,11 @@ public class ItemData implements Cloneable {
     private final int    stackSize;
     private       String imageName;
 
-    private ItemData(String name, int weight, Attack attack, Armor armor, int stackSize) {
+    private ItemData(String name, int weight, @NotNull Attack attack, @NotNull Armor armor, int stackSize) {
         this.name = name;
         imageName = "item_".concat(name.toLowerCase().replace(' ', '_'));
-        this.attack = attack == null ? new Attack() : attack;
-        this.armor = armor == null ? new Armor() : armor;
+        this.attack = attack;
+        this.armor = armor;
         this.weight = weight;
         this.stackSize = stackSize;
 

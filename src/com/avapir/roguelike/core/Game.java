@@ -25,6 +25,14 @@ import java.util.List;
  */
 public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
+    private static final Game INSTANCE = new Game();
+
+    private Game() {};
+
+    public static Game getInstance() {
+        return INSTANCE;
+    }
+
     /**
      * States in which game may be present. Current state affects GUI and the availability of various functions
      *
@@ -85,7 +93,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     /**
      * Main window of the game. Here everything will be painted.
      */
-    private final GameWindow gameWindow = new GameWindow(this);
+    private final GameWindow gameWindow = new GameWindow();
 
     /**
      * List of the mobs on that map
@@ -117,16 +125,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     private InventoryHandler     inventoryHandler;
     private KeyboardHandler      keyboardHandler;
 
-    private final String title;
-
-    /**
-     * This is the only constructor for the game.
-     *
-     * @param title name of the game. It will be the title of window
-     */
-    public Game(final String title) {
-        this.title = title;
-    }
+    private String title;
 
     /**
      * Checks if provided {@link Point} is a proper "step" and if it is non-zero (distance > 0)
@@ -156,7 +155,6 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
 
     @Override
     public void start() {
-        Log.getInstance().connect(this);
         System.out.println("Uses Toolkit: " + System.getProperty("awt.toolkit"));
 
         gameWindow.setTitle(title);
@@ -165,16 +163,17 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     }
 
     @Override
-    public void init() {
+    public void init(String s) {
+        title = s;
     }
 
     @Override
     public void done() {
-        hero = new Hero("Hero", this);
+        hero = new Hero("Hero");
         state = GameState.MOVE;
         // TODO потом надо поставить подходящий конструктор для карты
         final int firstMapIndex = 0;
-        maps.add(firstMapIndex, new Map(this, 40, 40));
+        maps.add(firstMapIndex, new Map(40, 40));
         switchToMap(firstMapIndex);
         turnCounter = 0;
     }
@@ -202,12 +201,12 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
      */
     private void switchToMap(final int index) {
         if (maps.get(index) == null) {
-            currentMap = new Map(this, 40, 40);
+            currentMap = new Map(40, 40);
             maps.add(index, currentMap);
         } else {
             currentMap = maps.get(index);
         }
-        viewport = new Viewport(currentMap.putCharacter(hero), this);
+        viewport = new Viewport(currentMap.putCharacter(hero));
         placeMobsAndItems(index);
 
         final Point zeroStep = new Point(0, 0);
@@ -230,9 +229,9 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
      * Executes AI instructions for each Mob
      */
     private void doUnlimitedAiWorks() {
-        hero.doAI(this);
+        hero.doAI();
         for (Mob mob : mobs) {
-            mob.doAI(this);
+            mob.doAI();
         }
     }
 
@@ -314,21 +313,11 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     }
 
     @Override
-    public KeyboardHandler getKeyboardHandler() {
-        return keyboardHandler;
-    }
-
-    @Override
-    public void setKeyboardHandler(final KeyboardHandler keyboardHandler) {
-        this.keyboardHandler = keyboardHandler;
-    }
-
-    @Override
     public void createStatsHandler() {
         Log.g("_____________________");
         Log.g("Изменение характеристик:");
         Log.g("Свободных хар-к: %s", hero.getStats().getFreeStats());
-        changingStatsHandler = new ChangingStatsHandler(this);
+        changingStatsHandler = new ChangingStatsHandler();
     }
 
     @Override
@@ -353,7 +342,7 @@ public class Game implements StateHandlerOperator, IGame, IRoguelikeGame {
     public void createInventoryHandler() {
         Log.g("_____________________");
         Log.g("Открыт инвентарь!");
-        inventoryHandler = new InventoryHandler(this);
+        inventoryHandler = new InventoryHandler();
     }
 
     @Override

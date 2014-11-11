@@ -20,12 +20,11 @@ public abstract class AbstractAI {
     protected static final Random random = new Random();
 
     /**
-     * @param m
-     * @param g
      */
-    public abstract void computeAI(Mob m, Game g);
+    public abstract void computeAI(Mob m);
 
-    public void onDeath(final Mob mob, final Game g) {
+    public void onDeath(final Mob mob) {
+        Game g = Game.getInstance();
         g.getMap().removeCharacter(mob.getLoc());
         g.getMap().dropItems(getDrop(mob, g), mob.getLoc());
     }
