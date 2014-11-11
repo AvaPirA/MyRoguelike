@@ -22,7 +22,7 @@ import java.awt.*;
  * amount, attack and defence power and current location on the map. Also each mob (or more often -- each kind of mobs)
  * may have so behavior specified by implementation of {@link com.avapir.roguelike.game.world.character.ai.AbstractAI}
  */
-public class Mob implements Cloneable, Locatable, Drawable {
+public class Mob extends Locatable implements Cloneable, Drawable {
 
     protected final Attack     attack;
     protected final Armor      armor;
@@ -32,7 +32,6 @@ public class Mob implements Cloneable, Locatable, Drawable {
     protected       float      MP;
     protected       float      maxMP;
     protected       float      maxHP;
-    private         Point      location;
 
     protected Mob(String name) {
         this.name = name;
@@ -43,7 +42,6 @@ public class Mob implements Cloneable, Locatable, Drawable {
         MP = maxMP;
         attack = new Attack();
         armor = new Armor();
-        location = UNRESOLVED_LOCATION;
     }
 
     protected Mob(String name,
@@ -54,6 +52,7 @@ public class Mob implements Cloneable, Locatable, Drawable {
                   Point location,
                   Map map,
                   AbstractAI ai) {
+        super(location);
         this.name = name;
         this.maxHP = maxHP;
         this.maxMP = maxMP;
@@ -62,7 +61,6 @@ public class Mob implements Cloneable, Locatable, Drawable {
         this.attack = new Attack(attack);
         this.armor = new Armor(armor);
         this.ai = ai;
-        this.location = new Point(location);
 
         if (map != null && map.hasTile(location.x, location.y)) {
             map.putCharacter(this, location.x, location.y);
@@ -296,36 +294,9 @@ public class Mob implements Cloneable, Locatable, Drawable {
         ai.computeAI(this, g);
     }
 
-    @Deprecated
-    @Override
-    public int getX() {
-        return location.x;
-    }
-
-    @Deprecated
-    @Override
-    public int getY() {
-        return location.y;
-    }
-
-    @Override
-    public void setLocation(final int x, final int y) {
-        location.setLocation(x, y);
-    }
-
-    @Override
-    public void setLocation(final Point p) {
-        location.setLocation(p);
-    }
-
-    @Override
-    public Point getLoc() {
-        return location;
-    }
-
     @Override
     public String toString() {
-        return name + String.format(" (%s, %s)", location.x, location.y);
+        return name + String.format(" (%s, %s)", getLoc().x, getLoc().y);
     }
 
     @Override

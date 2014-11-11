@@ -6,7 +6,6 @@ import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.battle.Armor;
 import com.avapir.roguelike.game.battle.Attack;
-import com.avapir.roguelike.game.world.Locatable;
 import com.avapir.roguelike.game.world.items.DroppedItem;
 import com.avapir.roguelike.game.world.items.Item;
 import com.avapir.roguelike.game.world.map.Tile;
@@ -22,7 +21,7 @@ import java.util.Random;
  * this means that this mob has greater secondary stats, may drop some items and has greater secondary stats again.
  * Also it handles few cases for main hero (e.g. game must end if main hero is dead).
  */
-public class Hero extends Mob implements Locatable {
+public class Hero extends Mob {
 
     /** Amounts of XP needed to level up */
     private static final int[] XP_TO_LVL = {0, 68, 295, 805, 1716, 3154, 5249, 8136, 11955, 16851, 22978, 30475,
