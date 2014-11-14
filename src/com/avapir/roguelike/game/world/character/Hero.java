@@ -1,13 +1,14 @@
 package com.avapir.roguelike.game.world.character;
 
-import com.avapir.roguelike.core.Game;
-import com.avapir.roguelike.core.Game.GameState;
+import com.avapir.roguelike.core.GameStateManager;
+import com.avapir.roguelike.core.GameStateManager.GameState;
 import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.battle.Armor;
 import com.avapir.roguelike.game.battle.Attack;
 import com.avapir.roguelike.game.world.items.DroppedItem;
 import com.avapir.roguelike.game.world.items.Item;
+import com.avapir.roguelike.game.world.map.MapHolder;
 import com.avapir.roguelike.game.world.map.Tile;
 
 import java.awt.*;
@@ -23,12 +24,11 @@ import java.util.Random;
  */
 public class Hero extends Mob {
 
-    public static Hero getInstance() { return Game.getInstance().getHero();}
-
     /** Amounts of XP needed to level up */
     private static final int[] XP_TO_LVL = {0, 68, 295, 805, 1716, 3154, 5249, 8136, 11955, 16851, 22978, 30475,
             39516, 50261, 62876, 77537, 94421, 113712, 135596, 160266, 84495, 95074, 107905, 123472, 142427, 165669,
             194509, 231086, 279822, 374430, 209536, 248781, 296428, 354546, 425860, 514086, 624568, 765820, 954872};
+    private static       Hero  instance  = new Hero("Hero");
     /** {@link InventoryHandler} instance. Responsible for hero's items storage */
     private final InventoryHandler inventory;
     /** {@link EquipmentHandler} instance. Responsible for items that hero equipped */
@@ -161,9 +161,9 @@ public class Hero extends Mob {
 
         private static int getStat(final Hero h, final int i) {
             int STAT = h.getStats().values(i);
-            final GameState s = Game.getInstance().getState();
+            final GameState s = GameStateManager.getInstance().getState();
             if (s == GameState.CHANGE_STATS) {
-                STAT += Game.getInstance().getStatsHandler().getDiff()[i];
+                STAT += GameStateManager.getInstance().getStatsHandler().getDiff()[i];
             }
             return STAT;
         }
@@ -646,7 +646,7 @@ public class Hero extends Mob {
 
         /**
          * Returns amount of lines in inventory available for storing smth.
-         * <p/>
+         * <p>
          * By default it's 3. Further in game player will be able to get additional lines by some vendor NPC or by some
          * quest.
          *
@@ -813,6 +813,8 @@ public class Hero extends Mob {
 
     }
 
+    public static Hero getInstance() { return instance;}
+
     public EquipmentHandler getEquipment() {
         return equipment;
     }
@@ -889,7 +891,7 @@ public class Hero extends Mob {
      * Puts items from tile on which hero stands to inventory (while it has free space)
      */
     public void pickUpItems() {
-        List<DroppedItem> items = Game.getInstance().getMap().getTile(getLoc().x, getLoc().y).getItemList();
+        List<DroppedItem> items = MapHolder.getInstance().getTile(getLoc().x, getLoc().y).getItemList();
         Iterator<DroppedItem> iter = items.iterator();
         try {
             while (iter.hasNext()) {
@@ -907,7 +909,7 @@ public class Hero extends Mob {
      */
     @Override
     protected void onDeath() {
-        Game g = Game.getInstance();
+        GameStateManager g = GameStateManager.getInstance();
         g.gameOver();
         g.repaint();
     }
@@ -974,7 +976,7 @@ public class Hero extends Mob {
     protected void moveTo(Point newLoc) {
         super.moveTo(newLoc);
 
-        Tile t = Game.getInstance().getMap().getTile(newLoc.x, newLoc.y);
+        Tile t = MapHolder.getInstance().getTile(newLoc.x, newLoc.y);
         switch (t.getItemsAmount()) {
             case 1:
                 Log.g("Здесь есть %s.", t.getItemList().get(0).getItem().getData().getName());

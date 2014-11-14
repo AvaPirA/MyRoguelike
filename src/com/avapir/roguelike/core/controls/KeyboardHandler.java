@@ -1,8 +1,9 @@
 package com.avapir.roguelike.core.controls;
 
-import com.avapir.roguelike.core.Game;
-import com.avapir.roguelike.core.Game.GameState;
+import com.avapir.roguelike.core.GameStateManager;
+import com.avapir.roguelike.core.GameStateManager.GameState;
 import com.avapir.roguelike.core.Log;
+import com.avapir.roguelike.core.Viewport;
 import com.avapir.roguelike.core.statehandlers.StateHandler;
 import com.avapir.roguelike.game.world.character.Hero;
 import com.avapir.roguelike.game.world.map.Tile;
@@ -25,7 +26,7 @@ public class KeyboardHandler extends KeyAdapter {
 
     @Override
     public void keyTyped(final KeyEvent e) {
-        switch (Game.getInstance().getState()) {
+        switch (GameStateManager.getInstance().getState()) {
             case MOVE:
                 moveType(e);
                 break;
@@ -47,7 +48,7 @@ public class KeyboardHandler extends KeyAdapter {
             default:
                 throw new IllegalStateException("Wrong game state");
         }
-        Game.getInstance().repaint();
+        GameStateManager.getInstance().repaint();
     }
 
     @Override
@@ -55,7 +56,7 @@ public class KeyboardHandler extends KeyAdapter {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             System.exit(0);
         }
-        switch (Game.getInstance().getState()) {
+        switch (GameStateManager.getInstance().getState()) {
             case MOVE:
                 movePress(e);
                 break;
@@ -75,57 +76,57 @@ public class KeyboardHandler extends KeyAdapter {
                 inventoryPress(e);
                 break;
             default:
-                throw new IllegalStateException("Wrong game state: " + Game.getInstance().getState());
+                throw new IllegalStateException("Wrong game state: " + GameStateManager.getInstance().getState());
         }
     }
 
     private void moveType(final KeyEvent e) {
-        Game game = Game.getInstance();
+        GameStateManager gsm = GameStateManager.getInstance();
         switch (e.getKeyChar()) {
             case 'i':
-                game.setState(GameState.INVENTORY);
-                game.createInventoryHandler();
+                gsm.setState(GameState.INVENTORY);
+                gsm.createInventoryHandler();
                 break;
             case 'd':
-                game.setState(GameState.DISTANCE_ATTACK);
+                gsm.setState(GameState.DISTANCE_ATTACK);
                 break;
             case 'v':
-                game.setState(GameState.VIEW);
+                gsm.setState(GameState.VIEW);
                 break;
             case 'c':
-                game.setState(GameState.CHANGE_STATS);
-                game.createStatsHandler();
+                gsm.setState(GameState.CHANGE_STATS);
+                gsm.createStatsHandler();
                 break;
         }
     }
 
     private void inventoryType(final KeyEvent e) {
-        Game game = Game.getInstance();
+        GameStateManager gsm = GameStateManager.getInstance();
         switch (e.getKeyChar()) {
             case 'e':
-                game.getInventoryHandler().equip();
+                gsm.getInventoryHandler().equip();
                 break;
             case 'i':
-                game.removeInventoryHandler();
-                game.setState(GameState.MOVE);
+                gsm.removeInventoryHandler();
+                gsm.setState(GameState.MOVE);
         }
     }
 
     private void inventoryPress(final KeyEvent e) {
-        Game game = Game.getInstance();
+        GameStateManager gsm = GameStateManager.getInstance();
         switch (e.getKeyCode()) {
             case KeyEvent.VK_S:
                 Log.g("Курсон переключен");
-                game.getInventoryHandler().changeFocus();
+                gsm.getInventoryHandler().changeFocus();
                 break;
             case KeyEvent.VK_ENTER:
                 if (e.isShiftDown()) {
                     //ask about amount
                 }
-                game.getInventoryHandler().press();
+                gsm.getInventoryHandler().press();
                 break;
             default:
-                stateArrowsHandler(e.getKeyCode(), game.getInventoryHandler());
+                stateArrowsHandler(e.getKeyCode(), gsm.getInventoryHandler());
         }
     }
 
@@ -142,16 +143,16 @@ public class KeyboardHandler extends KeyAdapter {
     }
 
     private void changeStatsType(final KeyEvent e) {
-        Game game = Game.getInstance();
+        GameStateManager gsm = GameStateManager.getInstance();
         switch (e.getKeyChar()) {
             case 'c':
-                game.removeStatsHandler();
-                game.setState(GameState.MOVE);
+                gsm.removeStatsHandler();
+                gsm.setState(GameState.MOVE);
         }
     }
 
     private void changeStatsPress(final KeyEvent e) {
-        stateArrowsHandler(e.getKeyCode(), Game.getInstance().getStatsHandler());
+        stateArrowsHandler(e.getKeyCode(), GameStateManager.getInstance().getStatsHandler());
     }
 
     private void viewType(final KeyEvent e) {
@@ -201,14 +202,14 @@ public class KeyboardHandler extends KeyAdapter {
                 playerMove = new Point(0, 0);
                 break;
             case KeyEvent.VK_EQUALS:
-                Game.zoomIn();
-                Game.getInstance().resetViewport();
+                GameStateManager.zoomIn();
+                Viewport.getInstance().reset();
                 Log.g("New zoom: %s%%", 100 * Tile.SIZE_px / 32f);
                 return;
             case KeyEvent.VK_MINUS:
                 if (Tile.SIZE_px > 1) {
-                    Game.zoomOut();
-                    Game.getInstance().resetViewport();
+                    GameStateManager.zoomOut();
+                    Viewport.getInstance().reset();
                     Log.g("New zoom: %s%%", 100 * Tile.SIZE_px / 32f);
                 }
                 return;
@@ -222,9 +223,9 @@ public class KeyboardHandler extends KeyAdapter {
 
     void move(final Point p) {
         if (target == null) {
-            final Point resultMove = Game.getInstance().getHero().move(p);
+            final Point resultMove = Hero.getInstance().move(p);
             if (resultMove != null) {
-                Game.getInstance().EOT(resultMove);
+                GameStateManager.getInstance().EOT(resultMove);
             }
         }
     }

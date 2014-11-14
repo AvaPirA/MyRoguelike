@@ -1,6 +1,6 @@
 package com.avapir.roguelike.core.statehandlers;
 
-import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.core.GameStateManager;
 import com.avapir.roguelike.game.world.character.Hero;
 
 public class ChangingStatsHandler extends AbstractStateHandler {
@@ -29,7 +29,7 @@ public class ChangingStatsHandler extends AbstractStateHandler {
             if (d != diff[y]) {
                 freeDiff--;
             }
-            Game.getInstance().repaint();
+            GameStateManager.getInstance().repaint();
         }
     }
 
@@ -40,7 +40,7 @@ public class ChangingStatsHandler extends AbstractStateHandler {
         if (d != diff[y]) {
             freeDiff++;
         }
-        Game.getInstance().repaint();
+        GameStateManager.getInstance().repaint();
     }
 
     @Override

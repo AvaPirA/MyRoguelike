@@ -1,7 +1,6 @@
 package com.avapir.roguelike.game.world.character;
 
 import com.avapir.roguelike.core.Drawable;
-import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.core.gui.GamePanel;
@@ -12,10 +11,13 @@ import com.avapir.roguelike.game.world.Locatable;
 import com.avapir.roguelike.game.world.character.ai.AbstractAI;
 import com.avapir.roguelike.game.world.character.ai.IdleAI;
 import com.avapir.roguelike.game.world.character.ai.SlimeAI;
+import com.avapir.roguelike.game.world.items.Item;
 import com.avapir.roguelike.game.world.map.Map;
+import com.avapir.roguelike.game.world.map.MapHolder;
 import com.avapir.roguelike.game.world.map.Tile;
 
 import java.awt.*;
+import java.util.List;
 
 /**
  * This class represents any actor in the game. Each mob has default stats such as name, max or current HP and MP
@@ -166,7 +168,7 @@ public class Mob extends Locatable implements Cloneable, Drawable {
      * @param newLoc
      */
     protected void moveTo(Point newLoc) {
-        Game.getInstance().getMap().putCharacter(this, newLoc.x, newLoc.y);
+        MapHolder.getInstance().putCharacter(this, newLoc.x, newLoc.y);
     }
 
     /**
@@ -186,8 +188,7 @@ public class Mob extends Locatable implements Cloneable, Drawable {
         Point newLoc = new Point(getLoc());
         newLoc.translate(dp.x, dp.y);
 
-
-        Tile t = Game.getInstance().getMap().getTile(newLoc.x, newLoc.y);
+        Tile t = MapHolder.getInstance().getTile(newLoc.x, newLoc.y);
         if (t != null) {
             if (t.getMob() != null) {
                 moveAttack(newLoc);
@@ -211,15 +212,17 @@ public class Mob extends Locatable implements Cloneable, Drawable {
     /**
      * Character tried to go to {@code newLoc} but there is some hostile. Also method returns exp-valued damage
      * amount. For usual hit it equals to dealt damage, but not when defender was killed. All overdealt damage will
-     * be plused to "exp-valued damage" twice. <p>E.g.: defender "D" had 10HP and attacker "A" dealt 25 damage. Then "A"
+     * be plused to "exp-valued damage" twice. <p>E.g.: defender "D" had 10HP and attacker "A" dealt 25 damage. Then
+     * "A"
      * will gain 10 exp for "D"`s 10HP and (25-10)*2 exp for not hurted but dealt damage. Summary it's 40 exp. </p>
      * Such way overkills are encouraged.
      *
      * @param newLoc there to go
+     *
      * @return amount of damage for which character will gain experience.
      */
     protected float moveAttack(Point newLoc) {
-        final Mob defender = Game.getInstance().getMap().getTile(newLoc.x, newLoc.y).getMob();
+        final Mob defender = MapHolder.getInstance().getTile(newLoc.x, newLoc.y).getMob();
         if (defender != Hero.getInstance() && this != Hero.getInstance()) {
             return 0;
         }
@@ -252,7 +255,7 @@ public class Mob extends Locatable implements Cloneable, Drawable {
      * Applies some mob-specific things caused by death (important for e.g. bosses)
      */
     protected void onDeath() {
-        ai.onDeath(this);
+        ai.mustDie(this);
     }
 
     /**
@@ -296,7 +299,7 @@ public class Mob extends Locatable implements Cloneable, Drawable {
     }
 
     @Override
-    public Object clone() {
+    public Object clone() throws CloneNotSupportedException {
         try {
             Mob mob = (Mob) super.clone();
             mob.attack.replaceBy(attack);
@@ -325,12 +328,12 @@ public class Mob extends Locatable implements Cloneable, Drawable {
      * Paints colored bar for some stat of character above him. Usually used for HP\MP. That method receives only
      * percentage value of stat (float value of {@code currentValue/maxValue}).
      *
-     * @param value percents of tile which wil be filled twice
+     * @param value            percents of tile which wil be filled twice
      * @param transparentColor color which will be used
-     * @param line number of line painting already. Usually it's 0 for HP and 1 for MP
-     * @param j horizontal coordinate of tile
-     * @param i vertical coordinate of tile
-     * @param g2 {@link Graphics2D} instance
+     * @param line             number of line painting already. Usually it's 0 for HP and 1 for MP
+     * @param j                horizontal coordinate of tile
+     * @param i                vertical coordinate of tile
+     * @param g2               {@link Graphics2D} instance
      */
     protected void paintColorBar(final float value,
                                  final Color transparentColor,
@@ -348,6 +351,10 @@ public class Mob extends Locatable implements Cloneable, Drawable {
 
         g2.fillRect(x, y, Tile.SIZE_px, GamePanel.STAT_BAR_HEIGHT_PX);
         g2.fillRect(x, y, (int) (value * Tile.SIZE_px), GamePanel.STAT_BAR_HEIGHT_PX);
+    }
+
+    public List<Item> getDrop() {
+        return ai.getDrop();
     }
 
 }

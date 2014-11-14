@@ -1,8 +1,8 @@
 package com.avapir.roguelike.game.world.character.ai;
 
-import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.game.world.character.Mob;
 import com.avapir.roguelike.game.world.items.Item;
+import com.avapir.roguelike.game.world.map.MapHolder;
 
 import java.awt.*;
 import java.util.Collections;
@@ -23,13 +23,11 @@ public abstract class AbstractAI {
      */
     public abstract void computeAI(Mob m);
 
-    public void onDeath(final Mob mob) {
-        Game g = Game.getInstance();
-        g.getMap().removeCharacter(mob.getLoc());
-        g.getMap().dropItems(getDrop(mob, g), mob.getLoc());
+    public void mustDie(final Mob mob) {
+        MapHolder.getInstance().kill(mob);
     }
 
-    List<Item> getDrop(final Mob mob, final Game g) {
+    public List<Item> getDrop() {
         //TODO drop
         return Collections.emptyList();
     }

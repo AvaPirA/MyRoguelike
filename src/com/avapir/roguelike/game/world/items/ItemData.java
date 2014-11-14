@@ -109,7 +109,7 @@ public class ItemData implements Cloneable {
     }
 
     @Override
-    public Object clone() {
+    public Object clone() throws CloneNotSupportedException {
         try {
             Item item = (Item) super.clone();
             //all fields are final and none of them will be changed in the item`s lifetime, so deep clone if not proper

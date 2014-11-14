@@ -7,44 +7,47 @@ import java.io.Serializable;
 import java.util.LinkedList;
 
 public class Log implements Serializable, Drawable {
-    private static final long serialVersionUID = 1L;
+    static final         Font   logFont            = new Font("Times New Roman", Font.PLAIN, 15);
+    private static final long   serialVersionUID   = 1L;
+    /**
+     * {@link java.util.Formatter}-string for logging in {@link #g(String)}
+     */
+    private static final String FMT_GAME           = "[%d:%d] %s";
+    /**
+     * {@link java.util.Formatter}-string for logging in {@link #g(String)}
+     */
+    private static final String FMT_GAME_FORMATTED = "[%d:%d] ";
+    private static       Log    instance           = new Log();
+    /**
+     * How much records will remain after end of turn
+     */
+    private static       int    REMAIN_RECORDS     = 15;
+    /**
+     * How many records were made ​​from the beginning of turn
+     */
+    private transient int perTurn;
+    /**
+     * Storage of records
+     */
+    private LinkedList<String> loggedList = new LinkedList<>();
+    /**
+     * Stores number of turn of last send/received record
+     */
+    private int                turn       = -1;
 
-    private static Log instance = new Log();
+    private Log() {
+    }
 
     public static Log getInstance() {
         return instance;
     }
 
-    private Log() {
-    }
-
-    /**
-     * How much records will remain after end of turn
-     */
-    private static int REMAIN_RECORDS = 15;
-
-    /**
-     * {@link java.util.Formatter}-string for logging in {@link #g(String)}
-     */
-    private static final String FMT_GAME = "[%d:%d] %s";
-
-    /**
-     * {@link java.util.Formatter}-string for logging in {@link #g(String)}
-     */
-    private static final String FMT_GAME_FORMATTED = "[%d:%d] ";
-
-    /**
-     * How many records were made ​​from the beginning of turn
-     */
-    private transient int perTurn;
-
-    /**
-     * Storage of records
-     */
-    private LinkedList<String> loggedList = new LinkedList<>();
-
     public static void g(final String s) {
         Log.getInstance().game(s);
+    }
+
+    public static void g(final String s, final Object... params) {
+        Log.getInstance().game(s, params);
     }
 
     /**
@@ -57,10 +60,6 @@ public class Log implements Serializable, Drawable {
         loggedList.add(formatted);
         System.out.println(formatted);
         removePreviousTurnRecord();
-    }
-
-    public static void g(final String s, final Object... params) {
-        Log.getInstance().game(s, params);
     }
 
     /**
@@ -84,17 +83,12 @@ public class Log implements Serializable, Drawable {
     }
 
     /**
-     * Stores number of turn of last send/received record
-     */
-    private int turn = -1;
-
-    /**
      * Retrieves number of current game turn and invokes {@link #refresh()} if it's not equal to {@link Log#turn}
      *
-     * @return {@link com.avapir.roguelike.core.Game#getTurnCounter()}
+     * @return {@link GameStateManager#getTurnCounter()}
      */
     private int getTurnAndCheck() {
-        int currentTurn = Game.getInstance().getTurnCounter();
+        int currentTurn = GameStateManager.getInstance().getTurnCounter();
         if (turn != currentTurn) {
             refresh();
             turn = currentTurn;
@@ -140,8 +134,6 @@ public class Log implements Serializable, Drawable {
     public String get(int i) {
         return loggedList.get(i);
     }
-
-    static final Font logFont = new Font("Times New Roman", Font.PLAIN, 15);
 
     @Override
     public void draw(AbstractGamePanel panel, Graphics2D g2, int x, int y) {

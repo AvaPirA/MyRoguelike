@@ -6,7 +6,7 @@ package com.avapir.roguelike.game.fov;
  *
  * @author sdatta
  */
-public interface ILosMap {
+public interface LosMap {
 
     /**
      * Is the location (x, y) inside the board ?

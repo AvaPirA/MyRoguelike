@@ -1,17 +1,15 @@
 package com.avapir.roguelike.game.world.map;
 
-import com.avapir.roguelike.core.Game;
 import com.avapir.roguelike.game.fov.IFovAlgorithm;
-import com.avapir.roguelike.game.fov.ILosMap;
 import com.avapir.roguelike.game.fov.PermissiveFOV;
+import com.avapir.roguelike.game.world.character.Hero;
 import com.avapir.roguelike.game.world.character.Mob;
 import com.avapir.roguelike.game.world.items.DroppedItem;
 import com.avapir.roguelike.game.world.items.Item;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Map is the representation of some terrain there player can stroll and do something. In typical roguelike game all
@@ -23,48 +21,54 @@ import java.util.Random;
  * @see com.avapir.roguelike.game.world.map.Tile
  * @since 0.0.1
  */
-public class Map implements ILosMap {
+public class Map implements GameMap {
 
     private static final Random random = new Random();
 
     /**
      * Default map height
      */
-    private static final int          DFT_HEIGHT = 100;
+    private static final int           DFT_HEIGHT    = 100;
     /**
      * Default map width
      */
-    private static final int          DFT_WIDTH  = 100;
+    private static final int           DFT_WIDTH     = 100;
     /**
      * Default delta-percents value.
      */
-    private static final int          DFT_DELTA  = 20;
+    private static final int           DFT_DELTA     = 20;
     /**
      * Instance of generator for random maps
      */
-    private static final MapGenerator generator  = new MapGenerator();
+    private static final MapGenerator  generator     = new MapGenerator();
     /**
      * Some {@link com.avapir.roguelike.game.fov.IFovAlgorithm} implementation
      */
-    private final IFovAlgorithm permissiveFov = new PermissiveFOV();
+    private final        IFovAlgorithm permissiveFov = new PermissiveFOV();
     /**
      * Computed from default actual map height
      */
-    private final int      HEIGHT_MAP;
+    private final int       HEIGHT_MAP;
     /**
      * Computed from default actual map width
      */
-    private final int      WIDTH_MAP;
+    private final int       WIDTH_MAP;
     /**
      * Storage of tiles
      *
      * @see com.avapir.roguelike.game.world.map.Tile
      */
-    private final Tile[][] field;
+    private final Tile[][]  field;
     /**
      * Title of the map
      */
-    private final String   title;
+    private final String    title;
+    /**
+     * List of the mobs on this map
+     */
+    //todo move to Map.java
+    private final List<Mob> mobs;
+
 
     /**
      * Creates empty map with specified dimensions
@@ -78,13 +82,13 @@ public class Map implements ILosMap {
         WIDTH_MAP = width;
         field = new Tile[height][width];
         title = "untitled";
+        mobs = new LinkedList<>();
         generator.generateEmpty(this);
     }
 
     /**
-     * Create some game map mapped to provided {@link com.avapir.roguelike.core.Game} instance. Dimensions of the map
-     * will be chosen from addition of default value with some random delta-value
-     *
+     * Create some game map. Dimensions of the map will be chosen from addition of default value with some random
+     * delta-value
      */
     public Map() {
         final int deltaHeight = DFT_HEIGHT * DFT_DELTA / 100;
@@ -93,6 +97,7 @@ public class Map implements ILosMap {
         WIDTH_MAP = DFT_WIDTH + random.nextInt(2 * deltaWidth) - deltaWidth;
         field = new Tile[HEIGHT_MAP][WIDTH_MAP];
         title = "untitled";
+        mobs = new ArrayList<>();
         generator.generate(this);
     }
 
@@ -105,6 +110,23 @@ public class Map implements ILosMap {
             for (int i = 0; i < map.WIDTH_MAP; i++) {
                 for (int j = 0; j < map.HEIGHT_MAP; j++) {
                     map.field[j][i] = new Tile(Tile.Type.GRASS);
+                }
+            }
+        }
+
+        void generate(final Map map, final Properties props) {
+
+        }
+
+        void placeMobsAndItems(final Map map, final int scaler) {
+            int i = scaler;
+            for (int x = 0; x < map.getWidth(); x++) {
+                for (int y = 0; y < map.getHeight(); y++) {
+                    if (i > 0) {
+                        map.mobs.add(Mob.MobSet.getSlime());
+                        map.putCharacter(map.mobs.get(map.mobs.size() - 1), x, y);
+                        i--;
+                    }
                 }
             }
         }
@@ -212,8 +234,10 @@ public class Map implements ILosMap {
      *
      * @return removed {@link com.avapir.roguelike.game.world.character.Mob}
      */
-    public Mob removeCharacter(final Point p) {
-        return Game.getInstance().removeMob(field[p.y][p.x].removeCharacter());
+    public Mob removeMob(final Point p) {
+        Mob tmp = field[p.y][p.x].removeCharacter();
+        mobs.remove(tmp);
+        return tmp;
     }
 
     /**
@@ -288,4 +312,42 @@ public class Map implements ILosMap {
         return getTile(x, y).isVisible();
     }
 
+    /**
+     * Killed mob will be removed from map and will put some drop on his tile
+     *
+     * @param mob mob which was killed
+     */
+    @Override
+    public void kill(Mob mob) {
+        removeMob(mob.getLoc());
+        dropItems(mob.getDrop(), mob.getLoc());
+    }
+
+    @Override
+    public List<Mob> getMobs() {
+        return mobs;
+    }
+
+    @Override
+    public void removeAllMobs() {
+        // cant use foreach loop cause of concurrent work
+        while (mobs.size() > 0) {
+            removeMob(mobs.get(0).getLoc());
+        }
+    }
+
+    @Override
+    public void killAllMobs() {
+        for (Mob m : mobs) {
+            kill(m);
+        }
+    }
+
+    @Override
+    public void doMobsAi() {
+        Hero.getInstance().doAI();
+        for (Mob mob : mobs) {
+            mob.doAI();
+        }
+    }
 }

@@ -19,6 +19,6 @@ public interface IFovAlgorithm {
      * @param b        The target board
      * @param distance How far can this Field of View go
      */
-    public void visitFieldOfView(ILosMap b, Point p, int distance);
+    public void visitFieldOfView(LosMap b, Point p, int distance);
 
 }

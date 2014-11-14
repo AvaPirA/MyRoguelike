@@ -19,11 +19,11 @@ public class PermissiveFOV implements IFovAlgorithm {
          * Do not interact with the members directly. Use the provided
          * functions.
          */ int north;
-        int     south;
-        int     east;
-        int     west;
-        int     distPlusOneSq;
-        ILosMap board;
+        int    south;
+        int    east;
+        int    west;
+        int    distPlusOneSq;
+        LosMap board;
     }
 
     // class offsetT
@@ -51,7 +51,7 @@ public class PermissiveFOV implements IFovAlgorithm {
         Point2I         quadrant;
         Point2I         extent;
         int             quadrantIndex;
-        ILosMap         board;
+        LosMap          board;
     }
 
     private class bumpT {
@@ -72,8 +72,8 @@ public class PermissiveFOV implements IFovAlgorithm {
 
         public fieldT(final fieldT f) {
             steep = new Line2I(new Point2I(f.steep.near.x, f.steep.near.y), new Point2I(f.steep.far.x, f.steep.far.y));
-            shallow = new Line2I(new Point2I(f.shallow.near.x, f.shallow.near.y), new Point2I(f.shallow.far.x,
-                                                                                              f.shallow.far.y));
+            shallow = new Line2I(new Point2I(f.shallow.near.x, f.shallow.near.y),
+                                 new Point2I(f.shallow.far.x, f.shallow.far.y));
             steepBump = f.steepBump;
             shallowBump = f.shallowBump;
         }
@@ -265,8 +265,8 @@ public class PermissiveFOV implements IFovAlgorithm {
     }
 
     private boolean actIsBlocked(final fovStateT state, final Point2I pos) {
-        final Point2I adjustedPos = new Point2I(
-                pos.x * state.quadrant.x + state.source.x, pos.y * state.quadrant.y + state.source.y);
+        final Point2I adjustedPos = new Point2I(pos.x * state.quadrant.x + state.source.x,
+                                                pos.y * state.quadrant.y + state.source.y);
 
         if (!state.board.hasTile(adjustedPos.x, adjustedPos.y)) {
             return false;// we are getting
@@ -323,8 +323,8 @@ public class PermissiveFOV implements IFovAlgorithm {
         final int quadrantCount = 4;
         final Point2I quadrants[] = {new Point2I(1, 1), new Point2I(-1, 1), new Point2I(-1, -1), new Point2I(1, -1)};
 
-        final Point2I extents[] = {new Point2I(mask.east, mask.north), new Point2I(mask.west, mask.north),
-                new Point2I(mask.west, mask.south), new Point2I(mask.east, mask.south)};
+        final Point2I extents[] = {new Point2I(mask.east, mask.north), new Point2I(mask.west, mask.north), new Point2I(
+                mask.west, mask.south), new Point2I(mask.east, mask.south)};
         int quadrantIndex = 0;
         for (; quadrantIndex < quadrantCount; ++quadrantIndex) {
             state.quadrant = quadrants[quadrantIndex];
@@ -343,7 +343,7 @@ public class PermissiveFOV implements IFovAlgorithm {
     }
 
     @Override
-    public void visitFieldOfView(final ILosMap b, final Point p, final int distance) {
+    public void visitFieldOfView(final LosMap b, final Point p, final int distance) {
         final permissiveMaskT mask = new permissiveMaskT();
         mask.east = mask.north = mask.south = mask.west = distance;
         mask.distPlusOneSq = (distance + 1) * (distance + 1);

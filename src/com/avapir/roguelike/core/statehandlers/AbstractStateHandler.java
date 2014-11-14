@@ -1,13 +1,13 @@
 package com.avapir.roguelike.core.statehandlers;
 
-import com.avapir.roguelike.core.Game;
+import com.avapir.roguelike.core.GameStateManager;
 
 import java.awt.*;
 
 public abstract class AbstractStateHandler implements StateHandler {
 
-    protected int  y;
-    protected int  x;
+    protected int y;
+    protected int x;
 
 
     protected abstract int checkRestoreX(int x);
@@ -18,28 +18,28 @@ public abstract class AbstractStateHandler implements StateHandler {
     public final void pressDown() {
         y++;
         y = checkRestoreY(y);
-        Game.getInstance().repaint();
+        GameStateManager.getInstance().repaint();
     }
 
     @Override
     public final void pressUp() {
         y--;
         y = checkRestoreY(y);
-        Game.getInstance().repaint();
+        GameStateManager.getInstance().repaint();
     }
 
     @Override
     public void pressLeft() {
         x--;
         x = checkRestoreX(x);
-        Game.getInstance().repaint();
+        GameStateManager.getInstance().repaint();
     }
 
     @Override
     public void pressRight() {
         x++;
         x = checkRestoreX(x);
-        Game.getInstance().repaint();
+        GameStateManager.getInstance().repaint();
     }
 
     @Override
