@@ -12,13 +12,13 @@ public enum ClothingSlots {
         return fromInt(y * 10 + x);
     }
 
-    public static final ClothingSlots fromInt(int i) {
+    public static ClothingSlots fromInt(int i) {
         switch (i) {
-            case 00:
+            case 0:
                 return ARTEFACT_1;
-            case 01:
+            case 1:
                 return HELMET;
-            case 02:
+            case 2:
                 return ARTEFACT_2;
             case 10:
                 return NECKLACE;

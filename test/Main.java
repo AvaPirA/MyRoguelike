@@ -9,14 +9,10 @@ import java.util.Scanner;
  */
 public class Main {
     public static class BinaryHeap {
-        private List<Integer> heap;
+        private final List<Integer> heap;
 
-        private int get(int index) {
-            if (index < heap.size()) {
-                return heap.get(index);
-            } else {
-                return Integer.MIN_VALUE;
-            }
+        public BinaryHeap() {
+            heap = new ArrayList<>();
         }
 
         private static int leftChild(int i) {
@@ -31,8 +27,12 @@ public class Main {
             return (i - 1) / 2;
         }
 
-        public BinaryHeap() {
-            heap = new ArrayList<>();
+        private int get(int index) {
+            if (index < heap.size()) {
+                return heap.get(index);
+            } else {
+                return Integer.MIN_VALUE;
+            }
         }
 
         private boolean needToEmerge(int from) {

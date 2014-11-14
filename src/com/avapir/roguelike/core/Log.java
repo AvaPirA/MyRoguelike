@@ -7,33 +7,33 @@ import java.io.Serializable;
 import java.util.LinkedList;
 
 public class Log implements Serializable, Drawable {
-    static final         Font   logFont            = new Font("Times New Roman", Font.PLAIN, 15);
-    private static final long   serialVersionUID   = 1L;
+    private static final Font               logFont            = new Font("Times New Roman", Font.PLAIN, 15);
+    private static final long               serialVersionUID   = 1L;
     /**
      * {@link java.util.Formatter}-string for logging in {@link #g(String)}
      */
-    private static final String FMT_GAME           = "[%d:%d] %s";
+    private static final String             FMT_GAME           = "[%d:%d] %s";
     /**
      * {@link java.util.Formatter}-string for logging in {@link #g(String)}
      */
-    private static final String FMT_GAME_FORMATTED = "[%d:%d] ";
-    private static       Log    instance           = new Log();
+    private static final String             FMT_GAME_FORMATTED = "[%d:%d] ";
+    private static final Log                instance           = new Log();
     /**
      * How much records will remain after end of turn
      */
-    private static       int    REMAIN_RECORDS     = 15;
+    private static       int                REMAIN_RECORDS     = 15;
+    /**
+     * Storage of records
+     */
+    private final        LinkedList<String> loggedList         = new LinkedList<>();
     /**
      * How many records were made ​​from the beginning of turn
      */
     private transient int perTurn;
     /**
-     * Storage of records
-     */
-    private LinkedList<String> loggedList = new LinkedList<>();
-    /**
      * Stores number of turn of last send/received record
      */
-    private int                turn       = -1;
+    private int turn = -1;
 
     private Log() {
     }

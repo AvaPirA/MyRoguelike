@@ -11,7 +11,7 @@ import com.avapir.roguelike.core.statehandlers.InventoryHandler;
  * @author Alpen Ditrix
  * @since 0.0.1
  */
-public interface StateHandlerOperator {
+interface StateHandlerOperator {
 
     /* Creators */
     void createStatsHandler();

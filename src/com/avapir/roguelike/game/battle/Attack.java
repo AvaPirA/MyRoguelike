@@ -28,6 +28,13 @@ public class Attack implements Cloneable {
 //
 //    }
 
+    public static Attack sum(Attack a1, Attack a2) {
+        Attack a = new Attack();
+        a.addAttack(a1);
+        a.addAttack(a2);
+        return a;
+    }
+
     public Attack addDamage(final float[] damages) {
         if (damages.length > TOTAL_DMG_TYPES) {
             throw new IllegalArgumentException();
@@ -84,7 +91,7 @@ public class Attack implements Cloneable {
     }
 
     @Override
-    public Object clone() {
+    public Object clone() throws CloneNotSupportedException {
         try {
             Attack atk = (Attack) super.clone();
             System.arraycopy(damage, 0, atk.damage, 0, TOTAL_DMG_TYPES);
@@ -93,13 +100,6 @@ public class Attack implements Cloneable {
             // this shouldn't happen, since we are Cloneable
             throw new InternalError();
         }
-    }
-
-    public static Attack sum(Attack a1, Attack a2) {
-        Attack a = new Attack();
-        a.addAttack(a1);
-        a.addAttack(a2);
-        return a;
     }
 }
 

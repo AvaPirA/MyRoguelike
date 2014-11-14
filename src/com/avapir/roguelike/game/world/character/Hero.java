@@ -28,7 +28,7 @@ public class Hero extends Mob {
     private static final int[] XP_TO_LVL = {0, 68, 295, 805, 1716, 3154, 5249, 8136, 11955, 16851, 22978, 30475,
             39516, 50261, 62876, 77537, 94421, 113712, 135596, 160266, 84495, 95074, 107905, 123472, 142427, 165669,
             194509, 231086, 279822, 374430, 209536, 248781, 296428, 354546, 425860, 514086, 624568, 765820, 954872};
-    private static       Hero  instance  = new Hero("Hero");
+    private static final Hero  instance  = new Hero("Hero");
     /** {@link InventoryHandler} instance. Responsible for hero's items storage */
     private final InventoryHandler inventory;
     /** {@link EquipmentHandler} instance. Responsible for items that hero equipped */
@@ -45,7 +45,7 @@ public class Hero extends Mob {
      *
      * @param name displayable name
      */
-    public Hero(String name) {
+    private Hero(String name) {
         /* Name, maxHp, maxMp, attack, armor, location, map, ai*/
 //        super(name, 1, 1, null, null, UNRESOLVED_LOCATION, null, IdleAI.getNewInstance()); // same as next line
         super(name);
@@ -695,16 +695,16 @@ public class Hero extends Mob {
          * wep1  legg  glov
          * rng1  boot  rng2
          */
-        private Item[] equip = new Item[SLOTS];
+        private final Item[] equip = new Item[SLOTS];
 
         /** Inventory instance from where hero gets items to wear */
-        private InventoryHandler inventory;
+        private final InventoryHandler inventory;
         /** Cached attack value */
-        private Attack           attack;
+        private       Attack           attack;
         /** Cached armor value */
-        private Armor            armor;
+        private       Armor            armor;
         /** Cached weight value */
-        private int              weight;
+        private       int              weight;
 
         public EquipmentHandler(InventoryHandler inventory) {
             this.inventory = inventory;

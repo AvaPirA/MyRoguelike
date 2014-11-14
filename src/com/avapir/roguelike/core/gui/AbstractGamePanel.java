@@ -12,13 +12,13 @@ import java.util.Map;
 
 public abstract class AbstractGamePanel extends JPanel {
 
+    static final int SCREEN_WIDTH;
+    static final int SCREEN_HEIGHT;
     private static final long    serialVersionUID = 1L;
     private static final Toolkit tKit             = Toolkit.getDefaultToolkit();
-    protected static final int SCREEN_WIDTH;
-    protected static final int SCREEN_HEIGHT;
-    private static final Color[] COLOR_SET = {Color.BLACK, Color.WHITE, Color.RED, Color.GREEN, Color.BLUE,
+    private static final Color[] COLOR_SET        = {Color.BLACK, Color.WHITE, Color.RED, Color.GREEN, Color.BLUE,
             Color.CYAN, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.PINK};
-    private static final String  path      = "res/sprite/";
+    private static final String  path             = "res/sprite/";
 
     static {
         final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -26,15 +26,18 @@ public abstract class AbstractGamePanel extends JPanel {
         SCREEN_WIDTH = dim.width;
     }
 
+    private final Map<String, Boolean> loadedImages = new HashMap<>();
+
     protected static Color getDefaultStringColor(final int index) {
         if (index < 0 || index > 9) {
-            throw new IllegalArgumentException(String.format(
-                    "Wrong default string color index: %s while have only %s" + " colors", index, COLOR_SET.length));
+            throw new IllegalArgumentException(
+                    String.format("Wrong default string color index: %s while have only %s" + " colors", index,
+                                  COLOR_SET.length));
         }
         return COLOR_SET[index];
     }
 
-    public static int getMapWidth() {
+    static int getMapWidth() {
         return SCREEN_WIDTH - 330;
     }
 
@@ -42,7 +45,7 @@ public abstract class AbstractGamePanel extends JPanel {
         return getMapWidth() / Tile.SIZE_px;
     }
 
-    public static int getMapHeight() {
+    static int getMapHeight() {
         return SCREEN_HEIGHT;
     }
 
@@ -111,7 +114,7 @@ public abstract class AbstractGamePanel extends JPanel {
         g2.drawImage(img, j * Tile.SIZE_px, i * Tile.SIZE_px, Tile.SIZE_px, Tile.SIZE_px, this);
     }
 
-    public void printToCell(final Graphics g2, final String str, final int j, final int i) {
+    void printToCell(final Graphics g2, final String str, final int j, final int i) {
         g2.drawString(str, j * Tile.SIZE_px, (i + 1) * Tile.SIZE_px);
     }
 
@@ -142,8 +145,6 @@ public abstract class AbstractGamePanel extends JPanel {
 
         return imageExists(file) ? tKit.getImage(file) : getImage("no_pic");
     }
-
-    Map<String, Boolean> loadedImages = new HashMap<>();
 
     /**
      * @param file path to file

@@ -10,6 +10,7 @@ import com.avapir.roguelike.game.world.items.Item;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Map is the representation of some terrain there player can stroll and do something. In typical roguelike game all
@@ -257,10 +258,7 @@ public class Map implements GameMap {
      * @param p     coordinate of tile on the map
      */
     public void dropItems(final List<Item> items, final Point p) {
-        List<DroppedItem> dropped = new ArrayList<>();
-        for (Item item : items) {
-            dropped.add(new DroppedItem(item, p));
-        }
+        List<DroppedItem> dropped = items.stream().map(item -> new DroppedItem(item, p)).collect(Collectors.toList());
         field[p.y][p.x].dropItems(dropped);
     }
 
@@ -281,7 +279,7 @@ public class Map implements GameMap {
         for (int i = 0; i < HEIGHT_MAP; i++) {
             for (int j = 0; j < WIDTH_MAP; j++) {
                 if (field[i][j].isVisible()) {
-                    field[i][j].setSeen(true);
+                    field[i][j].setSeen();
                     field[i][j].setVisible(false);
                 }
             }
@@ -297,7 +295,7 @@ public class Map implements GameMap {
     @Override
     public void visit(final int x, final int y) {
         getTile(x, y).setVisible(true);
-        getTile(x, y).setSeen(true);
+        getTile(x, y).setSeen();
     }
 
     /**
@@ -338,9 +336,7 @@ public class Map implements GameMap {
 
     @Override
     public void killAllMobs() {
-        for (Mob m : mobs) {
-            kill(m);
-        }
+        mobs.forEach(this::kill);
     }
 
     @Override

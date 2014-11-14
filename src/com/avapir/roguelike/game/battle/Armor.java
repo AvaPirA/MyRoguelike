@@ -19,6 +19,13 @@ public class Armor implements Cloneable {
         }
     }
 
+    public static Armor sum(Armor a1, Armor a2) {
+        Armor a = new Armor();
+        a.addArmor(a1);
+        a.addArmor(a2);
+        return a;
+    }
+
     public float getArmor(final int index) {
         return armor[index];
     }
@@ -54,7 +61,7 @@ public class Armor implements Cloneable {
     }
 
     @Override
-    public Object clone() {
+    public Object clone() throws CloneNotSupportedException {
         try {
             Armor arm = (Armor) super.clone();
             System.arraycopy(armor, 0, arm.armor, 0, TOTAL_DEF_TYPES);
@@ -63,13 +70,6 @@ public class Armor implements Cloneable {
             // this shouldn't happen, since we are Cloneable
             throw new InternalError();
         }
-    }
-
-    public static Armor sum(Armor a1, Armor a2) {
-        Armor a = new Armor();
-        a.addArmor(a1);
-        a.addArmor(a2);
-        return a;
     }
 
 }

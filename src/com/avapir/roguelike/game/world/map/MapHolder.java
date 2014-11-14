@@ -16,8 +16,8 @@ public class MapHolder implements GameMap {
     /**
      * Full list of already created maps
      */
-    private List<Map> maps;
-    private Map       currentMap;
+    private final List<Map> maps;
+    private       Map       currentMap;
 
     private MapHolder() {
         maps = new ArrayList<>();

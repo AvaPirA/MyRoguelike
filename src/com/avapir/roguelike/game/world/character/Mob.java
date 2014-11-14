@@ -26,16 +26,16 @@ import java.util.List;
  */
 public class Mob extends Locatable implements Cloneable, Drawable {
 
-    protected final Attack     attack;
-    protected final Armor      armor;
-    private final   String     name;
-    private final   AbstractAI ai;
-    protected       float      HP;
-    protected       float      MP;
-    protected       float      maxMP;
-    protected       float      maxHP;
+    final         Attack     attack;
+    final         Armor      armor;
+    private final String     name;
+    private final AbstractAI ai;
+    float HP;
+    float MP;
+    float maxMP;
+    float maxHP;
 
-    protected Mob(String name) {
+    Mob(String name) {
         this.name = name;
         this.ai = IdleAI.getNewInstance();
         maxHP = 1;
@@ -46,14 +46,14 @@ public class Mob extends Locatable implements Cloneable, Drawable {
         armor = new Armor();
     }
 
-    protected Mob(String name,
-                  float maxHP,
-                  float maxMP,
-                  Attack attack,
-                  Armor armor,
-                  Point location,
-                  Map map,
-                  AbstractAI ai) {
+    private Mob(String name,
+                float maxHP,
+                float maxMP,
+                Attack attack,
+                Armor armor,
+                Point location,
+                Map map,
+                AbstractAI ai) {
         super(location);
         this.name = name;
         this.maxHP = maxHP;
@@ -167,7 +167,7 @@ public class Mob extends Locatable implements Cloneable, Drawable {
      *
      * @param newLoc
      */
-    protected void moveTo(Point newLoc) {
+    void moveTo(Point newLoc) {
         MapHolder.getInstance().putCharacter(this, newLoc.x, newLoc.y);
     }
 
@@ -221,7 +221,7 @@ public class Mob extends Locatable implements Cloneable, Drawable {
      *
      * @return amount of damage for which character will gain experience.
      */
-    protected float moveAttack(Point newLoc) {
+    float moveAttack(Point newLoc) {
         final Mob defender = MapHolder.getInstance().getTile(newLoc.x, newLoc.y).getMob();
         if (defender != Hero.getInstance() && this != Hero.getInstance()) {
             return 0;
@@ -254,14 +254,14 @@ public class Mob extends Locatable implements Cloneable, Drawable {
     /**
      * Applies some mob-specific things caused by death (important for e.g. bosses)
      */
-    protected void onDeath() {
+    void onDeath() {
         ai.mustDie(this);
     }
 
     /**
      * @return {@link Mob#HP} > 0
      */
-    public boolean isAlive() {
+    boolean isAlive() {
         return HP > 0;
     }
 
@@ -281,11 +281,11 @@ public class Mob extends Locatable implements Cloneable, Drawable {
         return getAttack().getDamageOfType(i);
     }
 
-    public float getMaxHp() {
+    float getMaxHp() {
         return maxHP;
     }
 
-    public float getMaxMp() {
+    float getMaxMp() {
         return maxMP;
     }
 
@@ -335,12 +335,12 @@ public class Mob extends Locatable implements Cloneable, Drawable {
      * @param i                vertical coordinate of tile
      * @param g2               {@link Graphics2D} instance
      */
-    protected void paintColorBar(final float value,
-                                 final Color transparentColor,
-                                 final int line,
-                                 final int j,
-                                 final int i,
-                                 final Graphics2D g2) {
+    void paintColorBar(final float value,
+                       final Color transparentColor,
+                       final int line,
+                       final int j,
+                       final int i,
+                       final Graphics2D g2) {
         if (value < 0 || value > 1) {
             throw new IllegalArgumentException();
         }

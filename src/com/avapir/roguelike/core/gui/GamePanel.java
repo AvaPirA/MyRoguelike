@@ -26,7 +26,7 @@ public class GamePanel extends AbstractGamePanel {
     private static final long serialVersionUID    = 1L;
     private static final Font inventoryAmountFont = new Font(Font.SERIF, Font.PLAIN, 12);
     private final GuiPainter guiPainter;
-    private Color inventoryAmountColor = new Color(250, 250, 0);
+    private final Color inventoryAmountColor = new Color(250, 250, 0);
 
     public GamePanel() {
         super();
@@ -304,7 +304,7 @@ public class GamePanel extends AbstractGamePanel {
 
     private void debugShowMiniMap(final GameMap map, final Graphics2D g2) {
         final int z = 2;
-        final int ox = z;
+        final int ox = 2;
         final int oy = SCREEN_HEIGHT - map.getHeight() * z - 30;
 
         for (int i = 0; i < map.getHeight(); i++) {

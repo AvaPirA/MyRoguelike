@@ -9,7 +9,7 @@ import java.io.File;
  */
 public class ImageResources {
 
-    private static String[] s = {"..."}; //some list of images
+    private static final String[] s = {"..."}; //some list of images
 
     public static class Loader implements ResourceLoader {
         @Override
@@ -28,6 +28,5 @@ public class ImageResources {
 
         }
     }
-
 
 }

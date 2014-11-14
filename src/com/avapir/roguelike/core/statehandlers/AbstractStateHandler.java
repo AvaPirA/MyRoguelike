@@ -6,8 +6,8 @@ import java.awt.*;
 
 public abstract class AbstractStateHandler implements StateHandler {
 
-    protected int y;
-    protected int x;
+    int y;
+    int x;
 
 
     protected abstract int checkRestoreX(int x);

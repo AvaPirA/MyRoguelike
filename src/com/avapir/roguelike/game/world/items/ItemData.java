@@ -11,7 +11,7 @@ public class ItemData implements Cloneable {
     private final Armor  armor;
     private final int    weight;
     private final int    stackSize;
-    private       String imageName;
+    private final String imageName;
 
     private ItemData(String name, int weight, @NotNull Attack attack, @NotNull Armor armor, int stackSize) {
         this.name = name;
@@ -111,9 +111,8 @@ public class ItemData implements Cloneable {
     @Override
     public Object clone() throws CloneNotSupportedException {
         try {
-            Item item = (Item) super.clone();
             //all fields are final and none of them will be changed in the item`s lifetime, so deep clone if not proper
-            return item;
+            return super.clone();
         } catch (CloneNotSupportedException e) {
             // this shouldn't happen, since we are Cloneable
             throw new InternalError();

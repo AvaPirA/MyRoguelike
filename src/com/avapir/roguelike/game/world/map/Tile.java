@@ -56,37 +56,21 @@ public class Tile implements Drawable {
         /**
          * That tile is unpassable by default, but may be broken somehow. //todo
          */
-        WALL;
+        WALL
     }
 
     /**
      * Here is set of default tiles (that allows not to create new object on demand)
      */
-    private static final Tile[] defaultTiles = {new Tile(Type.EMPTY, Flag.EMPTY, Flag.PASSABLE, Flag.TRANSPARENT),
-            new Tile(Type.GRASS, Flag.GRASS, Flag.PASSABLE, Flag.TRANSPARENT), new Tile(Type.TREE, Flag.GRASS)};
-
-    /**
-     * @param t type of required tile
-     *
-     * @return default tile of specified type
-     */
-    static Tile getDefault(final Type t) {
-        switch (t) {
-            case EMPTY:
-                return defaultTiles[0];
-            case GRASS:
-                return defaultTiles[1];
-            case TREE:
-                return defaultTiles[3];
-            default:
-                return null;
-        }
-    }
-
+    private static final Tile[] defaultTiles = {new Tile(Type.EMPTY, Flag.EMPTY, Flag.PASSABLE,
+                                                         Flag.TRANSPARENT), new Tile(Type.GRASS, Flag.GRASS,
+                                                                                     Flag.PASSABLE,
+                                                                                     Flag.TRANSPARENT), new Tile(
+            Type.TREE, Flag.GRASS)};
     /**
      * Size of painting cell on the screen. Used by painter-class to apply zooming-effect
      */
-    public static int SIZE_px = 32;
+    public static        int    SIZE_px      = 32;
     /**
      * Initial type of tile. That allows to reset to initial state when tile was modified on some event.
      */
@@ -161,35 +145,35 @@ public class Tile implements Drawable {
         /**
          * When such tile is visible, it wil enlarge sight area.
          */
-        public static final int LIGHT_ON      = 1 << 2;
+        public static final int LIGHT_ON    = 1 << 2;
         /**
          * Allows "sight rays" go throwg this tile.
          */
-        public static final int TRANSPARENT   = 1 << 3;
-        public static final int F4            = 1 << 4;
-        public static final int F5            = 1 << 5;
-        public static final int F6            = 1 << 6;
-        public static final int F7            = 1 << 7;
-        public static final int F8            = 1 << 8;
+        public static final int TRANSPARENT = 1 << 3;
+        public static final int F4          = 1 << 4;
+        public static final int F5          = 1 << 5;
+        public static final int F6          = 1 << 6;
+        public static final int F7          = 1 << 7;
+        public static final int F8          = 1 << 8;
         /* 9-14 terrain and moving */
         /**
          * Any mob can stay on such tiles
          */
-        public static final int PASSABLE      = 1 << 9;
+        public static final int PASSABLE    = 1 << 9;
         /**
          * Tile without some special terrain properties. Just a ground. Or stone. Or sand.
          */
-        public static final int EMPTY         = 1 << 10;
+        public static final int EMPTY       = 1 << 10;
         /**
          * That's friendly tile. On each turn staying on that tile may randomly give you some buff. //todo grass
          * effects
          */
-        public static final int GRASS         = 1 << 11;
+        public static final int GRASS       = 1 << 11;
         /**
          * Unfriendly tile. That's not typical stones -- that's almost impassible mound. On each turn you may randomly
          * stumble and get some debuff. //todo stones effects
          */
-        public static final int STONES        = 1 << 12;
+        public static final int STONES      = 1 << 12;
         /**
          * Unfriendly tile. //todo ice effects
          */
@@ -239,6 +223,24 @@ public class Tile implements Drawable {
          */
         public static final int DOWN_LADDER   = 1 << 31;
 
+    }
+
+    /**
+     * @param t type of required tile
+     *
+     * @return default tile of specified type
+     */
+    private static Tile getDefault(final Type t) {
+        switch (t) {
+            case EMPTY:
+                return defaultTiles[0];
+            case GRASS:
+                return defaultTiles[1];
+            case TREE:
+                return defaultTiles[3];
+            default:
+                return null;
+        }
     }
 
     // private void addFlags(final int newFlag) {
@@ -295,9 +297,8 @@ public class Tile implements Drawable {
     public boolean isSeen() {return seen;}
 
     /**
-     * @param b new seenability flag value
      */
-    public void setSeen(final boolean b) {seen = b;}
+    public void setSeen() {seen = true;}
 
     /**
      * @return lighting flag
@@ -452,9 +453,8 @@ public class Tile implements Drawable {
                     panel.drawToCell(g2, panel.getImage(itemsHere.size() > 1 ? "many_items" : itemsHere.get(0)
                                                                                                        .getItem()
                                                                                                        .getData()
-                                                                                                       .getImageName
-                                                                                                               ()), j, i
-                                    );
+                                                                                                       .getImageName()),
+                                     j, i);
                 }
             } else {
                 if (isSeen()) {

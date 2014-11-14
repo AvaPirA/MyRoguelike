@@ -7,11 +7,16 @@ import java.awt.*;
  */
 public abstract class Locatable {
 
-    private       Point location = UNRESOLVED_LOCATION;
+    /**
+     * Special value for objects, which are not located yet or temporarily removed from map or something else doesn't
+     * let to associate object with it's tile
+     */
+    public static final Point UNRESOLVED_LOCATION = new Point(-1, -1);
+    private             Point location            = UNRESOLVED_LOCATION;
 
     protected Locatable() {}
 
-    public Locatable(Point point) {
+    protected Locatable(Point point) {
         location = new Point(point);
     }
 
@@ -23,6 +28,7 @@ public abstract class Locatable {
     public int getX() {
         return location.x;
     }
+
     /**
      * @return vertical coordinate
      *
@@ -31,12 +37,14 @@ public abstract class Locatable {
     public int getY() {
         return location.y;
     }
+
     /**
      * @return location of object on the map
      */
     public Point getLoc() {
         return location;
     }
+
     /**
      * Sets new location of object by specified coordinated
      *
@@ -46,6 +54,7 @@ public abstract class Locatable {
     public void setLocation(int x, int y) {
         location = new Point(x, y);
     }
+
     /**
      * Sets new location of object by specified point
      *
@@ -54,11 +63,5 @@ public abstract class Locatable {
     public void setLocation(Point p) {
         location = new Point(p);
     }
-
-    /**
-     * Special value for objects, which are not located yet or temporarily removed from map or something else doesn't
-     * let to associate object with it's tile
-     */
-    public static final Point UNRESOLVED_LOCATION = new Point(-1, -1);
 
 }

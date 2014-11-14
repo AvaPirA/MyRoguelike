@@ -11,6 +11,7 @@ public class InventoryHandler extends AbstractStateHandler {
     private Point   savedInventoryState = new Point(0, 0);
     private Point   savedEquipmentState = new Point(0, 0);
     private boolean focusOnEquipment    = false;
+    private Point press;
 
     public boolean isOnEquipment() {
         return focusOnEquipment;
@@ -40,8 +41,6 @@ public class InventoryHandler extends AbstractStateHandler {
         int limitDown = focusOnEquipment ? 3 : Hero.getInstance().getInventory().getSize();
         return y < 0 ? 0 : y > limitDown ? limitDown : y;
     }
-
-    public Point press;
 
     public void press() {
         Hero h = Hero.getInstance();

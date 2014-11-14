@@ -17,7 +17,7 @@ public abstract class AbstractAI {
     /**
      * General haphazard generator
      */
-    protected static final Random random = new Random();
+    static final Random random = new Random();
 
     /**
      */
