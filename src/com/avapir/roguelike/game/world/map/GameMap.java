@@ -112,6 +112,7 @@ public class GameMap implements Map {
                     map.field[j][i] = new Tile(Tile.Type.GRASS);
                 }
             }
+            placeMobsAndItems(map, 200);
         }
 
         void generate(final GameMap map, final Properties props) {

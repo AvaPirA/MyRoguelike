@@ -65,6 +65,10 @@ public abstract class AbstractGamePanel extends JPanel {
         return Math.round(10 * f) / 10f;
     }
 
+    public static float roundThreeDigits(final float f) {
+        return Math.round(1000 * f) / 1000f;
+    }
+
     private static BufferedImage toBufferedImage(Image image) {
         if (image instanceof BufferedImage) {
             return (BufferedImage) image;

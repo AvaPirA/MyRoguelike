@@ -23,7 +23,6 @@ import java.util.List;
 public class GamePanel extends AbstractGamePanel {
 
     public static final  int  STAT_BAR_HEIGHT_PX  = 3;
-    static final         Font coordFont           = new Font("Monospaced", Font.PLAIN, 10);
     private static final long serialVersionUID    = 1L;
     private static final Font inventoryAmountFont = new Font(Font.SERIF, Font.PLAIN, 12);
     private final GuiPainter guiPainter;
@@ -101,6 +100,9 @@ public class GamePanel extends AbstractGamePanel {
             g2.drawString(hero.getName(), o.x, o.y + 30);
             g2.drawString(String.format("Level [%d] (%d/%d)", hero.getLevel(), hero.getXP(), hero.getAdvanceXP()),
                           o.x + 80, o.y);
+            float v = roundThreeDigits(
+                    (hero.getXP() - hero.getPrevLevelXp()) / Float.valueOf(hero.getAdvanceXP().toString()) * 100);
+            g2.drawString(String.format("[%s%%]", v), o.x + 80, o.y + 15);
 
             g2.setColor(new Color(80, 255, 0));
             g2.drawString(String.format("%s/%s", roundOneDigit(hero.getHP()), Hero.StatsFormulas.getMaxHP(hero)), o.x,
@@ -313,12 +315,13 @@ public class GamePanel extends AbstractGamePanel {
         String[] move = {"<Arrows>  -- go in specified direction", "       =  -- zoom in", "       -  -- zoom out",
                 "   <END>  -- end turn without step", "", "i  -- open Inventory", "d  -- make Distance Attack",
                 "v  -- switch to Viewer Mode", "c  -- change stats"};
-        //todo Create all help dialogs
-        String[] gameover = null;
-        String[] stats = null;
-        String[] view = null;
-        String[] distance = null;
-        String[] inventory = null;
+        String[] gameover = {"Press any key to exit"};
+        String[] stats = {"<Arrows>  -- choose stat and change it as you wish", "c  -- return to Moving"};
+        String[] view = {"v  -- return to Moving"};
+        String[] distance = {"d  -- return to Moving"};
+        String[] inventory = {"<ENTER>  -- equip or take off selecter item", "s  -- switch cursor to " +
+                "inventory/equipment", "e  -- equip or take off selected item and switch cursor",
+                "i  -- return to Moving"};
 
         String[] toPrint;
         g2.setColor(new Color(50, 50, 50, 128));
@@ -328,18 +331,23 @@ public class GamePanel extends AbstractGamePanel {
                 toPrint = move;
                 break;
             case GAME_OVER:
+                g2.fillRect(200, 150, 210, 20);
                 toPrint = gameover;
                 break;
             case CHANGE_STATS:
+                g2.fillRect(200, 150, 460, 35);
                 toPrint = stats;
                 break;
             case VIEW:
+                g2.fillRect(200, 150, 210, 20);
                 toPrint = view;
                 break;
             case DISTANCE_ATTACK:
+                g2.fillRect(200, 150, 210, 20);
                 toPrint = distance;
                 break;
             case INVENTORY:
+                g2.fillRect(200, 150, 510, 60);
                 toPrint = inventory;
                 break;
             default:
@@ -482,7 +490,11 @@ public class GamePanel extends AbstractGamePanel {
             }
         } else {
             if (m.isAlive()) {
-                drawToCell(g2, getImage(getName().toLowerCase().replace(" ", "_")), j, i);
+                String name = m.getName();
+                String s1 = name.toLowerCase();
+                String s = s1.replace(" ", "_");
+                Image image = getImage(s);
+                drawToCell(g2, image, j, i);
                 drawMobLifeBars(g2, m, j, i, false);
             }
         }
@@ -515,7 +527,7 @@ public class GamePanel extends AbstractGamePanel {
                                final int i,
                                final Graphics2D g2) {
         if (value < 0 || value > 1) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Value = " + value);
         }
         g2.setColor(transparentColor);
 
@@ -579,16 +591,7 @@ public class GamePanel extends AbstractGamePanel {
         }
     }
 
-    private void drawMap_tiles(Map map,
-                               Graphics2D g2,
-                               int ox,
-                               int oy,
-                               int wit,
-                               int hit,
-                               int l,
-                               int r,
-                               int t,
-                               int d) {
+    private void drawMap_tiles(Map map, Graphics2D g2, int ox, int oy, int wit, int hit, int l, int r, int t, int d) {
         for (int h = 0; h < t - 1; h++) {
             for (int w = 0; w < wit; w++) {
                 drawMap_tiles_tile(map, g2, ox, oy, h, w);

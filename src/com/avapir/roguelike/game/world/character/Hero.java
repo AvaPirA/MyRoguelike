@@ -23,21 +23,20 @@ import java.util.Random;
  */
 public class Hero extends Mob {
 
-    /** Amounts of XP needed to level up */
-    private static final int[] XP_TO_LVL = {0, 68, 295, 805, 1716, 3154, 5249, 8136, 11955, 16851, 22978, 30475,
-            39516, 50261, 62876, 77537, 94421, 113712, 135596, 160266, 84495, 95074, 107905, 123472, 142427, 165669,
-            194509, 231086, 279822, 374430, 209536, 248781, 296428, 354546, 425860, 514086, 624568, 765820, 954872};
-    private static final Hero  instance  = new Hero("Hero");
+    private static final Hero instance = new Hero("Hero");
     /** {@link InventoryHandler} instance. Responsible for hero's items storage */
     private final InventoryHandler inventory;
     /** {@link EquipmentHandler} instance. Responsible for items that hero equipped */
     private final EquipmentHandler equipment;
     /** {@link PrimaryStats} instance. Responsible for stats of hero that may be found in the calculation formulas */
     private final PrimaryStats     stats;
+    /** Amounts of XP needed to level up */
+    private int LVL_UP    = 69;
+    private int LVL_START = 0;
     /** Current hero's level */
-    private       int              level;
+    private int level;
     /** Current amount of experience */
-    private       int              XP;
+    private int XP;
 
     /**
      * Creates new hero but don't put him somewhere on the map
@@ -66,7 +65,7 @@ public class Hero extends Mob {
         private static final int[] ELDER  = {290, 120, 390, 700, 400, 100};    // 2000
         private static final int[] UNDEAD = {120, 40, 120, 0, 40, 0};    // 320
 
-        //private static final int[] PLAYER = {280, 170, 230, 90, 70, 47}; // 887 test values
+//        private static final int[] PLAYER = {300, 300, 300, 300, 300, 300}; // 887 test values
     }
 
     /**
@@ -90,9 +89,10 @@ public class Hero extends Mob {
 
         public static double addBonusXp(final Hero h, final double xp) {
             final Random r = new Random();
-            final double L = r.nextInt(h.stats.getLuk() * 2);
-            // up to 100% bonus for each 50 LUK
-            return (int) (xp * (1f + h.stats.getDex() / 300f + L / 100f));
+            final int L = h.stats.getLuk();
+            final int D = h.stats.getDex();
+            // max XP is XP*(1+300/300+300/50) = 8*XP
+            return (int) (xp * (1f + D / 300f + L / 50f));
         }
 
         public static int getFovRadius(final Hero h) {
@@ -862,14 +862,18 @@ public class Hero extends Mob {
         XP += gainedXP;
         Log.g("%s получает %s опыта", getName(), gainedXP);
 
-        //todo extract method
-        while (XP >= XP_TO_LVL[level]) {
-            XP = 0;
-            level++;
-            stats.freeStats += PrimaryStats.DEFAULT_STAT_INCREASE;
-            restore();
-            Log.g("%s достиг %s уровня!", getName(), level);
+        while (XP >= LVL_UP) {
+            lvlUp();
         }
+    }
+
+    private void lvlUp() {
+        LVL_START = LVL_UP;
+        LVL_UP += XP;
+        level++;
+        stats.freeStats += PrimaryStats.DEFAULT_STAT_INCREASE;
+        restore();
+        Log.g("%s достиг %s уровня!", getName(), level);
     }
 
     /**
@@ -919,7 +923,7 @@ public class Hero extends Mob {
 
     @Override
     public float getArmor(final int i) {
-        return getArmor().getArmor(i);
+        return getArmor().getArmorOfType(i);
     }
 
     @Override
@@ -936,12 +940,6 @@ public class Hero extends Mob {
         return XP;
     }
 
-    /**
-     * @return amount of XP needed to reach next level
-     */
-    public int getAdvanceXP() {
-        return XP_TO_LVL[level];
-    }
 
     public int getLevel() {
         return level;
@@ -982,5 +980,13 @@ public class Hero extends Mob {
         float damage = super.moveAttack(newLoc);
         gainXpFromDamage(damage);
         return damage;
+    }
+
+    public Object getAdvanceXP() {
+        return LVL_UP;
+    }
+
+    public int getPrevLevelXp() {
+        return LVL_START;
     }
 }

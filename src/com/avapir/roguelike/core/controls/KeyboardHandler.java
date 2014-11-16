@@ -135,8 +135,10 @@ public class KeyboardHandler extends KeyAdapter {
     }
 
     private void distanceAttackType(final KeyEvent e) {
+        GameStateManager gsm = GameStateManager.getInstance();
         switch (e.getKeyChar()) {
-
+            case 'd':
+                gsm.setState(GameState.MOVE);
         }
     }
 
@@ -160,8 +162,10 @@ public class KeyboardHandler extends KeyAdapter {
     }
 
     private void viewType(final KeyEvent e) {
+        GameStateManager gsm = GameStateManager.getInstance();
         switch (e.getKeyChar()) {
-
+            case 'v':
+                gsm.setState(GameState.MOVE);
         }
     }
 
@@ -235,7 +239,7 @@ public class KeyboardHandler extends KeyAdapter {
     }
 
     private void afterGameOverPressings(final KeyEvent e) {
-        System.exit(0);
+        Main.exit();
     }
 
     private void stateArrowsHandler(final int keyCode, final StateHandler sh) {

@@ -130,7 +130,7 @@ public class Mob extends Locatable implements Cloneable {
     public static final class MobSet {
 
         public static Mob getSlime() {
-            return MobBuilder.createMob("Slime", 15, 0, new Attack(2), new Armor(0), new SlimeAI());
+            return MobBuilder.createMob("Slime", 15, 0, new Attack(4), new Armor(0), new SlimeAI());
         }
 
     }
@@ -268,7 +268,7 @@ public class Mob extends Locatable implements Cloneable {
     }
 
     public float getArmor(final int i) {
-        return getArmor().getArmor(i);
+        return getArmor().getArmorOfType(i);
     }
 
     Attack getAttack() {
