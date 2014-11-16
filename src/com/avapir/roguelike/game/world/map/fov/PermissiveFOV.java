@@ -1,4 +1,4 @@
-package com.avapir.roguelike.game.fov;
+package com.avapir.roguelike.game.world.map.fov;
 
 import java.awt.*;
 import java.util.LinkedList;
@@ -12,7 +12,7 @@ import java.util.LinkedList;
  *
  * @author sdatta
  */
-public class PermissiveFOV implements IFovAlgorithm {
+public class PermissiveFOV implements FovAlgorithm {
 
     private class permissiveMaskT {
         /*

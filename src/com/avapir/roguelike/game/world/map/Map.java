@@ -1,11 +1,11 @@
 package com.avapir.roguelike.game.world.map;
 
-import com.avapir.roguelike.game.fov.IFovAlgorithm;
-import com.avapir.roguelike.game.fov.PermissiveFOV;
 import com.avapir.roguelike.game.world.character.Hero;
 import com.avapir.roguelike.game.world.character.Mob;
 import com.avapir.roguelike.game.world.items.DroppedItem;
 import com.avapir.roguelike.game.world.items.Item;
+import com.avapir.roguelike.game.world.map.fov.FovAlgorithm;
+import com.avapir.roguelike.game.world.map.fov.PermissiveFOV;
 
 import java.awt.*;
 import java.util.*;
@@ -43,9 +43,9 @@ public class Map implements GameMap {
      */
     private static final MapGenerator  generator     = new MapGenerator();
     /**
-     * Some {@link com.avapir.roguelike.game.fov.IFovAlgorithm} implementation
+     * Some {@link com.avapir.roguelike.game.world.map.fov.FovAlgorithm} implementation
      */
-    private final        IFovAlgorithm permissiveFov = new PermissiveFOV();
+    private final FovAlgorithm permissiveFov = new PermissiveFOV();
     /**
      * Computed from default actual map height
      */

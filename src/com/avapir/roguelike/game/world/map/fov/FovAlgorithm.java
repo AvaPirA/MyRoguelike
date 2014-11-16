@@ -1,4 +1,4 @@
-package com.avapir.roguelike.game.fov;
+package com.avapir.roguelike.game.world.map.fov;
 
 import java.awt.*;
 
@@ -7,7 +7,7 @@ import java.awt.*;
  *
  * @author sdatta
  */
-public interface IFovAlgorithm {
+public interface FovAlgorithm {
 
     /**
      * All locations of Board b that are visible from (x, y) will be visited, ie b.visit(x, y) will be called on them.

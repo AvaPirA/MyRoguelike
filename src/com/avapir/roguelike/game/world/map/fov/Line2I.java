@@ -1,4 +1,4 @@
-package com.avapir.roguelike.game.fov;
+package com.avapir.roguelike.game.world.map.fov;
 
 /**
  * A Eucleidian 2D line class represented by integers.

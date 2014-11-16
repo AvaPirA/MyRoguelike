@@ -1,4 +1,4 @@
-package com.avapir.roguelike.game.fov;
+package com.avapir.roguelike.game.world.map.fov;
 
 /**
  * An interface board that allows visibility alogithms to decide which points are in the board, which points are

@@ -1,8 +1,8 @@
 package com.avapir.roguelike.game.world.map;
 
-import com.avapir.roguelike.game.fov.LosMap;
 import com.avapir.roguelike.game.world.character.Mob;
 import com.avapir.roguelike.game.world.items.Item;
+import com.avapir.roguelike.game.world.map.fov.LosMap;
 
 import java.awt.*;
 import java.util.List;

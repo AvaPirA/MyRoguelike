@@ -1,4 +1,4 @@
-package com.avapir.roguelike.game.fov;
+package com.avapir.roguelike.game.world.map.fov;
 
 import java.awt.*;
 import java.io.Serializable;
