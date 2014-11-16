@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
  */
 public class Map implements GameMap {
 
-    private static final Random random = new Random();
-
     /**
      * Default map height
      */
@@ -67,7 +65,6 @@ public class Map implements GameMap {
     /**
      * List of the mobs on this map
      */
-    //todo move to Map.java
     private final List<Mob> mobs;
 
 
@@ -94,6 +91,7 @@ public class Map implements GameMap {
     public Map() {
         final int deltaHeight = DFT_HEIGHT * DFT_DELTA / 100;
         final int deltaWidth = DFT_WIDTH * DFT_DELTA / 100;
+        Random random = new Random();
         HEIGHT_MAP = DFT_HEIGHT + random.nextInt(2 * deltaHeight) - deltaHeight;
         WIDTH_MAP = DFT_WIDTH + random.nextInt(2 * deltaWidth) - deltaWidth;
         field = new Tile[HEIGHT_MAP][WIDTH_MAP];
@@ -105,6 +103,7 @@ public class Map implements GameMap {
     private static class MapGenerator {
         //todo
 
+        final Random seeder = new Random();
         final List<Long> usedSeeds = new ArrayList<>();
 
         void generateEmpty(final Map map) {
@@ -133,11 +132,9 @@ public class Map implements GameMap {
         }
 
         void generate(final Map map) {
-            long seed = random.nextLong();
-            while (usedSeeds.contains(seed)) {
-                seed = random.nextLong();
-            }
-            usedSeeds.add(seed);
+            long seed = getNextSeed();
+
+            Random random = new Random(seed);
             for (int i = 0; i < map.WIDTH_MAP; i++) {
                 for (int j = 0; j < map.HEIGHT_MAP; j++) {
                     if (random.nextInt(100) > 80) {
@@ -147,6 +144,15 @@ public class Map implements GameMap {
                     }
                 }
             }
+        }
+
+        private long getNextSeed() {
+            long seed = seeder.nextLong();
+            while (usedSeeds.contains(seed)) {
+                seed = seeder.nextLong();
+            }
+            usedSeeds.add(seed);
+            return seed;
         }
     }
 
@@ -214,6 +220,7 @@ public class Map implements GameMap {
      * @return coordinates of tile, where mob was put
      */
     public Point putCharacter(final Mob c) {
+        Random random = new Random();
         int x = random.nextInt(WIDTH_MAP), y = random.nextInt(HEIGHT_MAP);
         int counter = 0;
         final int maxCounter = HEIGHT_MAP * WIDTH_MAP * 4;// просто на всякий случай
