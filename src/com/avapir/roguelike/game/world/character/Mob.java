@@ -10,7 +10,7 @@ import com.avapir.roguelike.game.world.character.ai.AbstractAI;
 import com.avapir.roguelike.game.world.character.ai.IdleAI;
 import com.avapir.roguelike.game.world.character.ai.SlimeAI;
 import com.avapir.roguelike.game.world.items.Item;
-import com.avapir.roguelike.game.world.map.Map;
+import com.avapir.roguelike.game.world.map.GameMap;
 import com.avapir.roguelike.game.world.map.MapHolder;
 import com.avapir.roguelike.game.world.map.Tile;
 
@@ -50,7 +50,7 @@ public class Mob extends Locatable implements Cloneable {
                 Attack attack,
                 Armor armor,
                 Point location,
-                Map map,
+                GameMap map,
                 AbstractAI ai) {
         super(location);
         this.name = name;
@@ -76,7 +76,7 @@ public class Mob extends Locatable implements Cloneable {
             return createMob(name, UNRESOLVED_LOCATION, null);
         }
 
-        public static Mob createMob(String name, Point location, Map map) {
+        public static Mob createMob(String name, Point location, GameMap map) {
             return createMob(name, DFT_HP, DFT_MP, location, map);
         }
 
@@ -88,11 +88,11 @@ public class Mob extends Locatable implements Cloneable {
             return createMob(name, maxHP, maxMP, UNRESOLVED_LOCATION, null);
         }
 
-        public static Mob createMob(String name, float maxHP, float maxMP, Point location, Map map) {
+        public static Mob createMob(String name, float maxHP, float maxMP, Point location, GameMap map) {
             return createMob(name, maxHP, maxMP, new Attack(), new Armor(), location, map);
         }
 
-        public static Mob createMob(String name, Attack attack, Armor armor, Point location, Map map) {
+        public static Mob createMob(String name, Attack attack, Armor armor, Point location, GameMap map) {
             return createMob(name, DFT_HP, DFT_MP, attack, armor, location, map);
         }
 
@@ -106,7 +106,7 @@ public class Mob extends Locatable implements Cloneable {
                                     Attack attack,
                                     Armor armor,
                                     Point location,
-                                    Map map) {
+                                    GameMap map) {
             return createMob(name, maxHP, maxMP, attack, armor, location, map, IdleAI.getNewInstance());
 
         }
@@ -117,7 +117,7 @@ public class Mob extends Locatable implements Cloneable {
                                     Attack attack,
                                     Armor armor,
                                     Point location,
-                                    Map map,
+                                    GameMap map,
                                     AbstractAI ai) {
             return new Mob(name, maxHP, maxMP, attack, armor, location, map, ai);
         }

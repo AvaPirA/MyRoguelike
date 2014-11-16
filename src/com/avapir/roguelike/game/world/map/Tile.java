@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Smallest discrete piece of the whole terrain on the {@link com.avapir.roguelike.game.world.map.Map}. There many
+ * Smallest discrete piece of the whole terrain on the {@link GameMap}. There many
  * types
  * of tiles with unique appearance and functionality.
  *

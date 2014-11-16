@@ -12,7 +12,7 @@ import com.avapir.roguelike.game.world.character.Hero.PrimaryStats;
 import com.avapir.roguelike.game.world.character.Mob;
 import com.avapir.roguelike.game.world.items.Item;
 import com.avapir.roguelike.game.world.items.ItemDatabase;
-import com.avapir.roguelike.game.world.map.GameMap;
+import com.avapir.roguelike.game.world.map.Map;
 import com.avapir.roguelike.game.world.map.MapHolder;
 import com.avapir.roguelike.game.world.map.Tile;
 
@@ -364,7 +364,7 @@ public class GamePanel extends AbstractGamePanel {
         guiPainter.draw(g2);
     }
 
-    private void debugShowMiniMap(final GameMap map, final Graphics2D g2) {
+    private void debugShowMiniMap(final Map map, final Graphics2D g2) {
         final int z = 2;
         final int ox = 2;
         final int oy = SCREEN_HEIGHT - map.getHeight() * z - 30;
@@ -404,7 +404,7 @@ public class GamePanel extends AbstractGamePanel {
     // 4**      **   01234567890
     // 5**********   *** II ****
     // LINE = 4; SIZE = 2; HIT = 5; WIT = 10;
-    private void drawMap(final GameMap map, final Graphics2D g2) {
+    private void drawMap(final Map map, final Graphics2D g2) {
         final int offsetX = Viewport.INSTANCE.getX() - Viewport.horizontalViewDistance();
         final int offsetY = Viewport.INSTANCE.getY() - Viewport.verticalViewDistance();
         final int WIT = getWidthInTiles();
@@ -428,7 +428,7 @@ public class GamePanel extends AbstractGamePanel {
 
     }
 
-    private void drawMap_tiles_tile(GameMap map,
+    private void drawMap_tiles_tile(Map map,
                                     Graphics2D g2,
                                     int offsetX,
                                     int offsetY,
@@ -579,7 +579,7 @@ public class GamePanel extends AbstractGamePanel {
         }
     }
 
-    private void drawMap_tiles(GameMap map,
+    private void drawMap_tiles(Map map,
                                Graphics2D g2,
                                int ox,
                                int oy,

@@ -10,18 +10,18 @@ import java.util.List;
 /**
  *
  */
-public class MapHolder implements GameMap {
+public class MapHolder implements Map {
 
     private static final MapHolder INSTANCE = new MapHolder();
     /**
      * Full list of already created maps
      */
-    private final List<Map> maps;
-    private       Map       currentMap;
+    private final List<GameMap> maps;
+    private       GameMap       currentMap;
 
     private MapHolder() {
         maps = new ArrayList<>();
-        currentMap = new Map(40, 40);
+        currentMap = new GameMap(40, 40);
         maps.add(0, currentMap);
     }
 
@@ -34,9 +34,9 @@ public class MapHolder implements GameMap {
      * @param index internal index of map (just as ID)
      */
     public void switchToMap(final int index) {
-        Map newMap = maps.get(index);
+        GameMap newMap = maps.get(index);
         if (newMap == null) {
-            currentMap = new Map(40, 40);
+            currentMap = new GameMap(40, 40);
             maps.add(index, currentMap);
         } else {
             currentMap = newMap;
