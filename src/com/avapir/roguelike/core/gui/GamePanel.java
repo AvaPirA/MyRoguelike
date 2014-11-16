@@ -9,6 +9,7 @@ import com.avapir.roguelike.game.battle.Armor;
 import com.avapir.roguelike.game.battle.Attack;
 import com.avapir.roguelike.game.world.character.Hero;
 import com.avapir.roguelike.game.world.character.Hero.PrimaryStats;
+import com.avapir.roguelike.game.world.character.Mob;
 import com.avapir.roguelike.game.world.items.Item;
 import com.avapir.roguelike.game.world.items.ItemDatabase;
 import com.avapir.roguelike.game.world.map.GameMap;
@@ -45,7 +46,7 @@ public class GamePanel extends AbstractGamePanel {
         private       int   validMax     = Integer.MIN_VALUE;
         private Graphics2D g2;
 
-        public void paint(final Graphics2D g2) {
+        public void draw(final Graphics2D g2) {
             invalidateMax();
             this.g2 = g2;
             heroEquipment();
@@ -56,9 +57,9 @@ public class GamePanel extends AbstractGamePanel {
 
             if (GameStateManager.getInstance().getState() == GameState.INVENTORY) {
                 /*draw inventory
-                * actually, I draw it at GamePanel#paintMap(Map, Graphics2D)
+                * actually, I draw it at GamePanel#drawMap(Map, Graphics2D)
                 * Theres 2 goals got by this decision:
-                * 1) Do not paint inventory-pixels twice: first for map tiles and second for inventory
+                * 1) Do not draw inventory-pixels twice: first for map tiles and second for inventory
                 * 2) I hope it will look nice
                 */
             }
@@ -278,10 +279,23 @@ public class GamePanel extends AbstractGamePanel {
         final Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
-        paintMap(MapHolder.getInstance(), g2);
-        Log.getInstance().draw(this, g2, 15, 15);
+        drawMap(MapHolder.getInstance(), g2);
+        drawLog(g2);
         drawDialogs(g2);
         debugShowMiniMap(MapHolder.getInstance(), g2);
+    }
+
+    private void drawLog(Graphics2D g2) {
+        int x = 15, y = 15;
+        final Point offset = new Point(x, y);
+        final Font logFont = new Font("Times New Roman", Font.PLAIN, 15);
+        g2.setFont(logFont);
+        g2.setColor(Color.white);
+
+        Log log = Log.getInstance();
+        for (int i = 0; i < log.getSize(); i++) {
+            g2.drawString(log.get(i), offset.x, offset.y + i * logFont.getSize() + 3);
+        }
     }
 
     private void drawDialogs(Graphics2D g2) {
@@ -298,8 +312,8 @@ public class GamePanel extends AbstractGamePanel {
     }
 
     @Override
-    protected void paintGUI(final Graphics2D g2) {
-        guiPainter.paint(g2);
+    protected void drawGUI(final Graphics2D g2) {
+        guiPainter.draw(g2);
     }
 
     private void debugShowMiniMap(final GameMap map, final Graphics2D g2) {
@@ -342,7 +356,7 @@ public class GamePanel extends AbstractGamePanel {
     // 4**      **   01234567890
     // 5**********   *** II ****
     // LINE = 4; SIZE = 2; HIT = 5; WIT = 10;
-    private void paintMap(final GameMap map, final Graphics2D g2) {
+    private void drawMap(final GameMap map, final Graphics2D g2) {
         final int offsetX = Viewport.getInstance().getX() - Viewport.horizontalViewDistance();
         final int offsetY = Viewport.getInstance().getY() - Viewport.verticalViewDistance();
         final int WIT = getWidthInTiles();
@@ -353,34 +367,118 @@ public class GamePanel extends AbstractGamePanel {
             int t = 3;
             int d = t + Hero.getInstance().getInventory().getSize() + 1; // +1 == border
             //todo MAKE THIS SHIT AS SHADERS
-            paintMap_inventory(g2, l, r, t, d);
-            paintMap_inventoryBorder(g2, l - 1, r + 1, t - 1, d + 1);
-            paintMap_tiles(map, g2, offsetX, offsetY, WIT, HIT, l, r, t, d);
+            drawMap_inventory(g2, l, r, t, d);
+            drawMap_inventoryBorder(g2, l - 1, r + 1, t - 1, d + 1);
+            drawMap_tiles(map, g2, offsetX, offsetY, WIT, HIT, l, r, t, d);
         } else {
             for (int i = 0; i < getHeightInTiles(); i++) {
                 for (int j = 0; j < getWidthInTiles(); j++) {
-                    paintMap_tiles_tile(map, g2, offsetX, offsetY, i, j);
+                    drawMap_tiles_tile(map, g2, offsetX, offsetY, i, j);
                 }
             }
         }
 
     }
 
-    private void paintMap_tiles_tile(GameMap map,
-                                     Graphics2D g2,
-                                     int offsetX,
-                                     int offsetY,
-                                     int i,
-                                     int j) {// indexes on the Map
+    private void drawMap_tiles_tile(GameMap map,
+                                    Graphics2D g2,
+                                    int offsetX,
+                                    int offsetY,
+                                    int i,
+                                    int j) {// indexes on the Map
         final Tile tile = map.getTile(offsetX + j, offsetY + i);
         if (tile != null) {
-            tile.draw(this, g2, j, i);
+            drawToCell(g2, getImage("empty"), j, i);
+
+            if (tile.isSeen()) {
+                String imageName;
+                switch (tile.getType()) {
+                    case GRASS:
+                        imageName = "grass";
+                        break;
+                    case TREE:
+                        imageName = "tree";
+                        break;
+                    default:
+                        throw new RuntimeException("Unresolved tile type");
+                }
+                drawToCell(g2, getImage(imageName), j, i);
+
+                if (tile.isVisible()) {
+                    if (tile.getMob() != null) {
+                        drawMobOnTile(g2, tile.getMob(), j, i);
+                    }
+                    if (tile.getItemsAmount() > 0) {
+                        drawToCell(g2, getImage(tile.getItemsAmount() > 1 ? "many_items" : tile.getItemList()
+                                                                                               .get(0)
+                                                                                               .getItem()
+                                                                                               .getData()
+                                                                                               .getImageName()), j, i);
+                    }
+                } else { // seen & !visible == "fog of war" over empty terrain
+                    drawToCell(g2, getImage("wFog"), j, i);
+                }
+            }
         } else {
             // some outworld. Stars ort smth
         }
     }
 
-    private void paintMap_inventoryBorder(Graphics2D g2, int l, int r, int t, int d) {
+    private void drawMobOnTile(Graphics2D g2, Mob m, int j, int i) {
+        if (m.equals(Hero.getInstance())) {
+            if (m.isAlive()) {
+                drawToCell(g2, getImage("hero"), j, i);
+                drawMobLifeBars(g2, m, j, i, true);
+            } else { //if dead
+                drawToCell(g2, getImage("rip"), j, i);
+            }
+        } else {
+            if (m.isAlive()) {
+                drawToCell(g2, getImage(getName().toLowerCase().replace(" ", "_")), j, i);
+                drawMobLifeBars(g2, m, j, i, false);
+            }
+        }
+    }
+
+    private void drawMobLifeBars(Graphics2D g2, Mob m, int j, int i, boolean isFriendly) {
+        Color friend = new Color(0, 255, 0, 128);
+        Color monster = new Color(255, 0, 0, 128);
+        paintColorBar(m.getHP() / m.getMaxHp(), isFriendly ? friend : monster, 0, j, i, g2);
+        if (m.getMaxMp() > 0) {
+            paintColorBar(m.getMP() / m.getMaxMp(), new Color(0, 128, 255, 128), 1, j, i, g2);
+        }
+    }
+
+    /**
+     * Paints colored bar for some stat of character above him. Usually used for HP\MP. That method receives only
+     * percentage value of stat (float value of {@code currentValue/maxValue}).
+     *
+     * @param value            percents of tile which wil be filled twice
+     * @param transparentColor color which will be used
+     * @param line             number of line painting already. Usually it's 0 for HP and 1 for MP
+     * @param j                horizontal coordinate of tile
+     * @param i                vertical coordinate of tile
+     * @param g2               {@link Graphics2D} instance
+     */
+    private void paintColorBar(final float value,
+                               final Color transparentColor,
+                               final int line,
+                               final int j,
+                               final int i,
+                               final Graphics2D g2) {
+        if (value < 0 || value > 1) {
+            throw new IllegalArgumentException();
+        }
+        g2.setColor(transparentColor);
+
+        int x = j * Tile.SIZE_px;
+        int y = i * Tile.SIZE_px + line * GamePanel.STAT_BAR_HEIGHT_PX;
+
+        g2.fillRect(x, y, Tile.SIZE_px, GamePanel.STAT_BAR_HEIGHT_PX);
+        g2.fillRect(x, y, (int) (value * Tile.SIZE_px), GamePanel.STAT_BAR_HEIGHT_PX);
+    }
+
+    private void drawMap_inventoryBorder(Graphics2D g2, int l, int r, int t, int d) {
         Image border = getImage("empty");
         for (int w = l; w <= r; w++) {
             drawToCell(g2, border, w, t);
@@ -399,7 +497,7 @@ public class GamePanel extends AbstractGamePanel {
      * @param t  top boundary cell
      * @param d  bottom boundary cell
      */
-    private void paintMap_inventory(Graphics2D g2, int l, int r, int t, int d) {
+    private void drawMap_inventory(Graphics2D g2, int l, int r, int t, int d) {
         Image invBgImg = getImage("inventory_bg");
         for (int h = t; h <= d; h++) {
             for (int w = l; w <= r; w++) {
@@ -433,32 +531,32 @@ public class GamePanel extends AbstractGamePanel {
         }
     }
 
-    private void paintMap_tiles(GameMap map,
-                                Graphics2D g2,
-                                int ox,
-                                int oy,
-                                int wit,
-                                int hit,
-                                int l,
-                                int r,
-                                int t,
-                                int d) {
+    private void drawMap_tiles(GameMap map,
+                               Graphics2D g2,
+                               int ox,
+                               int oy,
+                               int wit,
+                               int hit,
+                               int l,
+                               int r,
+                               int t,
+                               int d) {
         for (int h = 0; h < t - 1; h++) {
             for (int w = 0; w < wit; w++) {
-                paintMap_tiles_tile(map, g2, ox, oy, h, w);
+                drawMap_tiles_tile(map, g2, ox, oy, h, w);
             }
         }
         for (int h = t - 1; h < d + 2; h++) {
             for (int w = 0; w < l - 1; w++) {
-                paintMap_tiles_tile(map, g2, ox, oy, h, w);
+                drawMap_tiles_tile(map, g2, ox, oy, h, w);
             }
             for (int w = r + 2; w < wit; w++) {
-                paintMap_tiles_tile(map, g2, ox, oy, h, w);
+                drawMap_tiles_tile(map, g2, ox, oy, h, w);
             }
         }
         for (int h = d + 2; h < hit; h++) {
             for (int w = 0; w < wit; w++) {
-                paintMap_tiles_tile(map, g2, ox, oy, h, w);
+                drawMap_tiles_tile(map, g2, ox, oy, h, w);
             }
         }
 

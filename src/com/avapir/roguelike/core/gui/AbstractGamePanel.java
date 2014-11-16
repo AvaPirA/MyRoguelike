@@ -107,7 +107,7 @@ public abstract class AbstractGamePanel extends JPanel {
 
         final Graphics2D g2 = (Graphics2D) g;
         paintBackground(g2);
-        paintGUI(g2);
+        drawGUI(g2);
     }
 
     public void drawToCell(final Graphics g2, final Image img, final int j, final int i) {
@@ -130,7 +130,7 @@ public abstract class AbstractGamePanel extends JPanel {
         // TODO draw borders of viewable area of map
     }
 
-    protected abstract void paintGUI(final Graphics2D g2);
+    protected abstract void drawGUI(final Graphics2D g2);
 
     /**
      * @param filename

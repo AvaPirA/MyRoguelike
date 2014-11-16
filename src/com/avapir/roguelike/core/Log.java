@@ -1,14 +1,10 @@
 package com.avapir.roguelike.core;
 
-import com.avapir.roguelike.core.gui.AbstractGamePanel;
-
-import java.awt.*;
 import java.io.Serializable;
 import java.util.LinkedList;
 
-public class Log implements Serializable, Drawable {
+public class Log implements Serializable {
 
-    private static final Font   logFont  = new Font("Times New Roman", Font.PLAIN, 15);
     /**
      * for logging in {@link #g(String)}
      */
@@ -147,16 +143,6 @@ public class Log implements Serializable, Drawable {
      */
     public String get(int i) {
         return loggedList.get(i);
-    }
-
-    @Override
-    public void draw(AbstractGamePanel panel, Graphics2D g2, int x, int y) {
-        final Point offset = new Point(x, y);
-        g2.setFont(logFont);
-        g2.setColor(Color.white);
-        for (int i = 0; i < getSize(); i++) {
-            g2.drawString(get(i), offset.x, offset.y + i * logFont.getSize() + 3);
-        }
     }
 
     public void close() {

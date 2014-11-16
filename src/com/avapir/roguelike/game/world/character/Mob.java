@@ -1,9 +1,7 @@
 package com.avapir.roguelike.game.world.character;
 
-import com.avapir.roguelike.core.Drawable;
 import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.gui.AbstractGamePanel;
-import com.avapir.roguelike.core.gui.GamePanel;
 import com.avapir.roguelike.game.battle.Armor;
 import com.avapir.roguelike.game.battle.Attack;
 import com.avapir.roguelike.game.battle.Battle;
@@ -24,7 +22,7 @@ import java.util.List;
  * amount, attack and defence power and current location on the map. Also each mob (or more often -- each kind of mobs)
  * may have so behavior specified by implementation of {@link com.avapir.roguelike.game.world.character.ai.AbstractAI}
  */
-public class Mob extends Locatable implements Cloneable, Drawable {
+public class Mob extends Locatable implements Cloneable {
 
     final         Attack     attack;
     final         Armor      armor;
@@ -261,7 +259,7 @@ public class Mob extends Locatable implements Cloneable, Drawable {
     /**
      * @return {@link Mob#HP} > 0
      */
-    boolean isAlive() {
+    public boolean isAlive() {
         return HP > 0;
     }
 
@@ -281,11 +279,11 @@ public class Mob extends Locatable implements Cloneable, Drawable {
         return getAttack().getDamageOfType(i);
     }
 
-    float getMaxHp() {
+    public float getMaxHp() {
         return maxHP;
     }
 
-    float getMaxMp() {
+    public float getMaxMp() {
         return maxMP;
     }
 
@@ -311,47 +309,6 @@ public class Mob extends Locatable implements Cloneable, Drawable {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void draw(AbstractGamePanel panel, Graphics2D g2, int j, int i) {
-        if (isAlive()) {
-            panel.drawToCell(g2, panel.getImage(getName().toLowerCase()), j, i);
-            paintColorBar(getHP() / getMaxHp(), new Color(255, 0, 0, 128), 0, j, i, g2);
-            if (getMaxMp() > 0) {
-                paintColorBar(getMP() / getMaxMp(), new Color(0, 128, 255, 128), 1, j, i, g2);
-            }
-        }
-    }
-
-    /**
-     * Paints colored bar for some stat of character above him. Usually used for HP\MP. That method receives only
-     * percentage value of stat (float value of {@code currentValue/maxValue}).
-     *
-     * @param value            percents of tile which wil be filled twice
-     * @param transparentColor color which will be used
-     * @param line             number of line painting already. Usually it's 0 for HP and 1 for MP
-     * @param j                horizontal coordinate of tile
-     * @param i                vertical coordinate of tile
-     * @param g2               {@link Graphics2D} instance
-     */
-    void paintColorBar(final float value,
-                       final Color transparentColor,
-                       final int line,
-                       final int j,
-                       final int i,
-                       final Graphics2D g2) {
-        if (value < 0 || value > 1) {
-            throw new IllegalArgumentException();
-        }
-        g2.setColor(transparentColor);
-
-        int x = j * Tile.SIZE_px;
-        int y = i * Tile.SIZE_px + line * GamePanel.STAT_BAR_HEIGHT_PX;
-
-        g2.fillRect(x, y, Tile.SIZE_px, GamePanel.STAT_BAR_HEIGHT_PX);
-        g2.fillRect(x, y, (int) (value * Tile.SIZE_px), GamePanel.STAT_BAR_HEIGHT_PX);
-    }
 
     public List<Item> getDrop() {
         return ai.getDrop();

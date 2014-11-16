@@ -3,7 +3,6 @@ package com.avapir.roguelike.game.world.character;
 import com.avapir.roguelike.core.GameStateManager;
 import com.avapir.roguelike.core.GameStateManager.GameState;
 import com.avapir.roguelike.core.Log;
-import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.battle.Armor;
 import com.avapir.roguelike.game.battle.Attack;
 import com.avapir.roguelike.game.world.items.DroppedItem;
@@ -282,7 +281,6 @@ public class Hero extends Mob {
      * you can enlarge inventory (maybe with some special items or NPC).
      */
     public static final class InventoryHandler {
-        //todo InventoryHandler implements Paintable
         //todo inventory sorting
         //todo InventoryHandler is too binded with it's View. Need to escape this and to do it in right MVC way
 
@@ -951,22 +949,6 @@ public class Hero extends Mob {
 
     public InventoryHandler getInventory() {
         return inventory;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void draw(AbstractGamePanel panel, Graphics2D g2, int j, int i) {
-        if (isAlive()) {
-            panel.drawToCell(g2, panel.getImage("hero"), j, i);
-            paintColorBar(getHP() / getMaxHp(), new Color(0, 255, 0, 128), 0, j, i, g2);
-            if (getMaxMp() > 0) {
-                paintColorBar(getMP() / getMaxMp(), new Color(0, 128, 255, 128), 1, j, i, g2);
-            }
-        } else { //if dead
-            panel.drawToCell(g2, panel.getImage("rip"), j, i);
-        }
     }
 
     /**

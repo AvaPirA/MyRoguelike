@@ -1,11 +1,8 @@
 package com.avapir.roguelike.game.world.map;
 
-import com.avapir.roguelike.core.Drawable;
-import com.avapir.roguelike.core.gui.AbstractGamePanel;
 import com.avapir.roguelike.game.world.character.Mob;
 import com.avapir.roguelike.game.world.items.DroppedItem;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +14,7 @@ import java.util.List;
  * @see com.avapir.roguelike.game.world.map.Tile.Type
  * @see com.avapir.roguelike.game.world.map.Tile.Flag
  */
-public class Tile implements Drawable {
+public class Tile {
 
     /**
      * Here described all default types of tiles. Each one may be modified by some game triggers or situations.
@@ -145,35 +142,35 @@ public class Tile implements Drawable {
         /**
          * When such tile is visible, it wil enlarge sight area.
          */
-        public static final int LIGHT_ON    = 1 << 2;
+        public static final int LIGHT_ON      = 1 << 2;
         /**
          * Allows "sight rays" go throwg this tile.
          */
-        public static final int TRANSPARENT = 1 << 3;
-        public static final int F4          = 1 << 4;
-        public static final int F5          = 1 << 5;
-        public static final int F6          = 1 << 6;
-        public static final int F7          = 1 << 7;
-        public static final int F8          = 1 << 8;
+        public static final int TRANSPARENT   = 1 << 3;
+        public static final int F4            = 1 << 4;
+        public static final int F5            = 1 << 5;
+        public static final int F6            = 1 << 6;
+        public static final int F7            = 1 << 7;
+        public static final int F8            = 1 << 8;
         /* 9-14 terrain and moving */
         /**
          * Any mob can stay on such tiles
          */
-        public static final int PASSABLE    = 1 << 9;
+        public static final int PASSABLE      = 1 << 9;
         /**
          * Tile without some special terrain properties. Just a ground. Or stone. Or sand.
          */
-        public static final int EMPTY       = 1 << 10;
+        public static final int EMPTY         = 1 << 10;
         /**
          * That's friendly tile. On each turn staying on that tile may randomly give you some buff. //todo grass
          * effects
          */
-        public static final int GRASS       = 1 << 11;
+        public static final int GRASS         = 1 << 11;
         /**
          * Unfriendly tile. That's not typical stones -- that's almost impassible mound. On each turn you may randomly
          * stumble and get some debuff. //todo stones effects
          */
-        public static final int STONES      = 1 << 12;
+        public static final int STONES        = 1 << 12;
         /**
          * Unfriendly tile. //todo ice effects
          */
@@ -427,40 +424,4 @@ public class Tile implements Drawable {
         return c;
     }
 
-    @Override
-    public void draw(AbstractGamePanel panel, Graphics2D g2, final int j, final int i) {
-        panel.drawToCell(g2, panel.getImage("empty"), j, i);
-
-        if (isSeen()) {
-            String imageName;
-            switch (getType()) {
-                case GRASS:
-                    imageName = "grass";
-                    break;
-                case TREE:
-                    imageName = "tree";
-                    break;
-                default:
-                    throw new RuntimeException("Unresolved tile type");
-            }
-            panel.drawToCell(g2, panel.getImage(imageName), j, i);
-
-            if (isVisible()) {
-                if (charHere != null) {
-                    charHere.draw(panel, g2, j, i);
-                }
-                if (getItemsAmount() > 0) {
-                    panel.drawToCell(g2, panel.getImage(itemsHere.size() > 1 ? "many_items" : itemsHere.get(0)
-                                                                                                       .getItem()
-                                                                                                       .getData()
-                                                                                                       .getImageName()),
-                                     j, i);
-                }
-            } else {
-                if (isSeen()) {
-                    panel.drawToCell(g2, panel.getImage("wFog"), j, i);
-                }
-            }
-        }
-    }
 }

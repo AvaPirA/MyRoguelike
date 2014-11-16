@@ -21,10 +21,6 @@ public class KeyboardHandler extends KeyAdapter {
         super();
     }
 
-    public void setBorgMove(final Point p) {
-        target = p;
-    }
-
     @Override
     public void keyTyped(final KeyEvent e) {
         switch (GameStateManager.getInstance().getState()) {
