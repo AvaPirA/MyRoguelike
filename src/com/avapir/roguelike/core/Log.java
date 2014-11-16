@@ -73,11 +73,13 @@ public class Log implements Serializable, Drawable {
     }
 
     /**
-     * Increments amount of added in that turn records and removes records from another turns if log is full
+     * Increments amount of records which was added in the current turn and removes records from another turns if log
+     * is full
      */
     private void removePreviousTurnRecord() {
         perTurn++;
-        if (loggedList.size() > REMAIN_RECORDS && perTurn <= REMAIN_RECORDS) {
+        System.out.format("%s > %s && %s <= %s", loggedList.size(), REMAIN_RECORDS, perTurn, REMAIN_RECORDS);
+        if (loggedList.size() > REMAIN_RECORDS || perTurn > REMAIN_RECORDS) {
             loggedList.poll();
         }
     }
