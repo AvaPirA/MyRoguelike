@@ -6,16 +6,19 @@ import com.avapir.roguelike.game.world.character.Hero;
 
 import java.awt.*;
 
-public class Viewport {
+//public class Viewport {
+public enum Viewport {
+//    private static final Viewport INSTANCE = new Viewport(Locatable.UNRESOLVED_LOCATION);
+//    public static Viewport getInstance() {return INSTANCE;}
 
-    private static final Viewport INSTANCE = new Viewport(Locatable.UNRESOLVED_LOCATION);
+    INSTANCE(Locatable.UNRESOLVED_LOCATION);
+
     private Point currentLocation;
 
     private Viewport(Point screenCenter) {
         setCenter(screenCenter.x, screenCenter.y);
     }
 
-    public static Viewport getInstance() {return INSTANCE;}
 
     public static int horizontalViewDistance() {
         return AbstractGamePanel.getWidthInTiles() / 2;

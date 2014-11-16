@@ -15,6 +15,7 @@ import java.awt.event.KeyEvent;
 
 public class KeyboardHandler extends KeyAdapter {
 
+    public boolean helpFlag = false;
     private Point target = null;
 
     public KeyboardHandler() {
@@ -43,15 +44,20 @@ public class KeyboardHandler extends KeyAdapter {
                 inventoryType(e);
                 break;
             default:
-                throw new IllegalStateException("Wrong game state");
+                throw new IllegalStateException("Wrong game state: " + GameStateManager.getInstance().getState());
         }
         GameStateManager.getInstance().repaint();
     }
 
     @Override
     public void keyPressed(final KeyEvent e) {
+//        System.out.println(e.getKeyCode());
+//        System.out.println(e.getKeyChar());
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             Main.exit();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_F1) {
+            GameStateManager.getInstance().help();
         }
         switch (GameStateManager.getInstance().getState()) {
             case MOVE:
@@ -75,6 +81,7 @@ public class KeyboardHandler extends KeyAdapter {
             default:
                 throw new IllegalStateException("Wrong game state: " + GameStateManager.getInstance().getState());
         }
+        GameStateManager.getInstance().repaint();
     }
 
     private void moveType(final KeyEvent e) {
@@ -196,17 +203,17 @@ public class KeyboardHandler extends KeyAdapter {
                 playerMove = new Point(1, -1);
                 break;
             case KeyEvent.VK_END:
-                playerMove = new Point(0, 0);
-                break;
+                GameStateManager.getInstance().EOT(new Point(0, 0));
+                return;
             case KeyEvent.VK_EQUALS:
                 GameStateManager.zoomIn();
-                Viewport.getInstance().reset();
+                Viewport.INSTANCE.reset();
                 Log.g("New zoom: %s%%", 100 * Tile.SIZE_px / 32f);
                 return;
             case KeyEvent.VK_MINUS:
                 if (Tile.SIZE_px > 1) {
                     GameStateManager.zoomOut();
-                    Viewport.getInstance().reset();
+                    Viewport.INSTANCE.reset();
                     Log.g("New zoom: %s%%", 100 * Tile.SIZE_px / 32f);
                 }
                 return;

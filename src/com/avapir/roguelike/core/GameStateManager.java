@@ -17,7 +17,7 @@ import java.awt.image.BufferedImage;
  * @author Alpen Ditrix
  * @since 0.0.1
  */
-public class GameStateManager implements StateHandlerOperator {
+public class GameStateManager implements StateManager {
 
     /**
      * States in which game may be present. Current state affects GUI and the availability of various functions
@@ -75,6 +75,7 @@ public class GameStateManager implements StateHandlerOperator {
     /* handler instances */
     private ChangingStatsHandler changingStatsHandler;
     private InventoryHandler     inventoryHandler;
+    private boolean helpFlag = false;
 
     private GameStateManager() {}
 
@@ -123,12 +124,11 @@ public class GameStateManager implements StateHandlerOperator {
 
     public void start() {
         state = GameState.MOVE;
-        Viewport.getInstance().setCenter(MapHolder.getInstance().putCharacter(Hero.getInstance()));
+        Viewport.INSTANCE.setCenter(MapHolder.getInstance().putCharacter(Hero.getInstance()));
         turnCounter = 0;
         Point zeroStep = new Point(0, 0);
         EOT(zeroStep);
     }
-
 
     /**
      * If performed step is correct, logs that and checks if viewport must be moved
@@ -138,7 +138,9 @@ public class GameStateManager implements StateHandlerOperator {
     private void move(final Point dp) {
         if (isActuallyMoved(dp)) {
             Log.g("Перешел в [%s, %s]", Hero.getInstance().getLoc().x, Hero.getInstance().getLoc().y);
-            Viewport.getInstance().move(dp);
+            Viewport.INSTANCE.move(dp);
+        } else {
+            Log.g("Смеркалось");
         }
     }
 
@@ -226,4 +228,11 @@ public class GameStateManager implements StateHandlerOperator {
         inventoryHandler = null;
     }
 
+    public boolean isNeedHelp() {
+        return helpFlag;
+    }
+
+    public void help() {
+        helpFlag = !helpFlag;
+    }
 }

@@ -95,24 +95,24 @@ public class GamePanel extends AbstractGamePanel {
         private void heroMainStats() {
             Hero hero = Hero.getInstance();
             g2.setFont(guiFont);
-            g2.setColor(Color.yellow);
+            g2.setColor(new Color(255, 255, 0));
             g2.drawString("X: " + hero.getLoc().x, o.x, o.y);
             g2.drawString("Y: " + hero.getLoc().y, o.x, o.y + 15);
             g2.drawString(hero.getName(), o.x, o.y + 30);
             g2.drawString(String.format("Level [%d] (%d/%d)", hero.getLevel(), hero.getXP(), hero.getAdvanceXP()),
                           o.x + 80, o.y);
 
-            g2.setColor(Color.green);
+            g2.setColor(new Color(80, 255, 0));
             g2.drawString(String.format("%s/%s", roundOneDigit(hero.getHP()), Hero.StatsFormulas.getMaxHP(hero)), o.x,
                           o.y + 50);
 
-            g2.setColor(Color.blue);
+            g2.setColor(new Color(0, 80, 255));
             g2.drawString(String.format("%s/%s", roundOneDigit(hero.getMP()), Hero.StatsFormulas.getMaxMP(hero)), o.x,
                           o.y + 65);
         }
 
         private void heroAttack() {
-            g2.setColor(Color.red);
+            g2.setColor(new Color(255, 50, 0));
             for (int i = 0; i < Attack.TOTAL_DMG_TYPES; i++) {
                 final float heroDmg = roundOneDigit(Hero.getInstance().getAttack(i));
                 g2.drawString(Float.toString(heroDmg), attackOffset.x, attackOffset.y + i * 15);
@@ -120,7 +120,7 @@ public class GamePanel extends AbstractGamePanel {
         }
 
         private void heroArmor() {
-            g2.setColor(Color.orange);
+            g2.setColor(new Color(255, 200, 0));
             for (int i = 0; i < Armor.TOTAL_DEF_TYPES; i++) {
                 final float heroDef = roundOneDigit(Hero.getInstance().getArmor(i));
                 g2.drawString(Float.toString(heroDef), armorOffset.x, armorOffset.y + i * 15);
@@ -277,7 +277,6 @@ public class GamePanel extends AbstractGamePanel {
     public void paintComponent(final Graphics g) {
         super.paintComponent(g);
         final Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
         drawMap(MapHolder.getInstance(), g2);
         drawLog(g2);
@@ -300,8 +299,57 @@ public class GamePanel extends AbstractGamePanel {
 
     private void drawDialogs(Graphics2D g2) {
         //TODO GameDialog class
-        if (GameStateManager.getInstance().getState() == GameState.GAME_OVER) {
-            gameOverDialog(g2);
+        switch (GameStateManager.getInstance().getState()) {
+            case GAME_OVER:
+                gameOverDialog(g2);
+                break;
+        }
+        if (GameStateManager.getInstance().isNeedHelp()) {
+            helpDialog(g2);
+        }
+    }
+
+    private void helpDialog(Graphics2D g2) {
+        String[] move = {"<Arrows>  -- go in specified direction", "       =  -- zoom in", "       -  -- zoom out",
+                "   <END>  -- end turn without step", "", "i  -- open Inventory", "d  -- make Distance Attack",
+                "v  -- switch to Viewer Mode", "c  -- change stats"};
+        //todo Create all help dialogs
+        String[] gameover = null;
+        String[] stats = null;
+        String[] view = null;
+        String[] distance = null;
+        String[] inventory = null;
+
+        String[] toPrint;
+        g2.setColor(new Color(50, 50, 50, 128));
+        switch (GameStateManager.getInstance().getState()) {
+            case MOVE:
+                g2.fillRect(200, 150, 350, 125);
+                toPrint = move;
+                break;
+            case GAME_OVER:
+                toPrint = gameover;
+                break;
+            case CHANGE_STATS:
+                toPrint = stats;
+                break;
+            case VIEW:
+                toPrint = view;
+                break;
+            case DISTANCE_ATTACK:
+                toPrint = distance;
+                break;
+            case INVENTORY:
+                toPrint = inventory;
+                break;
+            default:
+                throw new IllegalStateException("Wrong game state: " + GameStateManager.getInstance().getState());
+
+        }
+        g2.setColor(new Color(200, 200, 0));
+        g2.setFont(new Font("Monospaced", Font.PLAIN, 15));
+        for (int i = 0; i < toPrint.length; i++) {
+            g2.drawString(toPrint[i], 205, 165 + i * 13);
         }
     }
 
@@ -357,8 +405,8 @@ public class GamePanel extends AbstractGamePanel {
     // 5**********   *** II ****
     // LINE = 4; SIZE = 2; HIT = 5; WIT = 10;
     private void drawMap(final GameMap map, final Graphics2D g2) {
-        final int offsetX = Viewport.getInstance().getX() - Viewport.horizontalViewDistance();
-        final int offsetY = Viewport.getInstance().getY() - Viewport.verticalViewDistance();
+        final int offsetX = Viewport.INSTANCE.getX() - Viewport.horizontalViewDistance();
+        final int offsetY = Viewport.INSTANCE.getY() - Viewport.verticalViewDistance();
         final int WIT = getWidthInTiles();
         final int HIT = getHeightInTiles();
         if (GameStateManager.getInstance().getState() == GameState.INVENTORY) {
