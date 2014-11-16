@@ -3,6 +3,7 @@ package com.avapir.roguelike.core.controls;
 import com.avapir.roguelike.core.GameStateManager;
 import com.avapir.roguelike.core.GameStateManager.GameState;
 import com.avapir.roguelike.core.Log;
+import com.avapir.roguelike.core.Main;
 import com.avapir.roguelike.core.Viewport;
 import com.avapir.roguelike.core.statehandlers.StateHandler;
 import com.avapir.roguelike.game.world.character.Hero;
@@ -54,7 +55,7 @@ public class KeyboardHandler extends KeyAdapter {
     @Override
     public void keyPressed(final KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            System.exit(0);
+            Main.exit();
         }
         switch (GameStateManager.getInstance().getState()) {
             case MOVE:

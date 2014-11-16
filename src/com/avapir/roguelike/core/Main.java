@@ -7,7 +7,8 @@ import java.util.Arrays;
 
 public class Main {
 
-    public static final String     TITLE    = "MyRoguelike";
+    public static final String TITLE = "MyRoguelike";
+
     /**
      * Main window of the game. Here everything will be painted.
      */
@@ -20,9 +21,7 @@ public class Main {
      */
     public static void main(final String[] args) {
         System.out.println("Uses Toolkit: " + System.getProperty("awt.toolkit"));
-
         startRenderer(TITLE + (args.length > 0 ? Arrays.toString(args) : ""));
-
         GameStateManager.getInstance().start();
     }
 
@@ -30,6 +29,11 @@ public class Main {
         renderer.setTitle(title);
         renderer.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         renderer.setVisible(true);
+    }
+
+    public static void exit() {
+        Log.getInstance().close();
+        System.exit(0);
     }
 
 }

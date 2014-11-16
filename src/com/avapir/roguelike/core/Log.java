@@ -7,25 +7,22 @@ import java.io.Serializable;
 import java.util.LinkedList;
 
 public class Log implements Serializable, Drawable {
-    private static final Font               logFont            = new Font("Times New Roman", Font.PLAIN, 15);
-    private static final long               serialVersionUID   = 1L;
+
+    private static final Font   logFont  = new Font("Times New Roman", Font.PLAIN, 15);
     /**
-     * {@link java.util.Formatter}-string for logging in {@link #g(String)}
+     * for logging in {@link #g(String)}
      */
-    private static final String             FMT_GAME           = "[%d:%d] %s";
-    /**
-     * {@link java.util.Formatter}-string for logging in {@link #g(String)}
-     */
-    private static final String             FMT_GAME_FORMATTED = "[%d:%d] ";
-    private static final Log                instance           = new Log();
+    private static final String FMT_GAME = "[%d:%d] %s";
+    private static final Log    instance = new Log();
+
     /**
      * How much records will remain after end of turn
      */
-    private static       int                REMAIN_RECORDS     = 15;
+    private static int                REMAIN_RECORDS = 15;
     /**
      * Storage of records
      */
-    private final        LinkedList<String> loggedList         = new LinkedList<>();
+    private final  LinkedList<String> loggedList     = new LinkedList<>();
     /**
      * How many records were made ​​from the beginning of turn
      */
@@ -35,7 +32,12 @@ public class Log implements Serializable, Drawable {
      */
     private int turn = -1;
 
+    private LogWriter logWriter;
+
     private Log() {
+        if (isWritingLogToFile()) {
+            logWriter = new LogWriter("Game");
+        }
     }
 
     public static Log getInstance() {
@@ -50,6 +52,10 @@ public class Log implements Serializable, Drawable {
         Log.getInstance().game(s, params);
     }
 
+    public static boolean isWritingLogToFile() {
+        return Boolean.parseBoolean(System.getProperty("writeLog"));
+    }
+
     /**
      * Sends default record for game
      *
@@ -57,9 +63,16 @@ public class Log implements Serializable, Drawable {
      */
     public void game(final String s) {
         String formatted = String.format(FMT_GAME, perTurn, getTurnAndCheck(), s);
-        loggedList.add(formatted);
-        System.out.println(formatted);
+        _write(formatted);
         removePreviousTurnRecord();
+    }
+
+    private void _write(String s) {
+        loggedList.add(s);
+        System.out.println(s);
+        if (logWriter != null) {
+            logWriter.write(s);
+        }
     }
 
     /**
@@ -78,7 +91,6 @@ public class Log implements Serializable, Drawable {
      */
     private void removePreviousTurnRecord() {
         perTurn++;
-        System.out.format("%s > %s && %s <= %s", loggedList.size(), REMAIN_RECORDS, perTurn, REMAIN_RECORDS);
         if (loggedList.size() > REMAIN_RECORDS || perTurn > REMAIN_RECORDS) {
             loggedList.poll();
         }
@@ -144,6 +156,12 @@ public class Log implements Serializable, Drawable {
         g2.setColor(Color.white);
         for (int i = 0; i < getSize(); i++) {
             g2.drawString(get(i), offset.x, offset.y + i * logFont.getSize() + 3);
+        }
+    }
+
+    public void close() {
+        if (isWritingLogToFile()) {
+            logWriter.close();
         }
     }
 }
