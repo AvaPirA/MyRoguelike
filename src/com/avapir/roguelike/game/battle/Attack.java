@@ -1,5 +1,6 @@
 package com.avapir.roguelike.game.battle;
 
+/** Physical<br> Magic<br> Water<br> Fire<br> Lightning<br> Curse */
 public class Attack implements Cloneable {
 
     public static final int     TOTAL_DMG_TYPES = 6;
@@ -7,26 +8,16 @@ public class Attack implements Cloneable {
 
     public Attack(final float... input) {
         if (input.length > TOTAL_DMG_TYPES) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Unknown attack type");
         }
-
         System.arraycopy(input, 0, damage, 0, input.length);
     }
-
-    private Attack() {}
 
     public Attack(Attack bAtk) {
         if (bAtk != null) {
             System.arraycopy(bAtk.damage, 0, damage, 0, TOTAL_DMG_TYPES);
         }
     }
-
-//    @Override
-//    public Object clone() {
-//        Attack newInst = new Attack();
-//        System.arraycopy(damage, 0, newInst.damage, 0, TOTAL_DMG_TYPES);
-//
-//    }
 
     public static Attack sum(Attack a1, Attack a2) {
         Attack a = new Attack();
@@ -35,24 +26,16 @@ public class Attack implements Cloneable {
         return a;
     }
 
-    public Attack addDamage(final float[] damages) {
-        if (damages.length > TOTAL_DMG_TYPES) {
-            throw new IllegalArgumentException();
-        }
-
-        for (int i = 0; i < damages.length; i++) {
-            damage[i] += damages[i];
-        }
-        return this;
-    }
-
-    Attack addDamageFromAttack(final Attack atk) {
+    public Attack addDamage(final float[] atk) {
         if (atk == null) {
             return this;
         }
+        if (atk.length != TOTAL_DMG_TYPES) {
+            throw new IllegalArgumentException();
+        }
 
         for (int i = 0; i < TOTAL_DMG_TYPES; i++) {
-            damage[i] += atk.damage[i];
+            damage[i] += atk[i];
         }
         return this;
     }
@@ -62,7 +45,6 @@ public class Attack implements Cloneable {
             return this;
         }
         addDamage(atk.damage);
-//        addDamageFromAttack(atk);
         return this;
     }
 
@@ -78,9 +60,7 @@ public class Attack implements Cloneable {
         if (attack == null) {
             return this;
         }
-
-        clear();
-        addAttack(attack);
+        System.arraycopy(attack.damage, 0, this.damage, 0, TOTAL_DMG_TYPES);
         return this;
     }
 
@@ -102,4 +82,3 @@ public class Attack implements Cloneable {
         }
     }
 }
-

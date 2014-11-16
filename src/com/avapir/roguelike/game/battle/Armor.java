@@ -26,11 +26,7 @@ public class Armor implements Cloneable {
         return a;
     }
 
-    public float getArmor(final int index) {
-        return armor[index];
-    }
-
-    public Armor addArmor(final int[] def) {
+    public Armor addArmor(final float[] def) {
         if (def == null) {
             return this;
         }
@@ -48,8 +44,16 @@ public class Armor implements Cloneable {
         if (def == null) {
             return this;
         }
-        System.arraycopy(def.armor, 0, armor, 0, TOTAL_DEF_TYPES);
+        addArmor(def.armor);
         return this;
+    }
+
+    public float getArmorOfType(final int index) {
+        return armor[index];
+    }
+
+    public float[] getArmor() {
+        return armor;
     }
 
     public Armor replaceBy(final Armor armor) {
@@ -58,6 +62,12 @@ public class Armor implements Cloneable {
         }
         System.arraycopy(armor.armor, 0, this.armor, 0, TOTAL_DEF_TYPES);
         return this;
+    }
+
+    private void clear() {
+        for (int i = 0; i < TOTAL_DEF_TYPES; i++) {
+            armor[i] = 0;
+        }
     }
 
     @Override
@@ -71,5 +81,4 @@ public class Armor implements Cloneable {
             throw new InternalError();
         }
     }
-
 }
