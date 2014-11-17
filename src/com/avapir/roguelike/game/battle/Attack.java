@@ -52,22 +52,12 @@ public class Attack implements Cloneable {
         return damage[index];
     }
 
-    public float[] getDamage() {
-        return damage;
-    }
-
     public Attack replaceBy(final Attack attack) {
         if (attack == null) {
             return this;
         }
         System.arraycopy(attack.damage, 0, this.damage, 0, TOTAL_DMG_TYPES);
         return this;
-    }
-
-    private void clear() {
-        for (int i = 0; i < TOTAL_DMG_TYPES; i++) {
-            damage[i] = 0;
-        }
     }
 
     @Override

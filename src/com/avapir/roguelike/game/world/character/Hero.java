@@ -14,7 +14,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 /**
  * This class implements special type of mob with stats, inventory and equipment. Accordingly,
@@ -88,7 +87,6 @@ public class Hero extends Mob {
         }
 
         public static double addBonusXp(final Hero h, final double xp) {
-            final Random r = new Random();
             final int L = h.stats.getLuk();
             final int D = h.stats.getDex();
             // max XP is XP*(1+300/300+300/50) = 8*XP
@@ -922,18 +920,8 @@ public class Hero extends Mob {
     }
 
     @Override
-    public float getArmor(final int i) {
-        return getArmor().getArmorOfType(i);
-    }
-
-    @Override
     public Attack getAttack() {
         return Attack.sum(super.getAttack(), equipment.getAttack());
-    }
-
-    @Override
-    public float getAttack(final int i) {
-        return getAttack().getDamageOfType(i);
     }
 
     public int getXP() {
@@ -982,7 +970,7 @@ public class Hero extends Mob {
         return damage;
     }
 
-    public Object getAdvanceXP() {
+    public int getAdvanceXP() {
         return LVL_UP;
     }
 

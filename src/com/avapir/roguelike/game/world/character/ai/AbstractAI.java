@@ -33,7 +33,7 @@ public abstract class AbstractAI {
     }
 
     protected Point getRandomDirection() {
-        return new Point(new Point(random.nextInt(3) - 1, random.nextInt(3) - 1));
+        return new Point(random.nextInt(3) - 1, random.nextInt(3) - 1);
     }
 
 }

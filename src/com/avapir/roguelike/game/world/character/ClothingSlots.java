@@ -6,8 +6,6 @@ public enum ClothingSlots {
     WEAPON_1, LEGGINGS, GLOVES,
     RING_1, BOOTS, RING_2;
 
-    public static final int NOT_DRESSED = -69;
-
     public static ClothingSlots fromCoord(int x, int y) {
         return fromInt(y * 10 + x);
     }

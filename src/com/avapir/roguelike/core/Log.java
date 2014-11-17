@@ -1,6 +1,7 @@
 package com.avapir.roguelike.core;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
 
 public class Log implements Serializable {
@@ -8,8 +9,9 @@ public class Log implements Serializable {
     /**
      * for logging in {@link #g(String)}
      */
-    private static final String FMT_GAME = "[%d:%d] %s";
-    private static final Log    instance = new Log();
+    private static final String FMT_GAME  = "[%d:%d] %s";
+    private static final String FMT_ERROR = "E[%s] %s";
+    private static final Log    instance  = new Log();
 
     /**
      * How much records will remain after end of turn
@@ -40,6 +42,10 @@ public class Log implements Serializable {
         return instance;
     }
 
+    public static void e(final String s) {
+        Log.getInstance().error(s);
+    }
+
     public static void g(final String s) {
         Log.getInstance().game(s);
     }
@@ -50,6 +56,12 @@ public class Log implements Serializable {
 
     public static boolean isWritingLogToFile() {
         return Boolean.parseBoolean(System.getProperty("writeLog"));
+    }
+
+    private void error(String s) {
+        String formatted = String.format(FMT_ERROR, ZonedDateTime.now().toLocalTime(), s);
+        _write(formatted);
+        removePreviousTurnRecord();
     }
 
     /**
@@ -75,7 +87,6 @@ public class Log implements Serializable {
      * Sends default record about game
      *
      * @param s formatting data string
-     * @param s params data to insert
      */
     public void game(final String s, final Object... params) {
         game(String.format(s, params));
@@ -115,18 +126,6 @@ public class Log implements Serializable {
         for (int i = 0; i < extra; i++) {
             loggedList.poll();
         }
-    }
-
-    /**
-     * Sets new value to {@link Log#REMAIN_RECORDS}, which must be more than zero
-     *
-     * @param count new value
-     */
-    public void resetRemainRecordsAmount(int count) {
-        if (count < 0) {
-            throw new IllegalArgumentException("Amount of records must be greater than zero");
-        }
-        REMAIN_RECORDS = count;
     }
 
     /**

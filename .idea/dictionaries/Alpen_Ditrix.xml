@@ -2,10 +2,15 @@
   <dictionary name="Alpen Ditrix">
     <words>
       <w>avapir</w>
+      <w>debuff</w>
+      <w>gameover</w>
       <w>overweighted</w>
       <w>paintable</w>
+      <w>passability</w>
       <w>roguelike</w>
+      <w>seenability</w>
       <w>smth</w>
+      <w>teleports</w>
     </words>
   </dictionary>
 </component>

@@ -19,7 +19,7 @@ public class SlimeAI extends EasyAI {
     public void computeAI(final Mob m) {
         final int x = m.getLoc().x;
         final int y = m.getLoc().y;
-        final Point p = new Point(random.nextInt(3) - 1, random.nextInt(3) - 1);
+        final Point p = getRandomDirection();
         for (int i = x - 4; i < x + 4; i++) {
             for (int j = y - 4; j < y + 4; j++) {
                 final Tile t = MapHolder.getInstance().getTile(i, j);
@@ -28,7 +28,7 @@ public class SlimeAI extends EasyAI {
                 }
             }
         }
-        final Tile t = MapHolder.getInstance().getTile(m.getX() + p.x, m.getY() + p.y);
+        final Tile t = MapHolder.getInstance().getTile(m.getLoc().x + p.x, m.getLoc().y + p.y);
         if (t != null && t.getMob() != null) {
             if (t.getMob().getName().equals(m.getName())) {
                 m.move(new Point(0, 0));

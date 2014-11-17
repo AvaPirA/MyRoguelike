@@ -31,14 +31,14 @@ public class Item {
         return ItemDatabase.get(ID);
     }
 
-    public void convert(Item item) {
-        ID = item.ID;
-    }
-
-    public void copy(Item item) {
-        ID = item.ID;
-        amount = item.amount;
-    }
+//    public void convert(Item item) {
+//        ID = item.ID;
+//    }
+//
+//    public void copy(Item item) {
+//        ID = item.ID;
+//        amount = item.amount;
+//    }
 
     public synchronized void swap(Item item) {
         int tmpID = ID;

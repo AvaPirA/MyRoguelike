@@ -16,8 +16,8 @@ public class MapHolder implements Map {
     /**
      * Full list of already created maps
      */
-    private final List<GameMap> maps;
-    private       GameMap       currentMap;
+    private final List<Map> maps;
+    private       Map       currentMap;
 
     private MapHolder() {
         maps = new ArrayList<>();
@@ -34,7 +34,7 @@ public class MapHolder implements Map {
      * @param index internal index of map (just as ID)
      */
     public void switchToMap(final int index) {
-        GameMap newMap = maps.get(index);
+        Map newMap = maps.get(index);
         if (newMap == null) {
             currentMap = new GameMap(40, 40);
             maps.add(index, currentMap);
@@ -53,17 +53,14 @@ public class MapHolder implements Map {
         return currentMap.getWidth();
     }
 
-    @Override
     public String getTitle() {
         return currentMap.getTitle();
     }
 
-    @Override
     public Tile getTile(int x, int y) {
         return currentMap.getTile(x, y);
     }
 
-    @Override
     public boolean putCharacter(Mob c, int x, int y) {
         return currentMap.putCharacter(c, x, y);
     }

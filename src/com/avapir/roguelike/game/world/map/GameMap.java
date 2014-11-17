@@ -8,8 +8,10 @@ import com.avapir.roguelike.game.world.map.fov.FovAlgorithm;
 import com.avapir.roguelike.game.world.map.fov.PermissiveFOV;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -70,9 +72,6 @@ public class GameMap implements Map {
 
     /**
      * Creates empty map with specified dimensions
-     *
-     * @param height
-     * @param width
      */
     @Deprecated
     public GameMap(final int height, final int width) {
@@ -113,10 +112,6 @@ public class GameMap implements Map {
                 }
             }
             placeMobsAndItems(map, 200);
-        }
-
-        void generate(final GameMap map, final Properties props) {
-
         }
 
         void placeMobsAndItems(final GameMap map, final int scaler) {
@@ -323,18 +318,15 @@ public class GameMap implements Map {
      *
      * @param mob mob which was killed
      */
-    @Override
     public void kill(Mob mob) {
         removeMob(mob.getLoc());
         dropItems(mob.getDrop(), mob.getLoc());
     }
 
-    @Override
     public List<Mob> getMobs() {
         return mobs;
     }
 
-    @Override
     public void removeAllMobs() {
         // cant use foreach loop cause of concurrent work
         while (mobs.size() > 0) {
@@ -342,12 +334,10 @@ public class GameMap implements Map {
         }
     }
 
-    @Override
     public void killAllMobs() {
         mobs.forEach(this::kill);
     }
 
-    @Override
     public void doMobsAi() {
         Hero.getInstance().doAI();
         for (Mob mob : mobs) {

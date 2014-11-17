@@ -14,11 +14,9 @@ import java.util.Locale;
  */
 public class LogWriter {
 
-    private final String         title;
     private final BufferedWriter writer;
 
     public LogWriter(String title) {
-        this.title = title;
         String path = String.format("%s.log", title.toLowerCase(Locale.UK));
         Path p = Paths.get(path);
         System.out.println(p);
@@ -30,7 +28,7 @@ public class LogWriter {
             e.printStackTrace();
         }
         writer = w;
-        format("\"%s\" log created at %s\n", title, ZonedDateTime.now().toString());
+        format("\"%s\" log created at %s\n", title, ZonedDateTime.now().toLocalDateTime().toString());
     }
 
     public void format(String fmt, String... s) {

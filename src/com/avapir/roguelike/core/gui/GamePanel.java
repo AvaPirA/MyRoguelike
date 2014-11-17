@@ -5,6 +5,7 @@ import com.avapir.roguelike.core.GameStateManager.GameState;
 import com.avapir.roguelike.core.Log;
 import com.avapir.roguelike.core.Viewport;
 import com.avapir.roguelike.core.controls.KeyboardHandler;
+import com.avapir.roguelike.core.resources.ImageResources;
 import com.avapir.roguelike.game.battle.Armor;
 import com.avapir.roguelike.game.battle.Attack;
 import com.avapir.roguelike.game.world.character.Hero;
@@ -54,18 +55,18 @@ public class GamePanel extends AbstractGamePanel {
             heroArmor();
             heroStats();
 
-            if (GameStateManager.getInstance().getState() == GameState.INVENTORY) {
+//            if (GameStateManager.getInstance().getState() == GameState.INVENTORY) {
                 /*draw inventory
                 * actually, I draw it at GamePanel#drawMap(Map, Graphics2D)
                 * Theres 2 goals got by this decision:
                 * 1) Do not draw inventory-pixels twice: first for map tiles and second for inventory
                 * 2) I hope it will look nice
                 */
-            }
+//            }
         }
 
         private void heroEquipment() {
-            final Image itemBg = getImage("inventory_bg");
+            final Image itemBg = ImageResources.getImage("inventory_bg");
             int itemBgWidth = itemBg.getWidth(null);
             int itemBgHeight = itemBg.getHeight(null);
 
@@ -77,7 +78,7 @@ public class GamePanel extends AbstractGamePanel {
                     g2.setColor(Color.yellow);
                     Item item = Hero.getInstance().getEquipment().get(j * 3 + i);
                     if (item != null) {
-                        g2.drawImage(getImage(item.getData().getImageName()), xx, yy, null);
+                        g2.drawImage(ImageResources.getImage(item.getData().getImageName()), xx, yy, null);
                     }
                 }
             }
@@ -101,7 +102,8 @@ public class GamePanel extends AbstractGamePanel {
             g2.drawString(String.format("Level [%d] (%d/%d)", hero.getLevel(), hero.getXP(), hero.getAdvanceXP()),
                           o.x + 80, o.y);
             float v = roundThreeDigits(
-                    (hero.getXP() - hero.getPrevLevelXp()) / Float.valueOf(hero.getAdvanceXP().toString()) * 100);
+                    (hero.getXP() - hero.getPrevLevelXp()) / Float.valueOf(Integer.toString(hero.getAdvanceXP())) *
+                            100);
             g2.drawString(String.format("[%s%%]", v), o.x + 80, o.y + 15);
 
             g2.setColor(new Color(80, 255, 0));
@@ -115,16 +117,18 @@ public class GamePanel extends AbstractGamePanel {
 
         private void heroAttack() {
             g2.setColor(new Color(255, 50, 0));
+            Attack atk = Hero.getInstance().getAttack();
             for (int i = 0; i < Attack.TOTAL_DMG_TYPES; i++) {
-                final float heroDmg = roundOneDigit(Hero.getInstance().getAttack(i));
+                final float heroDmg = roundOneDigit(atk.getDamageOfType(i));
                 g2.drawString(Float.toString(heroDmg), attackOffset.x, attackOffset.y + i * 15);
             }
         }
 
         private void heroArmor() {
             g2.setColor(new Color(255, 200, 0));
+            Armor armr = Hero.getInstance().getArmor();
             for (int i = 0; i < Armor.TOTAL_DEF_TYPES; i++) {
-                final float heroDef = roundOneDigit(Hero.getInstance().getArmor(i));
+                final float heroDef = roundOneDigit(armr.getArmorOfType(i));
                 g2.drawString(Float.toString(heroDef), armorOffset.x, armorOffset.y + i * 15);
             }
         }
@@ -291,11 +295,18 @@ public class GamePanel extends AbstractGamePanel {
         final Point offset = new Point(x, y);
         final Font logFont = new Font("Times New Roman", Font.PLAIN, 15);
         g2.setFont(logFont);
-        g2.setColor(Color.white);
+        g2.setColor(new Color(255, 255, 255));
 
         Log log = Log.getInstance();
         for (int i = 0; i < log.getSize(); i++) {
-            g2.drawString(log.get(i), offset.x, offset.y + i * logFont.getSize() + 3);
+            final String s = log.get(i);
+            if (!s.startsWith("E")) {
+                g2.drawString(s, offset.x, offset.y + i * logFont.getSize() + 3);
+            } else {
+                g2.setColor(new Color(255, 0, 0));
+                g2.drawString(s.substring(1), offset.x, offset.y + i * logFont.getSize() + 3);
+                g2.setColor(new Color(255, 255, 255));
+            }
         }
     }
 
@@ -319,7 +330,7 @@ public class GamePanel extends AbstractGamePanel {
         String[] stats = {"<Arrows>  -- choose stat and change it as you wish", "c  -- return to Moving"};
         String[] view = {"v  -- return to Moving"};
         String[] distance = {"d  -- return to Moving"};
-        String[] inventory = {"<ENTER>  -- equip or take off selecter item", "s  -- switch cursor to " +
+        String[] inventory = {"<ENTER>  -- equip or take off selected item", "s  -- switch cursor to " +
                 "inventory/equipment", "e  -- equip or take off selected item and switch cursor",
                 "i  -- return to Moving"};
 
@@ -362,7 +373,7 @@ public class GamePanel extends AbstractGamePanel {
     }
 
     private void gameOverDialog(Graphics2D g2) {
-        final Image img = getImage("gameover");
+        final Image img = ImageResources.getImage("gameover");
         g2.drawImage(img, (getWidthInTiles() * Tile.SIZE_px - img.getWidth(null)) / 2,
                      (getHeightInTiles() * Tile.SIZE_px - img.getHeight(null)) / 4, null);
     }
@@ -411,13 +422,13 @@ public class GamePanel extends AbstractGamePanel {
     // 3** IIII **   <<<=  =>>>>
     // 4**      **   01234567890
     // 5**********   *** II ****
-    // LINE = 4; SIZE = 2; HIT = 5; WIT = 10;
+    // INVENTORY_LINE = 4; INVENTORY_SIZE = 2; HIT = 5; WIT = 10;
     private void drawMap(final Map map, final Graphics2D g2) {
         final int offsetX = Viewport.INSTANCE.getX() - Viewport.horizontalViewDistance();
         final int offsetY = Viewport.INSTANCE.getY() - Viewport.verticalViewDistance();
-        final int WIT = getWidthInTiles();
-        final int HIT = getHeightInTiles();
         if (GameStateManager.getInstance().getState() == GameState.INVENTORY) {
+            final int WIT = getWidthInTiles();
+            final int HIT = getHeightInTiles();
             int l = (WIT - Hero.InventoryHandler.LINE) / 2;
             int r = (WIT + Hero.InventoryHandler.LINE) / 2;
             int t = 3;
@@ -444,7 +455,7 @@ public class GamePanel extends AbstractGamePanel {
                                     int j) {// indexes on the Map
         final Tile tile = map.getTile(offsetX + j, offsetY + i);
         if (tile != null) {
-            drawToCell(g2, getImage("empty"), j, i);
+            drawToCell(g2, ImageResources.getImage("empty"), j, i);
 
             if (tile.isSeen()) {
                 String imageName;
@@ -458,42 +469,42 @@ public class GamePanel extends AbstractGamePanel {
                     default:
                         throw new RuntimeException("Unresolved tile type");
                 }
-                drawToCell(g2, getImage(imageName), j, i);
+                drawToCell(g2, ImageResources.getImage(imageName), j, i);
 
                 if (tile.isVisible()) {
                     if (tile.getMob() != null) {
                         drawMobOnTile(g2, tile.getMob(), j, i);
                     }
                     if (tile.getItemsAmount() > 0) {
-                        drawToCell(g2, getImage(tile.getItemsAmount() > 1 ? "many_items" : tile.getItemList()
-                                                                                               .get(0)
-                                                                                               .getItem()
-                                                                                               .getData()
-                                                                                               .getImageName()), j, i);
+                        drawToCell(g2, ImageResources.getImage(
+                                tile.getItemsAmount() > 1 ? "many_items" : tile.getItemList()
+                                                                               .get(0)
+                                                                               .getItem()
+                                                                               .getData()
+                                                                               .getImageName()), j, i);
                     }
                 } else { // seen & !visible == "fog of war" over empty terrain
-                    drawToCell(g2, getImage("wFog"), j, i);
+                    drawToCell(g2, ImageResources.getImage("wFog"), j, i);
                 }
             }
-        } else {
-            // some outworld. Stars ort smth
         }
+//        else {// some outworld. Stars ort smth}
     }
 
     private void drawMobOnTile(Graphics2D g2, Mob m, int j, int i) {
         if (m.equals(Hero.getInstance())) {
             if (m.isAlive()) {
-                drawToCell(g2, getImage("hero"), j, i);
+                drawToCell(g2, ImageResources.getImage("hero"), j, i);
                 drawMobLifeBars(g2, m, j, i, true);
             } else { //if dead
-                drawToCell(g2, getImage("rip"), j, i);
+                drawToCell(g2, ImageResources.getImage("rip"), j, i);
             }
         } else {
             if (m.isAlive()) {
                 String name = m.getName();
                 String s1 = name.toLowerCase();
                 String s = s1.replace(" ", "_");
-                Image image = getImage(s);
+                Image image = ImageResources.getImage(s);
                 drawToCell(g2, image, j, i);
                 drawMobLifeBars(g2, m, j, i, false);
             }
@@ -539,7 +550,7 @@ public class GamePanel extends AbstractGamePanel {
     }
 
     private void drawMap_inventoryBorder(Graphics2D g2, int l, int r, int t, int d) {
-        Image border = getImage("empty");
+        Image border = ImageResources.getImage("empty");
         for (int w = l; w <= r; w++) {
             drawToCell(g2, border, w, t);
             drawToCell(g2, border, w, d);
@@ -551,14 +562,14 @@ public class GamePanel extends AbstractGamePanel {
     }
 
     /**
-     * @param g2
+     * @param g2 {@link Graphics2D} instance
      * @param l  left boundary cell
      * @param r  right boundary cell
      * @param t  top boundary cell
      * @param d  bottom boundary cell
      */
     private void drawMap_inventory(Graphics2D g2, int l, int r, int t, int d) {
-        Image invBgImg = getImage("inventory_bg");
+        Image invBgImg = ImageResources.getImage("inventory_bg");
         for (int h = t; h <= d; h++) {
             for (int w = l; w <= r; w++) {
                 drawToCell(g2, invBgImg, w, h);
@@ -567,7 +578,7 @@ public class GamePanel extends AbstractGamePanel {
         int[][] items = Hero.getInstance().getInventory().toPaintableArrays();
 
         for (int[] item : items) {
-            drawToCell(g2, getImage(ItemDatabase.get(item[2]).getImageName()), l + item[1], t + item[0]);
+            drawToCell(g2, ImageResources.getImage(ItemDatabase.get(item[2]).getImageName()), l + item[1], t + item[0]);
             if (item[3] != 1) {
                 g2.setFont(inventoryAmountFont);
                 g2.setColor(inventoryAmountColor);

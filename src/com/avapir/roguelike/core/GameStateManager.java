@@ -17,7 +17,7 @@ import java.awt.image.BufferedImage;
  * @author Alpen Ditrix
  * @since 0.0.1
  */
-public class GameStateManager implements StateManager {
+public class GameStateManager {
 
     /**
      * States in which game may be present. Current state affects GUI and the availability of various functions
@@ -180,17 +180,14 @@ public class GameStateManager implements StateManager {
         }
     }
 
-    @Override
     public ChangingStatsHandler getStatsHandler() {
         return changingStatsHandler;
     }
 
-    @Override
     public InventoryHandler getInventoryHandler() {
         return inventoryHandler;
     }
 
-    @Override
     public void createStatsHandler() {
         Log.g("_____________________");
         Log.g("Изменение характеристик:");
@@ -198,7 +195,6 @@ public class GameStateManager implements StateManager {
         changingStatsHandler = new ChangingStatsHandler();
     }
 
-    @Override
     public void removeStatsHandler() {
         Hero h = Hero.getInstance();
         changingStatsHandler.flush();
@@ -214,14 +210,12 @@ public class GameStateManager implements StateManager {
         changingStatsHandler = null;
     }
 
-    @Override
     public void createInventoryHandler() {
         Log.g("_____________________");
         Log.g("Открыт инвентарь!");
         inventoryHandler = new InventoryHandler();
     }
 
-    @Override
     public void removeInventoryHandler() {
         Log.g("Инвентарь закрыт");
         Log.g("_____________________");

@@ -15,7 +15,6 @@ import java.awt.event.KeyEvent;
 
 public class KeyboardHandler extends KeyAdapter {
 
-    public boolean helpFlag = false;
     private Point target = null;
 
     public KeyboardHandler() {
@@ -29,7 +28,7 @@ public class KeyboardHandler extends KeyAdapter {
                 moveType(e);
                 break;
             case GAME_OVER:
-                afterGameOverPressings(e);
+                afterGameOverPressings();
                 break;
             case CHANGE_STATS:
                 changeStatsType(e);
@@ -64,7 +63,7 @@ public class KeyboardHandler extends KeyAdapter {
                 movePress(e);
                 break;
             case GAME_OVER:
-                afterGameOverPressings(e);
+                afterGameOverPressings();
                 break;
             case CHANGE_STATS:
                 changeStatsPress(e);
@@ -125,7 +124,9 @@ public class KeyboardHandler extends KeyAdapter {
                 break;
             case KeyEvent.VK_ENTER:
                 if (e.isShiftDown()) {
+                    //todo
                     //ask about amount
+                    throw new RuntimeException("Typing amount is not implemented yet");
                 }
                 gsm.getInventoryHandler().press();
                 break;
@@ -144,7 +145,9 @@ public class KeyboardHandler extends KeyAdapter {
 
     private void distanceAttackPress(final KeyEvent e) {
         switch (e.getKeyCode()) {
-
+            //todo
+            case KeyEvent.VK_F1:
+                break;
         }
     }
 
@@ -171,7 +174,9 @@ public class KeyboardHandler extends KeyAdapter {
 
     private void viewPress(final KeyEvent e) {
         switch (e.getKeyCode()) {
-
+            //todo
+            case KeyEvent.VK_F1:
+                break;
         }
     }
 
@@ -238,7 +243,7 @@ public class KeyboardHandler extends KeyAdapter {
         }
     }
 
-    private void afterGameOverPressings(final KeyEvent e) {
+    private void afterGameOverPressings() {
         Main.exit();
     }
 

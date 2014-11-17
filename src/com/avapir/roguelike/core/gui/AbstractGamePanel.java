@@ -1,40 +1,23 @@
 package com.avapir.roguelike.core.gui;
 
+import com.avapir.roguelike.core.resources.ImageResources;
 import com.avapir.roguelike.game.world.map.Tile;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class AbstractGamePanel extends JPanel {
 
     static final int SCREEN_WIDTH;
     static final int SCREEN_HEIGHT;
-    private static final long    serialVersionUID = 1L;
-    private static final Toolkit tKit             = Toolkit.getDefaultToolkit();
-    private static final Color[] COLOR_SET        = {Color.BLACK, Color.WHITE, Color.RED, Color.GREEN, Color.BLUE,
-            Color.CYAN, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.PINK};
-    private static final String  path             = "res/sprite/";
+    private static final long serialVersionUID = 1L;
 
     static {
         final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         SCREEN_HEIGHT = dim.height;
         SCREEN_WIDTH = dim.width;
-    }
-
-    private final Map<String, Boolean> loadedImages = new HashMap<>();
-
-    protected static Color getDefaultStringColor(final int index) {
-        if (index < 0 || index > 9) {
-            throw new IllegalArgumentException(
-                    String.format("Wrong default string color index: %s while have only %s" + " colors", index,
-                                  COLOR_SET.length));
-        }
-        return COLOR_SET[index];
     }
 
     static int getMapWidth() {
@@ -69,42 +52,6 @@ public abstract class AbstractGamePanel extends JPanel {
         return Math.round(1000 * f) / 1000f;
     }
 
-    private static BufferedImage toBufferedImage(Image image) {
-        if (image instanceof BufferedImage) {
-            return (BufferedImage) image;
-        }
-        // This code ensures that all the pixels in the image are loaded
-        image = new ImageIcon(image).getImage();
-        /*
-         * Determine if the image has transparent pixels; for this method's
-         * implementation, see e661 Determining If an Image Has Transparent Pixels
-         * boolean hasAlpha = hasAlpha(image);
-         * Create a buffered image with a format that's compatible with the screen
-         */
-        BufferedImage bimage = null;
-
-        // Create the buffered image
-        try {
-            final int transparency = Transparency.OPAQUE;
-            final GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment()
-                                                                .getDefaultScreenDevice()
-                                                                .getDefaultConfiguration();
-            bimage = gc.createCompatibleImage(image.getWidth(null), image.getHeight(null), transparency);
-        } catch (final HeadlessException e) {
-            // The system does not have a screen
-        }
-        if (bimage == null) {
-            final int type = BufferedImage.TYPE_INT_RGB;
-            bimage = new BufferedImage(image.getWidth(null), image.getHeight(null), type);
-        }
-        // Copy image to buffered image
-        final Graphics g = bimage.createGraphics();
-        // Paint the image onto the buffered image
-        g.drawImage(image, 0, 0, null);
-        g.dispose();
-        return bimage;
-    }
-
     @Override
     public void paintComponent(final Graphics g) {
         super.paintComponent(g);
@@ -124,7 +71,8 @@ public abstract class AbstractGamePanel extends JPanel {
     }
 
     private void paintBackground(final Graphics2D g2) {
-        final BufferedImage bgTex = toBufferedImage(getImage("background"));
+//        final BufferedImage bgTex = toBufferedImage(getImage("background"));
+        final BufferedImage bgTex = ImageResources.getImage("background");
         final Rectangle2D canvas = new Rectangle2D.Double(0, 0, getWidth(), getHeight());
         final Rectangle2D tr = new Rectangle2D.Double(0, 0, bgTex.getWidth(), bgTex.getHeight());
 
@@ -136,37 +84,5 @@ public abstract class AbstractGamePanel extends JPanel {
     }
 
     protected abstract void drawGUI(final Graphics2D g2);
-
-    /**
-     * @param filename
-     *
-     * @return
-     *
-     * @deprecated must be replaced with ImageResources
-     */
-    @Deprecated
-    public Image getImage(final String filename) {
-        String file = path.concat(filename.endsWith(".png") ? filename : filename.concat(".png"));
-
-        return imageExists(file) ? tKit.getImage(file) : getImage("no_pic");
-    }
-
-    /**
-     * @param file path to file
-     *
-     * @return is specified file exists
-     */
-    private boolean imageExists(String file) {
-        Boolean exists = loadedImages.get(file);
-        if (exists == null) { // not checked?
-            exists = new File(file).exists(); // check
-            loadedImages.put(file, exists); // and save
-            if (!exists) {
-                System.err.println("Not found image for " + file);
-            }
-        }
-        return exists;
-
-    }
 
 }

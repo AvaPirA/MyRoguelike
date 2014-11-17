@@ -52,22 +52,12 @@ public class Armor implements Cloneable {
         return armor[index];
     }
 
-    public float[] getArmor() {
-        return armor;
-    }
-
     public Armor replaceBy(final Armor armor) {
         if (armor == null) {
             return this;
         }
         System.arraycopy(armor.armor, 0, this.armor, 0, TOTAL_DEF_TYPES);
         return this;
-    }
-
-    private void clear() {
-        for (int i = 0; i < TOTAL_DEF_TYPES; i++) {
-            armor[i] = 0;
-        }
     }
 
     @Override

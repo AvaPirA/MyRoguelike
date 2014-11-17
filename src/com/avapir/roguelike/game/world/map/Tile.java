@@ -51,7 +51,7 @@ public class Tile {
          */
         STAIR_DOWN,
         /**
-         * That tile is unpassable by default, but may be broken somehow. //todo
+         * That tile is not passable by default, but may be broken somehow. //todo
          */
         WALL
     }
@@ -74,7 +74,7 @@ public class Tile {
     private final Tile.Type initialType;
     /**
      * Character, which stays at this tile. It may be only one, so if some character want to stay on the engaged tile,
-     * he must kill {@link Tile#charHere}
+     * he must kill the one staying here
      */
     private Mob charHere = null;
     /**
@@ -144,7 +144,7 @@ public class Tile {
          */
         public static final int LIGHT_ON      = 1 << 2;
         /**
-         * Allows "sight rays" go throwg this tile.
+         * Allows "sight rays" go through this tile.
          */
         public static final int TRANSPARENT   = 1 << 3;
         public static final int F4            = 1 << 4;

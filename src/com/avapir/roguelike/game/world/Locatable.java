@@ -55,13 +55,4 @@ public abstract class Locatable {
         location = new Point(x, y);
     }
 
-    /**
-     * Sets new location of object by specified point
-     *
-     * @param p new location
-     */
-    public void setLocation(Point p) {
-        location = new Point(p);
-    }
-
 }
