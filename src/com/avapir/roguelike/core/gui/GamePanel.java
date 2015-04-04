@@ -8,9 +8,7 @@ import com.avapir.roguelike.core.controls.KeyboardHandler;
 import com.avapir.roguelike.core.resources.ImageResources;
 import com.avapir.roguelike.game.battle.Armor;
 import com.avapir.roguelike.game.battle.Attack;
-import com.avapir.roguelike.game.world.character.Hero;
-import com.avapir.roguelike.game.world.character.Hero.PrimaryStats;
-import com.avapir.roguelike.game.world.character.Mob;
+import com.avapir.roguelike.game.world.character.*;
 import com.avapir.roguelike.game.world.items.Item;
 import com.avapir.roguelike.game.world.items.ItemDatabase;
 import com.avapir.roguelike.game.world.map.Map;
@@ -107,11 +105,11 @@ public class GamePanel extends AbstractGamePanel {
             g2.drawString(String.format("[%s%%]", v), o.x + 80, o.y + 15);
 
             g2.setColor(new Color(80, 255, 0));
-            g2.drawString(String.format("%s/%s", roundOneDigit(hero.getHP()), Hero.StatsFormulas.getMaxHP(hero)), o.x,
+            g2.drawString(String.format("%s/%s", roundOneDigit(hero.getHP()), StatsFormulas.getMaxHP(hero)), o.x,
                           o.y + 50);
 
             g2.setColor(new Color(0, 80, 255));
-            g2.drawString(String.format("%s/%s", roundOneDigit(hero.getMP()), Hero.StatsFormulas.getMaxMP(hero)), o.x,
+            g2.drawString(String.format("%s/%s", roundOneDigit(hero.getMP()), StatsFormulas.getMaxMP(hero)), o.x,
                           o.y + 65);
         }
 
@@ -147,7 +145,7 @@ public class GamePanel extends AbstractGamePanel {
          * @param stat specified hero`s stat
          *
          * @return color from red to blue, through all spectre, which represents that stat-value from 0 to {@value
-         * com.avapir.roguelike.game.world.character.Hero.PrimaryStats#MAX_STAT_VALUE}
+         * com.avapir.roguelike.game.world.character.PrimaryStats#MAX_STAT_VALUE}
          */
         private Color getStatToColor(final int stat) {
             if (stat < 0) {
@@ -155,7 +153,7 @@ public class GamePanel extends AbstractGamePanel {
             }
 
             int r = 0, g = 0, b = 0;
-            final int factor = Hero.PrimaryStats.MAX_STAT_VALUE / 4;
+            final int factor = PrimaryStats.MAX_STAT_VALUE / 4;
             switch (stat / factor) {
                 case 0:
                     r = 255;
@@ -188,7 +186,7 @@ public class GamePanel extends AbstractGamePanel {
                 int max = 0;
                 final List<Integer> arr = new ArrayList<>();
                 GameStateManager gsm = GameStateManager.getInstance();
-                for (int i = 0; i < Hero.PrimaryStats.PRIMARY_STATS_AMOUNT; i++) {
+                for (int i = 0; i < PrimaryStats.PRIMARY_STATS_AMOUNT; i++) {
                     arr.add(Math.abs(Hero.getInstance().getStats().values(i)));
                     if (gsm.getState() == GameState.CHANGE_STATS) {
                         arr.add(Math.abs(Hero.getInstance().getStats().values(i) + gsm.getStatsHandler().getDiff()[i]));
@@ -429,8 +427,8 @@ public class GamePanel extends AbstractGamePanel {
         if (GameStateManager.getInstance().getState() == GameState.INVENTORY) {
             final int WIT = getWidthInTiles();
             final int HIT = getHeightInTiles();
-            int l = (WIT - Hero.InventoryHandler.LINE) / 2;
-            int r = (WIT + Hero.InventoryHandler.LINE) / 2;
+            int l = (WIT - InventoryHandler.LINE) / 2;
+            int r = (WIT + InventoryHandler.LINE) / 2;
             int t = 3;
             int d = t + Hero.getInstance().getInventory().getSize() + 1; // +1 == border
             //todo MAKE THIS SHIT AS SHADERS
