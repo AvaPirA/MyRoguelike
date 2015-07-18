@@ -2,6 +2,7 @@ package com.avapir.roguelike.core.statehandlers;
 
 import com.avapir.roguelike.core.GameStateManager;
 import com.avapir.roguelike.game.world.character.Hero;
+import com.avapir.roguelike.game.world.character.PrimaryStats;
 
 public class ChangingStatsHandler extends AbstractStateHandler {
 
@@ -10,7 +11,7 @@ public class ChangingStatsHandler extends AbstractStateHandler {
 
     public ChangingStatsHandler() {
         super();
-        diff = new int[Hero.PrimaryStats.PRIMARY_STATS_AMOUNT];
+        diff = new int[PrimaryStats.PRIMARY_STATS_AMOUNT];
     }
 
     public int getFreeDiff() {
@@ -59,7 +60,7 @@ public class ChangingStatsHandler extends AbstractStateHandler {
     }
 
     public void flush() {
-        for (int i = 0; i < Hero.PrimaryStats.PRIMARY_STATS_AMOUNT; i++) {
+        for (int i = 0; i < PrimaryStats.PRIMARY_STATS_AMOUNT; i++) {
             Hero.getInstance().getStats().changeStatBy(i, diff[i]);
         }
         Hero.getInstance().getStats().changeFreeBy(freeDiff);

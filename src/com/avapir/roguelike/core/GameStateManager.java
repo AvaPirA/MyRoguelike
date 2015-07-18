@@ -3,7 +3,8 @@ package com.avapir.roguelike.core;
 import com.avapir.roguelike.core.statehandlers.ChangingStatsHandler;
 import com.avapir.roguelike.core.statehandlers.InventoryHandler;
 import com.avapir.roguelike.game.world.character.Hero;
-import com.avapir.roguelike.game.world.character.Hero.PrimaryStats;
+import com.avapir.roguelike.game.world.character.PrimaryStats;
+import com.avapir.roguelike.game.world.character.StatsFormulas;
 import com.avapir.roguelike.game.world.map.MapHolder;
 import com.avapir.roguelike.game.world.map.Tile;
 
@@ -25,7 +26,7 @@ public class GameStateManager {
      * @author Alpen Ditrix
      * @since 0.0.1
      */
-    public static enum GameState {
+    public enum GameState {
         /**
          * Awaiting of hero's try to step to another tile. That's default state of game on start and after end of
          * previous turn
@@ -35,16 +36,15 @@ public class GameStateManager {
          * Showing to the player content of hero's inventory and equipment. Also provides ability to operate with items
          * at inventory
          *
-         * @see com.avapir.roguelike.game.world.character.Hero.InventoryHandler
+         * @see com.avapir.roguelike.game.world.character.InventoryHandler
          * @see com.avapir.roguelike.game.world.items.Item
          */
         INVENTORY,
         /**
          * Changing hero's stats on user's demand (and when hero has unclaimed stat-points)
          *
-         * @see com.avapir.roguelike.game.world.character.Hero.PrimaryStats
-         * @see com.avapir.roguelike.game.world.character.Hero.DefaultStats
-         * @see com.avapir.roguelike.game.world.character.Hero.StatsFormulas
+         * @see com.avapir.roguelike.game.world.character.PrimaryStats
+         * @see com.avapir.roguelike.game.world.character.StatsFormulas
          */
         CHANGE_STATS,
         /**
@@ -156,8 +156,7 @@ public class GameStateManager {
     public void EOT(final Point playerStep) {
         move(playerStep);
         // TODO SET GAME.BUSY
-        MapHolder.getInstance()
-                 .computeFOV(Hero.getInstance().getLoc(), Hero.StatsFormulas.getFovRadius(Hero.getInstance()));
+        MapHolder.getInstance().computeFOV(Hero.getInstance().getLoc(), StatsFormulas.getFovRadius(Hero.getInstance()));
         MapHolder.getInstance().doMobsAi();
 
         turnCounter++;

@@ -32,7 +32,7 @@ public class InventoryHandler extends AbstractStateHandler {
 
     @Override
     protected int checkRestoreX(final int x) {
-        int limitRight = focusOnEquipment ? 2 : Hero.InventoryHandler.LINE;
+        int limitRight = focusOnEquipment ? 2 : com.avapir.roguelike.game.world.character.InventoryHandler.LINE;
         return x < 0 ? 0 : x > limitRight ? limitRight : x;
     }
 
