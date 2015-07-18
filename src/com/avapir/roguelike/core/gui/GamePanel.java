@@ -16,6 +16,8 @@ import com.avapir.roguelike.game.world.map.MapHolder;
 import com.avapir.roguelike.game.world.map.Tile;
 
 import java.awt.*;
+import java.awt.font.TextAttribute;
+import java.text.AttributedString;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -301,9 +303,9 @@ public class GamePanel extends AbstractGamePanel {
             if (!s.startsWith("E")) {
                 g2.drawString(s, offset.x, offset.y + i * logFont.getSize() + 3);
             } else {
-                g2.setColor(new Color(255, 0, 0));
-                g2.drawString(s.substring(1), offset.x, offset.y + i * logFont.getSize() + 3);
-                g2.setColor(new Color(255, 255, 255));
+                AttributedString err = new AttributedString(s.substring(1));
+                err.addAttribute(TextAttribute.FOREGROUND, new Color(255, 0, 0));
+                g2.drawString(err.getIterator(), offset.x, offset.y + i * logFont.getSize() + 3);
             }
         }
     }
@@ -321,54 +323,59 @@ public class GamePanel extends AbstractGamePanel {
     }
 
     private void helpDialog(Graphics2D g2) {
-        String[] move = {"<Arrows>  -- go in specified direction", "       =  -- zoom in", "       -  -- zoom out",
-                "   <END>  -- end turn without step", "", "i  -- open Inventory", "d  -- make Distance Attack",
-                "v  -- switch to Viewer Mode", "c  -- change stats"};
-        String[] gameover = {"Press any key to exit"};
-        String[] stats = {"<Arrows>  -- choose stat and change it as you wish", "c  -- return to Moving"};
-        String[] view = {"v  -- return to Moving"};
-        String[] distance = {"d  -- return to Moving"};
-        String[] inventory = {"<ENTER>  -- equip or take off selected item", "s  -- switch cursor to " +
-                "inventory/equipment", "e  -- equip or take off selected item and switch cursor",
-                "i  -- return to Moving"};
+        AttributedString[] move = {new AttributedString("<Arrows>  -- go in specified direction"),
+                                   new AttributedString("       =  -- zoom in"),
+                                   new AttributedString("       -  -- zoom out"),
+                                   new AttributedString("   <END>  -- end turn without step"),
+                                   new AttributedString("       i  -- open Inventory"),
+                                   new AttributedString("       d  -- make Distance Attack"),
+                                   new AttributedString("       v  -- switch to Viewer Mode"),
+                                   new AttributedString("       c  -- change stats")};
+        AttributedString[] gameover = {new AttributedString("Press any key to exit")};
+        AttributedString[] stats = {new AttributedString("<Arrows>  -- choose stat and change it as you wish"),
+                                    new AttributedString("       c  -- return to Moving")};
+        AttributedString[] view = {new AttributedString("v  -- return to Moving")};
+        AttributedString[] distance = {new AttributedString("d  -- return to Moving")};
+        AttributedString[] inventory = {new AttributedString("<ENTER>  -- equip or take off selected item"),
+                                        new AttributedString("      s  -- switch cursor to " + "inventory/equipment"),
+                                        new AttributedString(
+                                                "      e  -- equip or take off selected item and switch cursor"),
+                                        new AttributedString("      i  -- return to " + "Moving")};
 
-        String[] toPrint;
-        g2.setColor(new Color(50, 50, 50, 128));
+        AttributedString[] toPrint;
         switch (GameStateManager.getInstance().getState()) {
             case MOVE:
-                g2.fillRect(200, 150, 350, 125);
                 toPrint = move;
                 break;
             case GAME_OVER:
-                g2.fillRect(200, 150, 210, 20);
                 toPrint = gameover;
                 break;
             case CHANGE_STATS:
-                g2.fillRect(200, 150, 460, 35);
                 toPrint = stats;
                 break;
             case VIEW:
-                g2.fillRect(200, 150, 210, 20);
                 toPrint = view;
                 break;
             case DISTANCE_ATTACK:
-                g2.fillRect(200, 150, 210, 20);
                 toPrint = distance;
                 break;
             case INVENTORY:
-                g2.fillRect(200, 150, 510, 60);
                 toPrint = inventory;
                 break;
             default:
                 throw new IllegalStateException("Wrong game state: " + GameStateManager.getInstance().getState());
 
         }
-        g2.setColor(new Color(200, 200, 0));
-        g2.setFont(new Font("Monospaced", Font.PLAIN, 15));
+        for (AttributedString as : toPrint) {
+            as.addAttribute(TextAttribute.FOREGROUND, new Color(200, 200, 0));
+            as.addAttribute(TextAttribute.BACKGROUND, new Color(50, 50, 50, 128));
+            as.addAttribute(TextAttribute.FONT, new Font("Monospaced", Font.PLAIN, 15));
+        }
         for (int i = 0; i < toPrint.length; i++) {
-            g2.drawString(toPrint[i], 205, 165 + i * 13);
+            g2.drawString(toPrint[i].getIterator(), 205, 165 + i * 19);
         }
     }
+
 
     private void gameOverDialog(Graphics2D g2) {
         final Image img = ImageResources.getImage("gameover");
